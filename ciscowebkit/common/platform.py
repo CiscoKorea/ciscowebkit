@@ -24,37 +24,36 @@ class Manager(SingleTon):
         self.__load_templates__()
         self.__load_features__()
         
-        print 'PRODUCTS      :', inf(self.products)
-        print 'PRODUCT ORDER :', self.product_order
+        print inf(M(products=self.products, order=self.product_order))
         
     def action(self, request):
         paths = filter(None, request.path.split('/'))
         pathlen = len(paths)
         p_name = paths[0]
         
-#         try:
-        if pathlen == 1:
-            feature = self.products[p_name].overview
-            try: view = feature.__obj__.action(request)
-            except: HttpResponse(self.internal_error_tpl)
-            return HttpResponse(self.render_feature(p_name, 'overview', feature.__view__, feature.__desc__, view, None))
-        elif pathlen == 2:
-            f_name = paths[1]
-            feature = self.products[p_name][f_name]
-            try: view = feature.__obj__.action(request)
-            except: HttpResponse(self.internal_error_tpl)
-            return HttpResponse(self.render_feature(p_name, f_name, feature.__view__, feature.__desc__, view, None))
-        elif pathlen == 3:
-            f_name = paths[1]
-            s_name = paths[2]
-            feature = self.products[p_name][f_name][s_name]
-            try: view = feature.__obj__.action(request)
-            except: HttpResponse(self.internal_error_tpl)
-            return HttpResponse(self.render_feature(p_name, (f_name, s_name), feature.__view__, feature.__desc__, view, None))
-        else:
+        try:
+            if pathlen == 1:
+                feature = self.products[p_name].overview
+                try: view = feature.__obj__.action(request)
+                except: HttpResponse(self.internal_error_tpl)
+                return HttpResponse(self.render_feature(p_name, 'overview', feature.__view__, feature.__desc__, view, None))
+            elif pathlen == 2:
+                f_name = paths[1]
+                feature = self.products[p_name][f_name]
+                try: view = feature.__obj__.action(request)
+                except: HttpResponse(self.internal_error_tpl)
+                return HttpResponse(self.render_feature(p_name, f_name, feature.__view__, feature.__desc__, view, None))
+            elif pathlen == 3:
+                f_name = paths[1]
+                s_name = paths[2]
+                feature = self.products[p_name][f_name][s_name]
+                try: view = feature.__obj__.action(request)
+                except: HttpResponse(self.internal_error_tpl)
+                return HttpResponse(self.render_feature(p_name, (f_name, s_name), feature.__view__, feature.__desc__, view, None))
+            else:
+                return HttpResponse(self.page_not_found_tpl)
+        except:
             return HttpResponse(self.page_not_found_tpl)
-#         except:
-#             return HttpResponse(self.page_not_found_tpl)
 
     def render_feature(self, p_name, f_name, title, desc, view, status):
         

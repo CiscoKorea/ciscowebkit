@@ -16,22 +16,11 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
+from . import views
+
 urlpatterns = [
-               
-    #===========================================================================
-    # Django Admin & Development
-    #===========================================================================
     url(r'^admin/', admin.site.urls),
-    url(r'^test/', include('ciscowebkit.test_urls')),
-    
-    #===========================================================================
-    # Cisco Products    
-    #===========================================================================
-    url(r'^aci/', include('ciscowebkit.product.ACI.urls')),
-    
-    #===========================================================================
-    # Cisco Webkit Dashboard           
-    #===========================================================================
     url(r'^dashboard/', include('ciscowebkit.dashboard.urls')),
+    url(r'^.*/', views.action),
     url(r'^', include('ciscowebkit.dashboard.urls')),
 ]
