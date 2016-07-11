@@ -13,10 +13,9 @@ from ciscowebkit.common.pygics import instof, classof, nameof, tagof, iterkv, it
 from ciscowebkit.common.pygics import SingleTon, L, M
 from ciscowebkit.common.pygics import Module, NameSpace, Dir
 
-from ciscowebkit.common import Feature, __Default_Feature__, Overview, Setting
+from ciscowebkit.common import FeatureInterface, Feature, SubFeature, Overview, Setting
 
 from ciscowebkit.product import PRODUCT_ORDER
-
 
 class Manager(SingleTon):
     
@@ -60,23 +59,30 @@ class Manager(SingleTon):
         products = ''
         for p in self.product_order:
             if p in self.products:
-                if p == p_name: products += self.products[p].__link__ # ACTIVE
-                else: products += self.products[p].__link__
+                if p == p_name: products += '<a class="navbar-product-active" href="%s">%s</a>' % (self.products[p].__url__, self.products[p].__view__)
+                else: products += '<a class="navbar-product" href="%s">%s</a>' % (self.products[p].__url__, self.products[p].__view__)
+                
+        if instof(f_name, tuple):
+            s_name = f_name[1]
+            m_name = f_name[0]
+        else:
+            s_name = None
+            m_name = f_name
         
         features = ''
         nowsub = None
         for f in self.products[p_name].__fo__:
             if instof(f, tuple):
                 if nowsub == None:
-                    if f == f_name: features += '<li class="active"><a href="javascript:;" data-toggle="collapse" data-target="#%s"><i class="fa fa-fw fa-arrows-v"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="%s" class="collapse">' % (f[0], f[0], f[0])
-                    else: features += '<li><a href="javascript:;" data-toggle="collapse" data-target="#%s"><i class="fa fa-fw fa-arrows-v"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="%s" class="collapse">' % (f[0], f[0], f[0])
+                    if f[0] == m_name: features += '<li class="active"><a href="javascript:;" data-toggle="collapse" data-target="#%s" class aria-expanded="true"><i class="fa fa-fw %s"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="%s" class="collapse in" aria-expanded="true">' % (f[0], self.products[p_name][f[0]].__icon__, self.products[p_name][f[0]].__view__, f[0])
+                    else: features += '<li><a href="javascript:;" data-toggle="collapse" data-target="#%s" class="collapsed" aria-expanded="false"><i class="fa fa-fw %s"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="%s" class="collapse" aria-expanded="false">' % (f[0], self.products[p_name][f[0]].__icon__, self.products[p_name][f[0]].__view__, f[0])
                     nowsub = f[0]
                 elif nowsub != None and nowsub != f[0]:
-                    features += '</ul></li>'
-                    if f == f_name: features += '<li class="active"><a href="javascript:;" data-toggle="collapse" data-target="#%s"><i class="fa fa-fw fa-arrows-v"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="%s" class="collapse">' % (f[0], f[0], f[0])
-                    else: features += '<li><a href="javascript:;" data-toggle="collapse" data-target="#%s"><i class="fa fa-fw fa-arrows-v"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="%s" class="collapse">' % (f[0], f[0], f[0])
+                    if f[0] == m_name: features += '</ul></li><li class="active"><a href="javascript:;" data-toggle="collapse" data-target="#%s" class aria-expanded="true"><i class="fa fa-fw %s"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="%s" class="collapse in" aria-expanded="true">' % (f[0], self.products[p_name][f[0]].__icon__, self.products[p_name][f[0]].__view__, f[0])
+                    else: features += '</ul></li><li><a href="javascript:;" data-toggle="collapse" data-target="#%s" class="collapsed" aria-expanded="false"><i class="fa fa-fw %s"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="%s" class="collapse" aria-expanded="false">' % (f[0], self.products[p_name][f[0]].__icon__, self.products[p_name][f[0]].__view__, f[0])
                     nowsub = f[0]
-                features += '<li>' + self.products[p_name][f[0]][f[1]].__link__ + '</li>'
+                if f[1] == s_name: features += '<li class="active">' + self.products[p_name][f[0]][f[1]].__link__ + '</li>'
+                else: features += '<li>' + self.products[p_name][f[0]][f[1]].__link__ + '</li>'
             else:
                 if nowsub != None:
                     features += '</ul></li>'
@@ -138,29 +144,30 @@ class Manager(SingleTon):
                 self.products[p_name][f_name]['__view__'] = f_view
                 self.products[p_name][f_name]['__url__'] = f_url
                 
-                if len(f_mod) > 1: # Sub Feature
-                    self.products[p_name][f_name]['__type__'] = 'sub'
-                    for s_r_name, s_cls in iterkv(f_mod):
-                        s_name = s_r_name.lower()
-                        s_view = s_r_name.replace('_', ' ')
-                        s_url = f_url + s_name + '/'
-                        self.products[p_name][f_name][s_name] = M()
-                        self.products[p_name][f_name][s_name]['__view__'] = s_view
-                        self.products[p_name][f_name][s_name]['__url__'] = s_url
-                        self.products[p_name][f_name][s_name]['__obj__'] = s_cls.NEW()
-                        self.products[p_name][f_name][s_name]['__icon__'] = s_cls.ICON
-                        self.products[p_name][f_name][s_name]['__link__'] = '<a href="%s"><i class="%s"></i> %s</a>' % (s_url, s_cls.ICON, s_view)
-                        if s_cls.__doc__ != None: self.products[p_name][f_name][s_name]['__desc__'] = ' : ' + s_cls.__doc__
-                        if s_cls.__doc__ == None: self.products[p_name][f_name][s_name]['__desc__'] = ''
-                else:
-                    for s_cls in iterval(f_mod):
-                        self.products[p_name][f_name]['__type__'] = 'single'
-                        self.products[p_name][f_name]['__obj__'] = s_cls.NEW()
-                        self.products[p_name][f_name]['__desc__'] = s_cls.__doc__
-                        self.products[p_name][f_name]['__icon__'] = s_cls.ICON
-                        self.products[p_name][f_name]['__link__'] = '<a href="%s"><i class="%s"></i> %s</a>' % (f_url, s_cls.ICON, f_view)
-                        if s_cls.__doc__ != None: self.products[p_name][f_name]['__desc__'] = ' : ' + s_cls.__doc__
-                        if s_cls.__doc__ == None: self.products[p_name][f_name]['__desc__'] = ''
+                for cls_r_name, cls_obj in iterkv(f_mod):
+                    
+                    print cls_r_name,
+                    
+                    if classof(cls_obj, SubFeature):
+                        print 'SubFeature'
+                        cls_name = cls_r_name.lower()
+                        cls_view = cls_r_name.replace('_', ' ')
+                        cls_url = f_url + cls_name + '/'
+                        self.products[p_name][f_name][cls_name] = M()
+                        self.products[p_name][f_name][cls_name]['__view__'] = cls_view
+                        self.products[p_name][f_name][cls_name]['__url__'] = cls_url
+                        self.products[p_name][f_name][cls_name]['__obj__'] = cls_obj.NEW()
+                        self.products[p_name][f_name][cls_name]['__icon__'] = cls_obj.GET()._icon_
+                        self.products[p_name][f_name][cls_name]['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (cls_url, cls_obj.GET()._icon_, cls_view)
+                        if cls_obj.__doc__ != None: self.products[p_name][f_name][cls_name]['__desc__'] = ' ' + cls_obj.__doc__
+                        if cls_obj.__doc__ == None: self.products[p_name][f_name][cls_name]['__desc__'] = ''
+                    else:
+                        print 'MainFeature'
+                        self.products[p_name][f_name]['__obj__'] = cls_obj.NEW()
+                        self.products[p_name][f_name]['__icon__'] = cls_obj.GET()._icon_
+                        self.products[p_name][f_name]['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (f_url, cls_obj.GET()._icon_, f_view)
+                        if cls_obj.__doc__ != None: self.products[p_name][f_name]['__desc__'] = ' : ' + cls_obj.__doc__
+                        if cls_obj.__doc__ == None: self.products[p_name][f_name]['__desc__'] = ''
             
             # Ordering
             def_mod = Module(p_path + '/feature/__init__.py', force=True)
@@ -172,26 +179,24 @@ class Manager(SingleTon):
             self.products[p_name].__fo__ << 'setting'
             
             # Add Overview & Setting
-            def_mod = Module(p_path + '/feature/__init__.py', inherited=nameof(__Default_Feature__), force=True)
+            def_mod = Module(p_path + '/feature/__init__.py', inherited=nameof(FeatureInterface), force=True)
             for f_cls in iterval(def_mod):
                 if classof(f_cls, Overview) and nameof(f_cls) != nameof(Overview):
                     self.products[p_name]['overview'] = M()
-                    self.products[p_name]['overview']['__type__'] = 'single'
                     self.products[p_name]['overview']['__view__'] = 'Overview'
                     self.products[p_name]['overview']['__url__'] = p_url + 'overview/'
                     self.products[p_name]['overview']['__obj__'] = f_cls.NEW()
-                    self.products[p_name]['overview']['__icon__'] = f_cls.ICON
-                    self.products[p_name]['overview']['__link__'] = '<a href="%s"><i class="%s"></i> %s</a>' % (p_url + 'overview/', f_cls.ICON, 'Overview')
+                    self.products[p_name]['overview']['__icon__'] = f_cls.GET()._icon_
+                    self.products[p_name]['overview']['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (p_url + 'overview/', f_cls.GET()._icon_, 'Overview')
                     if f_cls.__doc__ != None: self.products[p_name]['overview']['__desc__'] = ' : ' + f_cls.__doc__
                     if f_cls.__doc__ == None: self.products[p_name]['overview']['__desc__'] = ''
                 elif classof(f_cls, Setting) and nameof(f_cls) != nameof(Setting):
                     self.products[p_name]['setting'] = M()
-                    self.products[p_name]['setting']['__type__'] = 'single'
                     self.products[p_name]['setting']['__view__'] = 'Setting'
                     self.products[p_name]['setting']['__url__'] = p_url + 'setting/'
                     self.products[p_name]['setting']['__obj__'] = f_cls.NEW()
-                    self.products[p_name]['setting']['__icon__'] = f_cls.ICON
-                    self.products[p_name]['setting']['__link__'] = '<a href="%s"><i class="%s"></i> %s</a>' % (p_url + 'setting/', f_cls.ICON, 'Setting')
+                    self.products[p_name]['setting']['__icon__'] = f_cls.GET()._icon_
+                    self.products[p_name]['setting']['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (p_url + 'setting/', f_cls.GET()._icon_, 'Setting')
                     if f_cls.__doc__ != None: self.products[p_name]['setting']['__desc__'] = ' : ' + f_cls.__doc__
                     if f_cls.__doc__ == None: self.products[p_name]['setting']['__desc__'] = ''
                 

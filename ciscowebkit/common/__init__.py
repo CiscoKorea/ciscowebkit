@@ -1,43 +1,33 @@
 from ciscowebkit.common.pygics import SingleTon
 
-ICON_DASHBOARD = 'fa fa-fw fa-dashboard'
-ICON_CHART = 'fa fa-fw fa-bar-chart-o'
-ICON_TABLE = 'fa fa-fw fa-table'
-ICON_EDIT = 'fa fa-fw fa-edit'
-ICON_DESKTOP = 'fa fa-fw fa-desktop'
-ICON_SETTING = 'fa fa-fw fa-wrench'
-ICON_UPDOWN = 'fa fa-fw fa-arrows-v'
-ICON_DROPDOWN = 'fa fa-fw fa-caret-down'
-ICON_FILE = 'fa fa-fw fa-file'
-ICON_MAIL = 'fa fa-envelope'
-ICON_BELL = 'fa fa-bell'
-ICON_USER = 'fa fa-user'
+# http://fontawesome.io/icons/
 
-class Feature(SingleTon):
+class FeatureInterface(SingleTon):
     
-    ICON = ICON_FILE
-    
-    def __init__(self, **kargs): pass
+    def __init__(self, icon=None, **kargs):
+        if icon: self._icon_ = icon
+        else: self._icon_ = 'fa-file'
     
     def action(self, request):
         return 'Not Implemented'
 
-class __Default_Feature__(SingleTon):
+class Feature(FeatureInterface):
     
-    def __init__(self, **kargs): pass
+    def __init__(self, icon=None, **kargs):
+        FeatureInterface.__init__(self, icon, **kargs)
+        
+class SubFeature(Feature):
+    
+    def __init__(self, icon=None, **kargs):
+        Feature.__init__(self, icon, **kargs)
 
-    def action(self, request):
-        return 'Not Implemented'
-
-class Overview(__Default_Feature__):
+class Overview(FeatureInterface):
     
-    ICON = ICON_DASHBOARD
+    def __init__(self, **kargs):
+        FeatureInterface.__init__(self, 'fa-newspaper-o', **kargs)
     
-    def __init__(self, **kargs): __Default_Feature__.__init__(self, **kargs)
+class Setting(FeatureInterface):
     
-class Setting(__Default_Feature__):
-    
-    ICON = ICON_SETTING
-    
-    def __init__(self, **kargs): __Default_Feature__.__init__(self, **kargs)
+    def __init__(self, **kargs):
+        FeatureInterface.__init__(self, 'fa-wrench', **kargs)
     

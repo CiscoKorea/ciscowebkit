@@ -158,6 +158,13 @@ ul.alert-dropdown {
     color: #fff;
 }
 
+.side-nav>li>ul>li.active>a,
+.side-nav>li>ul>li.active>a:hover,
+.side-nav>li>ul>li.active>a:focus {
+  color: #fff;
+  background-color: #141414;
+}
+
 /* Flot Chart Containers */
 
 .flot-chart {

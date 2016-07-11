@@ -1,9 +1,11 @@
-FEATURE_ORDER = ['Show.APIC',
-                 'Show.Switch',
-                 'Show.EPG',
-                 'Show.EP',
-                 'Stats.INTF_Util',
-                 'Stats.EPG_Util',]
+FEATURE_ORDER = [
+                 'Feature1',
+                 'Feature2.Object_1',
+                 'Feature2.Object_2',
+                 'Feature3',
+                 'Feature4.Object_1',
+                 'Feature4.Object_2',
+                ]
 
 from ciscowebkit.common import Overview, Setting
 
