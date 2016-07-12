@@ -5,6 +5,7 @@ Created on 2016. 7. 5.
 '''
 
 import os
+import string
 
 from django.template import Template, Context, loader
 from django.http import HttpResponse
@@ -19,21 +20,31 @@ from ciscowebkit.product import PRODUCT_ORDER
 
 class Manager(SingleTon):
     
-    class ViewData(M):
+    class ListView(L):
         
         def __init__(self):
+            L.__init__(self)
+        
+        def addView(self, view, present='large', size=12):
+            pr = 'lg'
+            if present == 'large': pr = 'lg'
+            elif present == 'midium': pr = 'md'
+            elif present == 'small': pr = 'sm'
+            if instof(size, int): sz = '%d' % size
+            elif instof(size, str): sz = size
+            self << M(view=view, pr=pr, sz=sz)
+    
+    class ViewData(M):
+        
+        def __init__(self, title='', icon='fa-database'):
             M.__init__(self)
-            self['title'] = ''
-            self['icon'] = 'fa-database'
-            
-        def setTitle(self, title='', icon='fa-database'):
             self['title'] = title
             self['icon'] = icon
             
     class TableData(ViewData):
 
-        def __init__(self):
-            Manager.ViewData.__init__(self)
+        def __init__(self, title='', icon='fa-table'):
+            Manager.ViewData.__init__(self, title, icon)
             self['head'] = L()
             self['datas'] = L()
         
@@ -47,6 +58,12 @@ class Manager(SingleTon):
     
     @classmethod
     def render(cls, data):
+        if instof(data, Manager.ListView):
+            views = Manager.ListView()
+            for elem in data:
+                elem_view = cls.render(elem.view)
+                views.addView(elem_view, elem.pr, elem.sz)
+            return cls.GET().listview_tpl.render({'views':views})
         if instof(data, Manager.TableData):
             return cls.GET().table_tpl.render({'title':data.title,'icon':data.icon,'head':data.head, 'datas':data.datas})
         return cls.GET().internal_error_tpl
@@ -62,10 +79,95 @@ class Manager(SingleTon):
         self.feature_tpl = loader.get_template('feature.html')
         self.status_tpl = loader.get_template('status.html')
         
+        self.listview_tpl = loader.get_template('elements/listview.html')
         self.table_tpl = loader.get_template('elements/table.html')
         
         self.page_not_found_tpl = Template('<h1>Page Not Found</h1>').render(Context())
         self.internal_error_tpl = Template('<h1>Internal Error</h1>').render(Context())
+    
+    def __load_features__(self):
+        self.products = M()
+        self.product_order = L()
+        for po in PRODUCT_ORDER: self.product_order << po.lower()
+        
+        p_paths = Dir.showall('ciscowebkit/product/')
+        for p_path in p_paths:
+            if not Dir.isDir(p_path) or not Dir.isDir(p_path + '/feature'): continue
+            if not Dir.isDir(p_path + '/feature'): continue
+            p_r_name = os.path.split(p_path)[-1]
+            p_name = p_r_name.lower()
+            p_view = p_r_name.replace('_', ' ')
+            p_url = '/' + p_name + '/'
+            self.products[p_name] = M()
+            self.products[p_name]['__view__'] = p_view
+            self.products[p_name]['__url__'] = p_url
+            self.products[p_name]['__link__'] = '<a class="navbar-brand" href="%s">%s</a>' % (p_url, p_view)
+            
+            # Add-on Feature
+            features = NameSpace(p_path + '/feature', inherited=nameof(Feature), force=True)
+            for f_r_name, f_mod in iterkv(features):
+                f_name = f_r_name.lower()
+                f_view = f_r_name.replace('_', ' ')
+                f_url = p_url + f_name + '/'
+                self.products[p_name][f_name] = M()
+                self.products[p_name][f_name]['__view__'] = f_view
+                self.products[p_name][f_name]['__url__'] = f_url
+                
+                for cls_r_name, cls_obj in iterkv(f_mod):
+                    
+                    print cls_r_name, ':',
+                    
+                    if classof(cls_obj, SubFeature):
+                        print 'SubFeature'
+                        cls_name = cls_r_name.lower()
+                        cls_view = cls_r_name.replace('_', ' ')
+                        cls_url = f_url + cls_name + '/'
+                        self.products[p_name][f_name][cls_name] = M()
+                        self.products[p_name][f_name][cls_name]['__view__'] = cls_view
+                        self.products[p_name][f_name][cls_name]['__url__'] = cls_url
+                        self.products[p_name][f_name][cls_name]['__obj__'] = cls_obj.NEW()
+                        self.products[p_name][f_name][cls_name]['__icon__'] = cls_obj.GET()._icon_
+                        self.products[p_name][f_name][cls_name]['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (cls_url, cls_obj.GET()._icon_, cls_view)
+                        if cls_obj.__doc__ != None: self.products[p_name][f_name][cls_name]['__desc__'] = ' ' + cls_obj.__doc__
+                        if cls_obj.__doc__ == None: self.products[p_name][f_name][cls_name]['__desc__'] = ''
+                    else:
+                        print 'MainFeature'
+                        self.products[p_name][f_name]['__obj__'] = cls_obj.NEW()
+                        self.products[p_name][f_name]['__icon__'] = cls_obj.GET()._icon_
+                        self.products[p_name][f_name]['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (f_url, cls_obj.GET()._icon_, f_view)
+                        if cls_obj.__doc__ != None: self.products[p_name][f_name]['__desc__'] = ' : ' + cls_obj.__doc__
+                        if cls_obj.__doc__ == None: self.products[p_name][f_name]['__desc__'] = ''
+            
+            # Ordering
+            def_mod = Module(p_path + '/feature/__init__.py', force=True)
+            self.products[p_name]['__fo__'] = L()
+            self.products[p_name].__fo__ << 'overview'
+            for fo in def_mod.FEATURE_ORDER:
+                if '.' in fo: self.products[p_name].__fo__ << (fo.lower().split('.')[0], fo.lower().split('.')[1])
+                else: self.products[p_name].__fo__ << fo.lower()
+            self.products[p_name].__fo__ << 'setting'
+            
+            # Add Overview & Setting
+            def_mod = Module(p_path + '/feature/__init__.py', inherited=nameof(FeatureInterface), force=True)
+            for f_cls in iterval(def_mod):
+                if classof(f_cls, Overview) and nameof(f_cls) != nameof(Overview):
+                    self.products[p_name]['overview'] = M()
+                    self.products[p_name]['overview']['__view__'] = 'Overview'
+                    self.products[p_name]['overview']['__url__'] = p_url + 'overview/'
+                    self.products[p_name]['overview']['__obj__'] = f_cls.NEW()
+                    self.products[p_name]['overview']['__icon__'] = f_cls.GET()._icon_
+                    self.products[p_name]['overview']['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (p_url + 'overview/', f_cls.GET()._icon_, 'Overview')
+                    if f_cls.__doc__ != None: self.products[p_name]['overview']['__desc__'] = ' : ' + f_cls.__doc__
+                    if f_cls.__doc__ == None: self.products[p_name]['overview']['__desc__'] = ''
+                elif classof(f_cls, Setting) and nameof(f_cls) != nameof(Setting):
+                    self.products[p_name]['setting'] = M()
+                    self.products[p_name]['setting']['__view__'] = 'Setting'
+                    self.products[p_name]['setting']['__url__'] = p_url + 'setting/'
+                    self.products[p_name]['setting']['__obj__'] = f_cls.NEW()
+                    self.products[p_name]['setting']['__icon__'] = f_cls.GET()._icon_
+                    self.products[p_name]['setting']['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (p_url + 'setting/', f_cls.GET()._icon_, 'Setting')
+                    if f_cls.__doc__ != None: self.products[p_name]['setting']['__desc__'] = ' : ' + f_cls.__doc__
+                    if f_cls.__doc__ == None: self.products[p_name]['setting']['__desc__'] = ''
     
     def __action_method__(self, request, obj):
         if request.method == 'GET': view = obj.get(request)
@@ -128,7 +230,6 @@ class Manager(SingleTon):
             return HttpResponse(self.page_not_found_tpl)
 
     def __render_feature__(self, p_name, f_name, title, desc, view, status):
-        
         products = ''
         for p in self.product_order:
             if p in self.products:
@@ -180,87 +281,4 @@ class Manager(SingleTon):
                                           'status' : self.status_tpl.render(),
                                           'widgets' : widgets})
         
-    def __load_features__(self):
-        
-        self.products = M()
-        self.product_order = L()
-        for po in PRODUCT_ORDER: self.product_order << po.lower()
-        
-        p_paths = Dir.showall('ciscowebkit/product/')
-        for p_path in p_paths:
-            if not Dir.isDir(p_path) or not Dir.isDir(p_path + '/feature'): continue
-            if not Dir.isDir(p_path + '/feature'): continue
-            p_r_name = os.path.split(p_path)[-1]
-            p_name = p_r_name.lower()
-            p_view = p_r_name.replace('_', ' ')
-            p_url = '/' + p_name + '/'
-            self.products[p_name] = M()
-            self.products[p_name]['__view__'] = p_view
-            self.products[p_name]['__url__'] = p_url
-            self.products[p_name]['__link__'] = '<a class="navbar-brand" href="%s">%s</a>' % (p_url, p_view)
-            
-            # Add-on Feature
-            features = NameSpace(p_path + '/feature', inherited=nameof(Feature), force=True)
-            for f_r_name, f_mod in iterkv(features):
-                f_name = f_r_name.lower()
-                f_view = f_r_name.replace('_', ' ')
-                f_url = p_url + f_name + '/'
-                self.products[p_name][f_name] = M()
-                self.products[p_name][f_name]['__view__'] = f_view
-                self.products[p_name][f_name]['__url__'] = f_url
-                
-                for cls_r_name, cls_obj in iterkv(f_mod):
-                    
-                    print cls_r_name,
-                    
-                    if classof(cls_obj, SubFeature):
-                        print 'SubFeature'
-                        cls_name = cls_r_name.lower()
-                        cls_view = cls_r_name.replace('_', ' ')
-                        cls_url = f_url + cls_name + '/'
-                        self.products[p_name][f_name][cls_name] = M()
-                        self.products[p_name][f_name][cls_name]['__view__'] = cls_view
-                        self.products[p_name][f_name][cls_name]['__url__'] = cls_url
-                        self.products[p_name][f_name][cls_name]['__obj__'] = cls_obj.NEW()
-                        self.products[p_name][f_name][cls_name]['__icon__'] = cls_obj.GET()._icon_
-                        self.products[p_name][f_name][cls_name]['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (cls_url, cls_obj.GET()._icon_, cls_view)
-                        if cls_obj.__doc__ != None: self.products[p_name][f_name][cls_name]['__desc__'] = ' ' + cls_obj.__doc__
-                        if cls_obj.__doc__ == None: self.products[p_name][f_name][cls_name]['__desc__'] = ''
-                    else:
-                        print 'MainFeature'
-                        self.products[p_name][f_name]['__obj__'] = cls_obj.NEW()
-                        self.products[p_name][f_name]['__icon__'] = cls_obj.GET()._icon_
-                        self.products[p_name][f_name]['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (f_url, cls_obj.GET()._icon_, f_view)
-                        if cls_obj.__doc__ != None: self.products[p_name][f_name]['__desc__'] = ' : ' + cls_obj.__doc__
-                        if cls_obj.__doc__ == None: self.products[p_name][f_name]['__desc__'] = ''
-            
-            # Ordering
-            def_mod = Module(p_path + '/feature/__init__.py', force=True)
-            self.products[p_name]['__fo__'] = L()
-            self.products[p_name].__fo__ << 'overview'
-            for fo in def_mod.FEATURE_ORDER:
-                if '.' in fo: self.products[p_name].__fo__ << (fo.lower().split('.')[0], fo.lower().split('.')[1])
-                else: self.products[p_name].__fo__ << fo.lower()
-            self.products[p_name].__fo__ << 'setting'
-            
-            # Add Overview & Setting
-            def_mod = Module(p_path + '/feature/__init__.py', inherited=nameof(FeatureInterface), force=True)
-            for f_cls in iterval(def_mod):
-                if classof(f_cls, Overview) and nameof(f_cls) != nameof(Overview):
-                    self.products[p_name]['overview'] = M()
-                    self.products[p_name]['overview']['__view__'] = 'Overview'
-                    self.products[p_name]['overview']['__url__'] = p_url + 'overview/'
-                    self.products[p_name]['overview']['__obj__'] = f_cls.NEW()
-                    self.products[p_name]['overview']['__icon__'] = f_cls.GET()._icon_
-                    self.products[p_name]['overview']['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (p_url + 'overview/', f_cls.GET()._icon_, 'Overview')
-                    if f_cls.__doc__ != None: self.products[p_name]['overview']['__desc__'] = ' : ' + f_cls.__doc__
-                    if f_cls.__doc__ == None: self.products[p_name]['overview']['__desc__'] = ''
-                elif classof(f_cls, Setting) and nameof(f_cls) != nameof(Setting):
-                    self.products[p_name]['setting'] = M()
-                    self.products[p_name]['setting']['__view__'] = 'Setting'
-                    self.products[p_name]['setting']['__url__'] = p_url + 'setting/'
-                    self.products[p_name]['setting']['__obj__'] = f_cls.NEW()
-                    self.products[p_name]['setting']['__icon__'] = f_cls.GET()._icon_
-                    self.products[p_name]['setting']['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (p_url + 'setting/', f_cls.GET()._icon_, 'Setting')
-                    if f_cls.__doc__ != None: self.products[p_name]['setting']['__desc__'] = ' : ' + f_cls.__doc__
-                    if f_cls.__doc__ == None: self.products[p_name]['setting']['__desc__'] = ''
+    
