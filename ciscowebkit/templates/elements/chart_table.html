@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div class="panel panel-{{ panel }}">
 	<div class="panel-heading">
 		<h3 class="panel-title">
 			<i class="fa {{ icon }}"></i> {{ title }}
@@ -6,7 +6,7 @@
 	</div>
 	<div class="panel-body">
 		<div class="table-responsive">
-			<table class="table table-bordered table-hover table-striped">
+			<table class="table table-bordered table-hover {% if isstripe %}table-striped{% endif %}">
 				<thead>
 					<tr>{% for col in head %}<th>{{ col }}</th>{% endfor %}</tr>
 				</thead>
@@ -26,5 +26,3 @@
 		</div>
 	</div>
 </div>
-
-

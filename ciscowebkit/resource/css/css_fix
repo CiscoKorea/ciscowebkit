@@ -30,12 +30,6 @@ bootstrap.min.css
 TO
 .page-header{padding-bottom:9px;margin:40px 0 20px;border-bottom:1px solid #eee;color:#aaa}
 
-
-body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff}
-To
-body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#aaa;background-color:#fff}
-
-
 .navbar-inverse .navbar-brand:focus,.navbar-inverse .navbar-brand:hover{color:#fff;background-color:transparent}
 TO
 .navbar-inverse .navbar-brand:focus,.navbar-inverse .navbar-brand:hover{color:#fff;background-color:#080808}

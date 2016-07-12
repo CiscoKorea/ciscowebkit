@@ -6,12 +6,13 @@ Created on 2016. 7. 5.
 
 import os
 import string
+import uuid
 
 from django.template import Template, Context, loader
 from django.http import HttpResponse
 
 from ciscowebkit.common.pygics import instof, classof, nameof, iterkv, iterval, inf
-from ciscowebkit.common.pygics import SingleTon, L, M
+from ciscowebkit.common.pygics import SingleTon, Struct, L, M
 from ciscowebkit.common.pygics import Module, NameSpace, Dir
 
 from ciscowebkit.common import FeatureInterface, Feature, SubFeature, Overview, Setting
@@ -19,6 +20,14 @@ from ciscowebkit.common import FeatureInterface, Feature, SubFeature, Overview, 
 from ciscowebkit.product import PRODUCT_ORDER
 
 class Manager(SingleTon):
+    
+    class __ViewData__(M):
+        
+        def __init__(self, title='', icon='fa-database', panel='default'):
+            M.__init__(self)
+            self['title'] = title
+            self['icon'] = icon
+            self['panel'] = panel
     
     class ListView(L):
         
@@ -33,20 +42,35 @@ class Manager(SingleTon):
             if instof(size, int): sz = '%d' % size
             elif instof(size, str): sz = size
             self << M(view=view, pr=pr, sz=sz)
-    
-    class ViewData(M):
-        
-        def __init__(self, title='', icon='fa-database'):
-            M.__init__(self)
-            self['title'] = title
-            self['icon'] = icon
             
-    class TableData(ViewData):
+    class PANEL:
+        
+        DEFAULT = 'default'
+        RED = 'red'
+        GREEN = 'green'
+        YELLOW = 'yellow'
+        BLUE = 'primary'
+        PRIME = 'primary'
+        SUCCESS = 'success'
+        INFO = 'info'
+        WARN = 'warning'
+        DANGER = 'danger'
+        
+    class TableData(__ViewData__):
+        
+        ACTIVE = 'active'
+        SUCCESS = 'success'
+        WARNING = 'warning'
+        DANGER = 'danger'
 
-        def __init__(self, title='', icon='fa-table'):
-            Manager.ViewData.__init__(self, title, icon)
+        def __init__(self, title='', icon='fa-table', panel='default'):
+            Manager.__ViewData__.__init__(self, title, icon, panel)
             self['head'] = L()
+            self['isstripe'] = False
             self['datas'] = L()
+            
+        def setStripe(self):
+            self['isstripe'] = True
         
         def setHead(self, *argv):
             self['head'] = L(*argv)
@@ -55,6 +79,47 @@ class Manager(SingleTon):
             option = M(css='')
             if 'type' in kargs: option['css'] = kargs['type']
             self.datas << M(record=argv, option=option)
+    
+    class LineData(__ViewData__):
+        
+        def __init__(self, title='', icon='fa-line-chart', panel='default'):
+            Manager.__ViewData__.__init__(self, title, icon, panel)
+            self['id'] = str(uuid.uuid4())
+            self['xmin'] = 0
+            self['xmax'] = 100
+            self['xtick'] = 10
+            self['ymin'] = 0
+            self['ymax'] = 100
+            self['ytick'] = 10
+            self['datas'] = M()
+            
+        def setXY(self, xmin=0, xmax=100, xtick=10, ymin=0, ymax=100, ytick=10):
+            self['xmin'] = xmin
+            self['xmax'] = xmax
+            self['xtick'] = xtick
+            self['ymin'] = ymin
+            self['ymax'] = ymax
+            self['ytick'] = ytick
+        
+        def addLine(self, label):
+            self.datas[label] = M(label=label, data=L())
+            
+        def addData(self, label, x, y):
+            self.datas[label].data << (x, y)
+        
+    class DonutData(__ViewData__):
+        
+        def __init__(self, title='', icon='fa-pie-chart', panel='default'):
+            Manager.__ViewData__.__init__(self, title, icon, panel)
+            self['id'] = str(uuid.uuid4())
+            self['datas'] = L()
+            self['iscolor'] = False
+            
+        def setColor(self):
+            self['iscolor'] = True
+            
+        def addData(self, label, value, color):
+            self.datas << M(label=label, value=value, color=color)
     
     @classmethod
     def render(cls, data):
@@ -65,7 +130,13 @@ class Manager(SingleTon):
                 views.addView(elem_view, elem.pr, elem.sz)
             return cls.GET().listview_tpl.render({'views':views})
         if instof(data, Manager.TableData):
-            return cls.GET().table_tpl.render({'title':data.title,'icon':data.icon,'head':data.head, 'datas':data.datas})
+            return cls.GET().chart_table_tpl.render(data)
+        elif instof(data, Manager.LineData):
+            for key in data.datas:
+                data.datas[key]['data'] = Struct.CODE2JSON(data.datas[key].data)
+            return cls.GET().chart_line_tpl.render(data)
+        elif instof(data, Manager.DonutData):
+            return cls.GET().chart_donut_tpl.render(data)
         return cls.GET().internal_error_tpl
     
     def __init__(self):
@@ -80,7 +151,9 @@ class Manager(SingleTon):
         self.status_tpl = loader.get_template('status.html')
         
         self.listview_tpl = loader.get_template('elements/listview.html')
-        self.table_tpl = loader.get_template('elements/table.html')
+        self.chart_table_tpl = loader.get_template('elements/chart_table.html')
+        self.chart_line_tpl = loader.get_template('elements/chart_line.html')
+        self.chart_donut_tpl = loader.get_template('elements/chart_donut.html')
         
         self.page_not_found_tpl = Template('<h1>Page Not Found</h1>').render(Context())
         self.internal_error_tpl = Template('<h1>Internal Error</h1>').render(Context())
