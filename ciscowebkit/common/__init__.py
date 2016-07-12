@@ -8,7 +8,16 @@ class FeatureInterface(SingleTon):
         if icon: self._icon_ = icon
         else: self._icon_ = 'fa-file'
     
-    def action(self, request):
+    def get(self, request):
+        return 'Not Implemented'
+    
+    def post(self, request):
+        return 'Not Implemented'
+    
+    def update(self, request):
+        return 'Not Implemented'
+    
+    def delete(self, request):
         return 'Not Implemented'
 
 class Feature(FeatureInterface):

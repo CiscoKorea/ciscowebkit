@@ -11,12 +11,12 @@ class Impl_Overview(Overview):
     
     def __init__(self): Overview.__init__(self)
     
-    def action(self, request):
+    def get(self, request):
         return 'Over View Page'
     
 class Impl_Setting(Setting):
     
     def __init__(self): Setting.__init__(self)
     
-    def action(self, request):
+    def get(self, request):
         return 'Setting Page'

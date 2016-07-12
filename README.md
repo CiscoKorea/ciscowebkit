@@ -23,8 +23,13 @@ $> pip install mysqlclient
 
 $> cd CISCOWEBKIT_ROOT
 
+$> python manage.py makemigrations
+
 $> python manage.py migrate
 
 $> python manage.py createsuperuser
 
 $> python manage.py runserver 8080
+
+## Icon Repository
+http://fontawesome.io/icons/

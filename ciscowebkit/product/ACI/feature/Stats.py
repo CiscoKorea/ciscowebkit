@@ -16,7 +16,7 @@ class INTF_Util(SubFeature):
     
     def __init__(self): SubFeature.__init__(self)
         
-    def action(self, request):
+    def get(self, request):
         return 'Intf Util Service'
     
 class EPG_Util(SubFeature):
@@ -25,5 +25,5 @@ class EPG_Util(SubFeature):
     
     def __init__(self): SubFeature.__init__(self)
     
-    def action(self, request):
+    def get(self, request):
         return 'EPG Util Service'

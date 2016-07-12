@@ -10,4 +10,4 @@ from ciscowebkit.common.platform import Manager
 # Create your views here.
 
 def action(request):
-    return Manager.GET().action(request)
+    return Manager.GET().__action_debug__(request)

@@ -12,5 +12,5 @@ class Feature3(Feature):
     
     def __init__(self, **kargs): Feature.__init__(self, 'fa-coffee', **kargs)
         
-    def action(self, request):
+    def get(self, request):
         return 'Single Feature 3 Action'

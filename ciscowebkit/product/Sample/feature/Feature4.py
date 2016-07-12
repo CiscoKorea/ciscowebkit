@@ -16,7 +16,7 @@ class Object_1(SubFeature):
     
     def __init__(self): SubFeature.__init__(self, 'fa-umbrella')
         
-    def action(self, request):
+    def get(self, request):
         return 'Sub Feature Object 1 Action'
     
 class Object_2(SubFeature):
@@ -25,5 +25,5 @@ class Object_2(SubFeature):
     
     def __init__(self): SubFeature.__init__(self, 'fa-trophy')
     
-    def action(self, request):
+    def get(self, request):
         return 'Sub Feature Object 2 Action'

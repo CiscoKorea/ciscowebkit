@@ -16,7 +16,7 @@ class APIC(SubFeature):
     
     def __init__(self): SubFeature.__init__(self, 'fa-gamepad')
         
-    def action(self, request):
+    def get(self, request):
         return 'APIC Service'
     
 class Switch(SubFeature):
@@ -25,7 +25,7 @@ class Switch(SubFeature):
     
     def __init__(self): SubFeature.__init__(self, 'fa-cubes')
     
-    def action(self, request):
+    def get(self, request):
         return 'Switch Service'
     
 class EPG(SubFeature):
@@ -34,7 +34,7 @@ class EPG(SubFeature):
     
     def __init__(self): SubFeature.__init__(self, 'fa-square-o')
     
-    def action(self, request):
+    def get(self, request):
         return 'EPG Service'
     
 class EP(SubFeature):
@@ -43,5 +43,5 @@ class EP(SubFeature):
     
     def __init__(self): SubFeature.__init__(self, 'fa-dot-circle-o')
     
-    def action(self, request):
+    def get(self, request):
         return 'EP Service'

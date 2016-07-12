@@ -9,7 +9,7 @@ import os
 from django.template import Template, Context, loader
 from django.http import HttpResponse
 
-from ciscowebkit.common.pygics import instof, classof, nameof, tagof, iterkv, iterval, inf
+from ciscowebkit.common.pygics import instof, classof, nameof, iterkv, iterval, inf
 from ciscowebkit.common.pygics import SingleTon, L, M
 from ciscowebkit.common.pygics import Module, NameSpace, Dir
 
@@ -19,13 +19,63 @@ from ciscowebkit.product import PRODUCT_ORDER
 
 class Manager(SingleTon):
     
+    class ViewData(M):
+        
+        def __init__(self):
+            M.__init__(self)
+            self['title'] = ''
+            self['icon'] = 'fa-database'
+            
+        def setTitle(self, title='', icon='fa-database'):
+            self['title'] = title
+            self['icon'] = icon
+            
+    class TableData(ViewData):
+
+        def __init__(self):
+            Manager.ViewData.__init__(self)
+            self['head'] = L()
+            self['datas'] = L()
+        
+        def setHead(self, *argv):
+            self['head'] = L(*argv)
+            
+        def addData(self, *argv, **kargs):
+            option = M(css='')
+            if 'type' in kargs: option['css'] = kargs['type']
+            self.datas << M(record=argv, option=option)
+    
+    @classmethod
+    def render(cls, data):
+        if instof(data, Manager.TableData):
+            return cls.GET().table_tpl.render({'title':data.title,'icon':data.icon,'head':data.head, 'datas':data.datas})
+        return cls.GET().internal_error_tpl
+    
     def __init__(self):
         self.__load_templates__()
         self.__load_features__()
         
         print inf(M(products=self.products, order=self.product_order))
+    
+    def __load_templates__(self):
+        self.dashboard_tpl = loader.get_template('dashboard.html')
+        self.feature_tpl = loader.get_template('feature.html')
+        self.status_tpl = loader.get_template('status.html')
         
-    def action(self, request):
+        self.table_tpl = loader.get_template('elements/table.html')
+        
+        self.page_not_found_tpl = Template('<h1>Page Not Found</h1>').render(Context())
+        self.internal_error_tpl = Template('<h1>Internal Error</h1>').render(Context())
+    
+    def __action_method__(self, request, obj):
+        if request.method == 'GET': view = obj.get(request)
+        elif request.method == 'POST': view = obj.post(request)
+        elif request.method == 'UPDATE': view = obj.update(request)
+        elif request.method == 'DELETE': view = obj.delete(request)
+        else: view = self.internal_error_tpl
+        return view
+    
+    def __action_default__(self, request):
         paths = filter(None, request.path.split('/'))
         pathlen = len(paths)
         p_name = paths[0]
@@ -33,28 +83,51 @@ class Manager(SingleTon):
         try:
             if pathlen == 1:
                 feature = self.products[p_name].overview
-                try: view = feature.__obj__.action(request)
-                except: HttpResponse(self.internal_error_tpl)
-                return HttpResponse(self.render_feature(p_name, 'overview', feature.__view__, feature.__desc__, view, None))
+                try: view = self.__action_method__(request, feature.__obj__)
+                except: return HttpResponse(self.internal_error_tpl)
+                return HttpResponse(self.__render_feature__(p_name, 'overview', feature.__view__, feature.__desc__, view, None))
             elif pathlen == 2:
                 f_name = paths[1]
                 feature = self.products[p_name][f_name]
-                try: view = feature.__obj__.action(request)
-                except: HttpResponse(self.internal_error_tpl)
-                return HttpResponse(self.render_feature(p_name, f_name, feature.__view__, feature.__desc__, view, None))
+                try: view = self.__action_method__(request, feature.__obj__)
+                except: return HttpResponse(self.internal_error_tpl)
+                return HttpResponse(self.__render_feature__(p_name, f_name, feature.__view__, feature.__desc__, view, None))
             elif pathlen == 3:
                 f_name = paths[1]
                 s_name = paths[2]
                 feature = self.products[p_name][f_name][s_name]
-                try: view = feature.__obj__.action(request)
-                except: HttpResponse(self.internal_error_tpl)
-                return HttpResponse(self.render_feature(p_name, (f_name, s_name), feature.__view__, feature.__desc__, view, None))
+                try: view = self.__action_method__(request, feature.__obj__)
+                except: return HttpResponse(self.internal_error_tpl)
+                return HttpResponse(self.__render_feature__(p_name, (f_name, s_name), feature.__view__, feature.__desc__, view, None))
             else:
                 return HttpResponse(self.page_not_found_tpl)
         except:
             return HttpResponse(self.page_not_found_tpl)
+    
+    def __action_debug__(self, request):
+        paths = filter(None, request.path.split('/'))
+        pathlen = len(paths)
+        p_name = paths[0]
+        
+        if pathlen == 1:
+            feature = self.products[p_name].overview
+            view = self.__action_method__(request, feature.__obj__)
+            return HttpResponse(self.__render_feature__(p_name, 'overview', feature.__view__, feature.__desc__, view, None))
+        elif pathlen == 2:
+            f_name = paths[1]
+            feature = self.products[p_name][f_name]
+            view = self.__action_method__(request, feature.__obj__)
+            return HttpResponse(self.__render_feature__(p_name, f_name, feature.__view__, feature.__desc__, view, None))
+        elif pathlen == 3:
+            f_name = paths[1]
+            s_name = paths[2]
+            feature = self.products[p_name][f_name][s_name]
+            view = self.__action_method__(request, feature.__obj__)
+            return HttpResponse(self.__render_feature__(p_name, (f_name, s_name), feature.__view__, feature.__desc__, view, None))
+        else:
+            return HttpResponse(self.page_not_found_tpl)
 
-    def render_feature(self, p_name, f_name, title, desc, view, status):
+    def __render_feature__(self, p_name, f_name, title, desc, view, status):
         
         products = ''
         for p in self.product_order:
@@ -97,7 +170,7 @@ class Manager(SingleTon):
                                         'desc' : desc,
                                         'view' : view})
     
-    def render_dashboard(self, widgets, status):
+    def __render_dashboard__(self, widgets, status):
         products = ''
         for p in self.product_order:
             if p in self.products:
@@ -106,14 +179,6 @@ class Manager(SingleTon):
         return self.dashboard_tpl.render({'products' : Template(products).render(Context()),
                                           'status' : self.status_tpl.render(),
                                           'widgets' : widgets})
-        
-    
-    def __load_templates__(self):
-        self.dashboard_tpl = loader.get_template('dashboard.html')
-        self.feature_tpl = loader.get_template('feature.html')
-        self.status_tpl = loader.get_template('status.html')
-        self.page_not_found_tpl = Template('<h1>Page Not Found</h1>').render(Context())
-        self.internal_error_tpl = Template('<h1>Internal Error</h1>').render(Context())
         
     def __load_features__(self):
         
@@ -199,4 +264,3 @@ class Manager(SingleTon):
                     self.products[p_name]['setting']['__link__'] = '<a href="%s"><i class="fa fa-fw %s"></i> %s</a>' % (p_url + 'setting/', f_cls.GET()._icon_, 'Setting')
                     if f_cls.__doc__ != None: self.products[p_name]['setting']['__desc__'] = ' : ' + f_cls.__doc__
                     if f_cls.__doc__ == None: self.products[p_name]['setting']['__desc__'] = ''
-                
