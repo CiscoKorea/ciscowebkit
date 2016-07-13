@@ -30,7 +30,7 @@ class Manager(SingleTon):
             self['icon'] = icon
             self['panel'] = panel
     
-    class ListView(L):
+    class MultiView(L):
         
         def __init__(self):
             L.__init__(self)
@@ -194,9 +194,7 @@ class Manager(SingleTon):
             
     @classmethod
     def render(cls, data):
-        if instof(data, Manager.ListView):
-            return cls.GET().listview_tpl.render({'views':data})
-        elif instof(data, Manager.TableData):
+        if instof(data, Manager.TableData):
             return cls.GET().chart_table_tpl.render(data)
         elif instof(data, Manager.NumLineData):
             return cls.GET().chart_numline_tpl.render(data)
@@ -208,6 +206,8 @@ class Manager(SingleTon):
             return cls.GET().chart_donut_tpl.render(data)
         elif instof(data, Manager.PieData):
             return cls.GET().chart_pie_tpl.render(data)
+        elif instof(data, Manager.MultiView):
+            return cls.GET().multi_view_tpl.render({'views':data})
         return cls.GET().internal_error_tpl
     
     def __init__(self):
@@ -221,7 +221,7 @@ class Manager(SingleTon):
         self.feature_tpl = loader.get_template('feature.html')
         self.status_tpl = loader.get_template('status.html')
         
-        self.listview_tpl = loader.get_template('elements/listview.html')
+        self.multi_view_tpl = loader.get_template('elements/multi_view.html')
         self.chart_table_tpl = loader.get_template('elements/chart_table.html')
         self.chart_numline_tpl = loader.get_template('elements/chart_numline.html')
         self.chart_timeline_tpl = loader.get_template('elements/chart_timeline.html')
