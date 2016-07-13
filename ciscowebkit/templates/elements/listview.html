@@ -1,5 +1,9 @@
-{% for elem in views %}
-<div class="row"><div class="col-{{ elem.pr }}-{{ elem.sz }}">
-{{ elem.view }}
-</div></div>
+{% for row in views %}
+<div class="row">
+{% for elem in row %}
+	<div class="col-{{ elem.pr }}-{{ elem.sz }}">
+	{{ elem.view }}
+	</div>
+{% endfor %}
+</div>
 {% endfor %}

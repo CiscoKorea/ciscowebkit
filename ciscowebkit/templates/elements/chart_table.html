@@ -6,23 +6,34 @@
 	</div>
 	<div class="panel-body">
 		<div class="table-responsive">
-			<table class="table table-bordered table-hover {% if isstripe %}table-striped{% endif %}">
+			<table id="{{ id }}" class="table table-bordered table-hover {% if isstripe %}table-striped{% endif %}">
 				<thead>
 					<tr>{% for col in head %}<th>{{ col }}</th>{% endfor %}</tr>
 				</thead>
-				<tbody>
-					{% for data in datas %}
-					<tr class="{{ data.option.css }}">
-						{% for col in data.record %}
-						<td>{{ col }}</td>
-						{% endfor %}
-					</tr>
-					{% endfor %}
+				<tbody>{% for data in datas %}
+					<tr class="{{ data.option.css }}">{% for col in data.record %}
+						<td>{{ col }}</td>{% endfor %}
+					</tr>{% endfor %}
 				</tbody>
 			</table>
 		</div>
-		<div class="text-right">
-			<a href="#">View All Transactions <i class="fa fa-arrow-circle-right"></i></a>
-		</div>
 	</div>
 </div>
+<script type="text/javascript">
+$(document).ready(function() {
+    var table = $("#{{ id }}").DataTable( {
+    	dom: 'Bfrtip',
+    	lengthMenu: [
+            [ 10, 25, 50, -1 ],
+            [ '10 rows', '25 rows', '50 rows', 'Show all' ]
+        ],
+        buttons: [
+            'pageLength',
+            'csvHtml5'
+        ],
+        search: {
+            "regex": false
+        }
+    });
+});
+</script>

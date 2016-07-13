@@ -15,6 +15,8 @@
 <link href="/resource/css/sb-admin.css" rel="stylesheet">
 <link href="/resource/css/plugins/morris.css" rel="stylesheet">
 <link href="/resource/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link href="/resource/css/dataTables.bootstrap.css" rel="stylesheet">
+<link href="/resource/css/buttons.dataTables.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -27,6 +29,10 @@
     <script src="/resource/js/plugins/flot/jquery.flot.tooltip.min.js"></script>
     <script src="/resource/js/plugins/flot/jquery.flot.resize.js"></script>
     <script src="/resource/js/plugins/flot/jquery.flot.pie.js"></script>
+    <script src="/resource/js/jquery.dataTables.min.js"></script>
+    <script src="/resource/js/dataTables.bootstrap.js"></script>
+    <script src="/resource/js/dataTables.buttons.min.js"></script>
+    <script src="/resource/js/buttons.html5.min.js"></script>
 	
 	<div id="wrapper">
 	
@@ -36,7 +42,7 @@
 					<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 				</button>
 				<a class="navbar-brand" href="/dashboard">
-					<img src="/resource/img/logo.png" width="50px" heigth="50px" />
+					<img src="/resource/images/logo.png" width="50px" heigth="50px" />
 				</a>
 				
 				{{ products }}
@@ -59,11 +65,11 @@
 				<div class="row">
 					<div class="col-lg-12">
 						<h1 class="page-header"> {{ title }} <small> {{ desc }} </small></h1>
-						
-						{{ view }}
-				
 					</div>
 				</div>
+				
+				{{ view }}
+			
 			</div>
 		</div>
 		

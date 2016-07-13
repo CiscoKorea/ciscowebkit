@@ -5,13 +5,8 @@
 		</h3>
 	</div>
 	<div class="panel-body">
-
 		<div class="flot-chart">
 			<div class="flot-chart-content" id="{{ id }}"></div>
-		</div>
-
-		<div class="text-right">
-			<a href="#">View All Transactions <i class="fa fa-arrow-circle-right"></i></a>
 		</div>
 	</div>
 </div>
@@ -36,10 +31,9 @@ $(document).ready(function() {
 	{% for key, elem in datas.iteritems %}
 	var {{ key }} = {
 		label : "{{ elem.label }}",
-		data : {{ elem.data }}
-	}
-	{% endfor %}
+		data : [{% for data in elem.data %} [ {% for d in data %}{{ d }}{% if not forloop.last %}, {% endif %}{% endfor %} ] {% if not forloop.last %},{% endif %}{% endfor %}]
+	}{% endfor %}
 	
-	$.plot("#{{ id }}", [ {% for key in datas %} {{ key }} {% if not forloop.last %},{% endif %} {% endfor %} ], options);
+	$.plot("#{{ id }}", [ {% for key in datas %}{{ key }}{% if not forloop.last %}, {% endif %}{% endfor %} ], options);
 });
 </script>

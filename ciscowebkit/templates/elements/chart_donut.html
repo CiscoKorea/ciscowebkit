@@ -5,12 +5,7 @@
 		</h3>
 	</div>
 	<div class="panel-body">
-	
 		<div id="{{ id }}"></div>
-
-		<div class="text-right">
-			<a href="#">View All Transactions <i class="fa fa-arrow-circle-right"></i></a>
-		</div>
 	</div>
 </div>
 <script type="text/javascript">
@@ -18,17 +13,12 @@ $(document).ready(function() {
 	Morris.Donut({
 	    element: '{{ id }}',
 	    data : [
-	    {% for data in datas %}
-	    	{ label : "{{ data.label }}", value : {{ data.value }} } {% if not forloop.last %},{% endif %}
-	    {% endfor %}
-	    ],
-	    {% if iscolor %}
+	    {% for data in datas %}{ label : "{{ data.label }}", value : {{ data.value }} }{% if not forloop.last %},{% endif %}
+	    {% endfor %}],{% if iscolor %}
 	    colors : [
-		{% for data in datas %}
-			"{{ data.color }}" {% if not forloop.last %},{% endif %}
+		{% for data in datas %}"{{ data.color }}"{% if not forloop.last %},{% endif %}
 		{% endfor %}
-	    ],
-	    {% endif %}
+	    ],{% endif %}
 	    resize: true
 	});
 });

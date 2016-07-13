@@ -25,6 +25,7 @@ class Manager(SingleTon):
         
         def __init__(self, title='', icon='fa-database', panel='default'):
             M.__init__(self)
+            self['id'] = str(uuid.uuid4())
             self['title'] = title
             self['icon'] = icon
             self['panel'] = panel
@@ -33,6 +34,10 @@ class Manager(SingleTon):
         
         def __init__(self):
             L.__init__(self)
+            self << L()
+        
+        def shiftRow(self):
+            self << L()
         
         def addView(self, view, present='large', size=12):
             pr = 'lg'
@@ -41,7 +46,7 @@ class Manager(SingleTon):
             elif present == 'small': pr = 'sm'
             if instof(size, int): sz = '%d' % size
             elif instof(size, str): sz = size
-            self << M(view=view, pr=pr, sz=sz)
+            self[-1] << M(view=Manager.render(view), pr=pr, sz=sz)
             
     class PANEL:
         
@@ -80,11 +85,10 @@ class Manager(SingleTon):
             if 'type' in kargs: option['css'] = kargs['type']
             self.datas << M(record=argv, option=option)
     
-    class LineData(__ViewData__):
+    class NumLineData(__ViewData__):
         
         def __init__(self, title='', icon='fa-line-chart', panel='default'):
             Manager.__ViewData__.__init__(self, title, icon, panel)
-            self['id'] = str(uuid.uuid4())
             self['xmin'] = 0
             self['xmax'] = 100
             self['xtick'] = 10
@@ -111,7 +115,6 @@ class Manager(SingleTon):
         
         def __init__(self, title='', icon='fa-pie-chart', panel='default'):
             Manager.__ViewData__.__init__(self, title, icon, panel)
-            self['id'] = str(uuid.uuid4())
             self['datas'] = L()
             self['iscolor'] = False
             
@@ -124,17 +127,11 @@ class Manager(SingleTon):
     @classmethod
     def render(cls, data):
         if instof(data, Manager.ListView):
-            views = Manager.ListView()
-            for elem in data:
-                elem_view = cls.render(elem.view)
-                views.addView(elem_view, elem.pr, elem.sz)
-            return cls.GET().listview_tpl.render({'views':views})
+            return cls.GET().listview_tpl.render({'views':data})
         if instof(data, Manager.TableData):
             return cls.GET().chart_table_tpl.render(data)
-        elif instof(data, Manager.LineData):
-            for key in data.datas:
-                data.datas[key]['data'] = Struct.CODE2JSON(data.datas[key].data)
-            return cls.GET().chart_line_tpl.render(data)
+        elif instof(data, Manager.NumLineData):
+            return cls.GET().chart_numline_tpl.render(data)
         elif instof(data, Manager.DonutData):
             return cls.GET().chart_donut_tpl.render(data)
         return cls.GET().internal_error_tpl
@@ -152,7 +149,7 @@ class Manager(SingleTon):
         
         self.listview_tpl = loader.get_template('elements/listview.html')
         self.chart_table_tpl = loader.get_template('elements/chart_table.html')
-        self.chart_line_tpl = loader.get_template('elements/chart_line.html')
+        self.chart_numline_tpl = loader.get_template('elements/chart_numline.html')
         self.chart_donut_tpl = loader.get_template('elements/chart_donut.html')
         
         self.page_not_found_tpl = Template('<h1>Page Not Found</h1>').render(Context())
