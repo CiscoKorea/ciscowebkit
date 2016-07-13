@@ -1,0 +1,12 @@
+<div class="panel panel-{{ panel }}">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<i class="fa {{ icon }}"></i> {{ title }}
+		</h3>
+	</div>
+	<div class="panel-body">
+		<div class="btn-group" role="group">{% for elem in list %}
+			<button type="button" class="btn btn-default {{ elem.active }}" {% if elem.href %}onclick="location.href='{{ elem.href }}'"{% endif %}>{% if elem.badge %}<span class="badge">{{ elem.badge }}</span>{% endif %}{% if elem.icon %}<i class="fa fa-fw {{ elem.icon }}"></i>{% endif %} {{ elem.title }} </button>{% endfor %}
+		</div>
+	</div>
+</div>

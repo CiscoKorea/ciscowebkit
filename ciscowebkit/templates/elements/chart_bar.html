@@ -12,29 +12,21 @@
 $(document).ready(function() {
 	Morris.Bar({
         element: '{{ id }}',
-        data: [
-        {% for data in datas %}
+        data: [{% for data in datas %}
         {
-			{{ xlabel }} : '{{ data.xdata }}',
-			{% for y in data.ydata %}
-        	{{ y.label }} : {{ y.data }}{% if not forloop.last %},{% endif %}
-			{% endfor %}
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
+			{{ xlabel }} : '{{ data.xdata }}',{% for y in data.ydata %}
+        	{{ y.label }} : {{ y.data }}{% if not forloop.last %},{% endif %}{% endfor %}
+        }{% if not forloop.last %},{% endif %}{% endfor %}
         ],
         xkey: '{{ xlabel }}',
-        ykeys: [
-        {% for y in ylabel %}
-        '{{ y }}'{% if not forloop.last %},{% endif %}
-        {% endfor %}
+        ykeys: [{% for y in ylabel %}
+        '{{ y }}'{% if not forloop.last %},{% endif %}{% endfor %}
         ],
-        labels: [
-		{% for y in ylabel %}
-		'{{ y }}'{% if not forloop.last %},{% endif %}
-		{% endfor %}
-        ],{% if ymin %}
-        ymin: {{ ymin }},{% endif %}{% if ymax %}
-        ymax: {{ ymax }},{% endif %}
+        labels: [{% for y in ylabel %}
+		'{{ y }}'{% if not forloop.last %},{% endif %}{% endfor %}
+        ],
+        {% if ymin %}ymin: {{ ymin }},{% endif %}
+        {% if ymax %}ymax: {{ ymax }},{% endif %}
         barRatio: 0.4,
         xLabelAngle: 35,
         hideHover: 'auto',

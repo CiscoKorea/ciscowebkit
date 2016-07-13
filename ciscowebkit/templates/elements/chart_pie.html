@@ -21,10 +21,8 @@ $(window).resize(function() {
 		tooltip:true,
 		tooltipOpts:{content:"%p.0%, %s",shifts:{x:20,y:0},defaultTheme:false}}
 	
-	var data = [
-	{% for data in datas %}
-	{ label : "{{ data.label }}", data : {{ data.value }} }{% if not forloop.last %},{% endif %}
-	{% endfor %}
+	var data = [{% for data in datas %}
+	{ label : "{{ data.label }}", data : {{ data.value }} }{% if not forloop.last %},{% endif %}{% endfor %}
 	]
 	$.plot("#{{ id }}", data, options);
 });

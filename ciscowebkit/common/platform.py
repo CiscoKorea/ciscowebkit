@@ -14,12 +14,22 @@ from django.http import HttpResponse
 from ciscowebkit.common.pygics import instof, classof, nameof, iterkv, iterval, inf
 from ciscowebkit.common.pygics import SingleTon, Struct, L, M
 from ciscowebkit.common.pygics import Module, NameSpace, Dir
-
 from ciscowebkit.common import FeatureInterface, Feature, SubFeature, Overview, Setting
-
 from ciscowebkit.product import PRODUCT_ORDER
 
-class Manager(SingleTon):
+class View:
+    
+    class PANEL:
+        DEFAULT = 'default'
+        RED = 'red'
+        GREEN = 'green'
+        YELLOW = 'yellow'
+        BLUE = 'primary'
+        PRIME = 'primary'
+        SUCCESS = 'success'
+        INFO = 'info'
+        WARN = 'warning'
+        DANGER = 'danger'
     
     class __ViewData__(M):
         
@@ -49,19 +59,53 @@ class Manager(SingleTon):
             elif instof(size, str): sz = size
             self[-1] << M(view=Manager.render(view), pr=pr, sz=sz)
             return self
-            
-    class PANEL:
         
-        DEFAULT = 'default'
-        RED = 'red'
-        GREEN = 'green'
-        YELLOW = 'yellow'
-        BLUE = 'primary'
-        PRIME = 'primary'
-        SUCCESS = 'success'
-        INFO = 'info'
-        WARN = 'warning'
-        DANGER = 'danger'
+    class VListData(__ViewData__):
+        
+        def __init__(self, title='', icon='fa-list', panel='default'):
+            View.__ViewData__.__init__(self, title, icon, panel)
+            self['list'] = L()
+            
+        def addList(self, title, href=None, icon=None, badge=None, active=False):
+            elem = M(title=title)
+            if href: elem['href'] = href
+            if icon: elem['icon'] = icon
+            if badge: elem['badge'] = badge
+            if active: elem['active'] = 'active'
+            self.list << elem
+            
+    class HListData(__ViewData__):
+        
+        def __init__(self, title='', icon='fa-list', panel='default'):
+            View.__ViewData__.__init__(self, title, icon, panel)
+            self['list'] = L()
+            
+        def addList(self, title, href=None, icon=None, badge=None, active=False):
+            elem = M(title=title)
+            if href: elem['href'] = href
+            if icon: elem['icon'] = icon
+            if badge: elem['badge'] = badge
+            if active: elem['active'] = 'active'
+            self.list << elem
+            
+    class InfoBlock(__ViewData__):
+        
+        def __init__(self, title, msg=None, icon='fa-info-circle'):
+            View.__ViewData__.__init__(self, title, icon, 'default')
+            if msg: self['msg'] = msg
+            
+    class InfoPanel(__ViewData__):
+        
+        def __init__(self, title, data, href, icon='fa-info-circle', panel='default'):
+            View.__ViewData__.__init__(self, title, icon, panel)
+            self['data'] = data
+            self['href'] = href
+            
+    class InfoDoc(__ViewData__):
+        
+        def __init__(self, title, doc, icon='fa-file-text', panel='default'):
+            View.__ViewData__.__init__(self, title, icon, panel)
+            self['doc'] = doc
         
     class TableData(__ViewData__):
         
@@ -70,9 +114,8 @@ class Manager(SingleTon):
         WARNING = 'warning'
         DANGER = 'danger'
 
-        def __init__(self, title='', icon='fa-table', panel='default', stripe=False):
-            Manager.__ViewData__.__init__(self, title, icon, panel)
-            if stripe: self['stripe'] = True
+        def __init__(self, title='', icon='fa-table', panel='default'):
+            View.__ViewData__.__init__(self, title, icon, panel)
             self['head'] = L()
             self['datas'] = L()
             
@@ -85,11 +128,14 @@ class Manager(SingleTon):
             if 'type' in kargs: option['css'] = kargs['type']
             self.datas << M(record=argv, option=option)
             return self
+        
+        def optStripe(self):
+            self['stripe'] = True
     
     class NumLineData(__ViewData__):
         
         def __init__(self, title='', icon='fa-line-chart', panel='default'):
-            Manager.__ViewData__.__init__(self, title, icon, panel)
+            View.__ViewData__.__init__(self, title, icon, panel)
             self['datas'] = M()
             
         def optGrid(self, xmin=None, xmax=None, xtick=None, ymin=None, ymax=None, ytick=None):
@@ -112,7 +158,7 @@ class Manager(SingleTon):
     class TimeLineData(__ViewData__):
         
         def __init__(self, title='', icon='fa-area-chart', panel='default'):
-            Manager.__ViewData__.__init__(self, title, icon, panel)
+            View.__ViewData__.__init__(self, title, icon, panel)
             self['viewtype'] = 'Line'
             self['datas'] = L()
             
@@ -147,7 +193,7 @@ class Manager(SingleTon):
     class BarData(__ViewData__):
         
         def __init__(self, title='', icon='fa-bar-chart', panel='default'):
-            Manager.__ViewData__.__init__(self, title, icon, panel)
+            View.__ViewData__.__init__(self, title, icon, panel)
             self['datas'] = L()
             
         def setLabel(self, x, *argv):
@@ -175,7 +221,7 @@ class Manager(SingleTon):
     class DonutData(__ViewData__):
         
         def __init__(self, title='', icon='fa-pie-chart', panel='default'):
-            Manager.__ViewData__.__init__(self, title, icon, panel)
+            View.__ViewData__.__init__(self, title, icon, panel)
             self['datas'] = L()
             
         def addData(self, label, value):
@@ -185,29 +231,41 @@ class Manager(SingleTon):
     class PieData(__ViewData__):
         
         def __init__(self, title='', icon='fa-pie-chart', panel='default'):
-            Manager.__ViewData__.__init__(self, title, icon, panel)
+            View.__ViewData__.__init__(self, title, icon, panel)
             self['datas'] = L()
             
         def addData(self, label, value):
             self.datas << M(label=label, value=value)
             return self
+
+class Manager(SingleTon):
             
     @classmethod
     def render(cls, data):
-        if instof(data, Manager.TableData):
+        if instof(data, View.TableData):
             return cls.GET().chart_table_tpl.render(data)
-        elif instof(data, Manager.NumLineData):
+        elif instof(data, View.NumLineData):
             return cls.GET().chart_numline_tpl.render(data)
-        elif instof(data, Manager.TimeLineData):
+        elif instof(data, View.TimeLineData):
             return cls.GET().chart_timeline_tpl.render(data)
-        elif instof(data, Manager.BarData):
+        elif instof(data, View.BarData):
             return cls.GET().chart_bar_tpl.render(data)
-        elif instof(data, Manager.DonutData):
+        elif instof(data, View.DonutData):
             return cls.GET().chart_donut_tpl.render(data)
-        elif instof(data, Manager.PieData):
+        elif instof(data, View.PieData):
             return cls.GET().chart_pie_tpl.render(data)
-        elif instof(data, Manager.MultiView):
+        elif instof(data, View.MultiView):
             return cls.GET().multi_view_tpl.render({'views':data})
+        elif instof(data, View.VListData):
+            return cls.GET().list_vertical_tpl.render(data)
+        elif instof(data, View.HListData):
+            return cls.GET().list_horizonal_tpl.render(data)
+        elif instof(data, View.InfoBlock):
+            return cls.GET().info_block_tpl.render(data)
+        elif instof(data, View.InfoPanel):
+            return cls.GET().info_panel_tpl.render(data)
+        elif instof(data, View.InfoDoc):
+            return cls.GET().info_doc_tpl.render(data)
         return cls.GET().internal_error_tpl
     
     def __init__(self):
@@ -222,6 +280,11 @@ class Manager(SingleTon):
         self.status_tpl = loader.get_template('status.html')
         
         self.multi_view_tpl = loader.get_template('elements/multi_view.html')
+        self.list_vertical_tpl = loader.get_template('elements/list_vertical.html')
+        self.list_horizonal_tpl = loader.get_template('elements/list_horizonal.html')
+        self.info_block_tpl = loader.get_template('elements/info_block.html')
+        self.info_panel_tpl = loader.get_template('elements/info_panel.html')
+        self.info_doc_tpl = loader.get_template('elements/info_doc.html')
         self.chart_table_tpl = loader.get_template('elements/chart_table.html')
         self.chart_numline_tpl = loader.get_template('elements/chart_numline.html')
         self.chart_timeline_tpl = loader.get_template('elements/chart_timeline.html')
