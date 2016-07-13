@@ -14,11 +14,7 @@ $(document).ready(function() {
 	    element: '{{ id }}',
 	    data : [
 	    {% for data in datas %}{ label : "{{ data.label }}", value : {{ data.value }} }{% if not forloop.last %},{% endif %}
-	    {% endfor %}],{% if iscolor %}
-	    colors : [
-		{% for data in datas %}"{{ data.color }}"{% if not forloop.last %},{% endif %}
-		{% endfor %}
-	    ],{% endif %}
+	    {% endfor %}],
 	    resize: true
 	});
 });

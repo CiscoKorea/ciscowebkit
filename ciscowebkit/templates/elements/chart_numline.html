@@ -24,8 +24,8 @@ $(document).ready(function() {
     				return markings;
     			}
             },
-            xaxis:{min:{{ xmin }},max:{{ xmax }},tickSize:{{ xtick }},tickFormatter:function(val, axis){return val | 0;}},
-            yaxis:{min:{{ ymin }},max:{{ ymax }},tickSize:{{ ytick }},tickFormatter:function(val, axis){return val | 0;}},
+            xaxis:{ {% if xmin or xmin == 0 %}min:{{ xmin }},{% endif %}{% if xmax or xmax == 0 %}max:{{ xmax }},{% endif %}{% if xtick or xtick == 0 %}tickSize:{{ xtick }},tickFormatter:function(val, axis){return val | 0;}{% endif %}},
+            yaxis:{ {% if ymin or ymin == 0 %}min:{{ ymin }},{% endif %}{% if ymax or ymax == 0 %}max:{{ ymax }},{% endif %}{% if ytick or ytick == 0 %}tickSize:{{ ytick }},tickFormatter:function(val, axis){return val | 0;}{% endif %}},
             tooltip:true,
             tooltipOpts:{content:"'%s' of %x is %y",shifts:{x:-60,y:25}}};
 	{% for key, elem in datas.iteritems %}
