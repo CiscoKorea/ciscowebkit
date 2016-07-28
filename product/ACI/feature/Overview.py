@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 '''
 Created on 2016. 7. 27.
 
@@ -13,7 +14,7 @@ class Impl_Overview(Feature):
         Feature.__init__(self, 10)
      
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('Not Work', 'non-exist apic connection')
+        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
         tstamp = time.time()
         lo = Layout()

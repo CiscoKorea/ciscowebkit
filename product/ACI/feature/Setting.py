@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 '''
 Created on 2016. 7. 27.
 
@@ -35,7 +36,7 @@ class Setting(Feature):
         return lo
     
     def post(self, request, data, *cmd):
-        if not APIC.addDomain(data.domain, data.ips, data.user, data.pwd): self.info = InfoBlock('Connect Failed', 'Unknown')
+        if not APIC.addDomain(data.domain, data.ips, data.user, data.pwd): self.info = InfoBlock('연결실패', 'APIC 연결이 실패하였습니다. 연결정보를 확인하세요.')
         else: self.info = None
         return self.get(request, *cmd)
     
