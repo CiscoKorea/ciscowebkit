@@ -1,0 +1,115 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<title>Cisco Webkit</title>
+<link href="/resource/css/bootstrap.min.css" rel="stylesheet">
+<link href="/resource/css/sb-admin.css" rel="stylesheet">
+<link href="/resource/css/plugins/morris.css" rel="stylesheet">
+<link href="/resource/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link href="/resource/css/dataTables.bootstrap.css" rel="stylesheet">
+<link href="/resource/css/buttons.dataTables.min.css" rel="stylesheet">
+
+<link href="/resource/chartist/chartist.min.css" rel="stylesheet">
+<link href="/resource/chartist/tooltip/chartist-plugin-tooltip.css" rel="stylesheet">
+
+<link href="/resource/cw.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+	<script src="/resource/js/jquery.js"></script>
+	<script src="/resource/js/bootstrap.min.js"></script>
+	<script src="/resource/js/plugins/morris/raphael.min.js"></script>
+	<script src="/resource/js/plugins/morris/morris.min.js"></script>
+	<script src="/resource/js/plugins/flot/jquery.flot.js"></script>
+    <script src="/resource/js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+    <script src="/resource/js/plugins/flot/jquery.flot.resize.js"></script>
+    <script src="/resource/js/plugins/flot/jquery.flot.pie.js"></script>
+    <script src="/resource/js/jquery.dataTables.min.js"></script>
+    <script src="/resource/js/dataTables.bootstrap.js"></script>
+    <script src="/resource/js/dataTables.buttons.min.js"></script>
+    <script src="/resource/js/buttons.html5.min.js"></script>
+    
+    <script src="/resource/chartist/chartist.min.js"></script>
+    <script src="/resource/chartist/tooltip/chartist-plugin-tooltip.min.js"></script>
+    
+    <script src="/resource/spin.js"></script>
+    
+	<!-- Product -->
+	
+	<div id="wrapper">
+	
+		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+					<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" onclick="show_dashboard();">
+					<img src="/resource/images/logo.png" width="50px" heigth="50px" />
+				</a>
+
+<!-- Products Navigation Bar -->				
+{{ cw_pnav }}
+<!-- End -->
+				
+			</div>
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+
+<!-- Features Navigation Bar -->
+{{ cw_fnav }}
+<!-- End -->
+				
+			</div>
+		</nav>
+		<div id="page-wrapper">
+			<div class="container-fluid">
+			
+				<div id="cw-dashboard-page"></div>
+				
+				<div id="cw-feature-page">
+			
+					<div class="row">
+						<div class="col-lg-12">
+							<h1 id="cw-page_title" class="cw-css-page-header">NONE</h1>
+						</div>
+					</div>
+				
+<!-- Views HTML Body -->			
+{{ cw_page_html }}
+<!-- End -->
+					
+					<div id="cw-page-page_not_found" class="cw-page"><h1>Page Not Found</h1></div>
+					<div id="cw-page-internal_error" class="cw-page"><h1>Internal Error</h1></div>
+					
+				</div>
+				
+			</div>
+		</div>
+		
+	</div>
+	
+	<div id="cw-spinner"></div>
+	
+	<div id="cw-click-guard"></div>
+	
+	<!-- JavaScripts -->
+	<script type="text/javascript">
+
+<!-- Views Javascripts -->
+{{ cw_page_js }}
+<!-- End -->
+
+	</script>
+</body>
+
+</html>

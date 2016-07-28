@@ -1,2 +1,5 @@
 eclipse.preferences.version=1
-encoding//ciscowebkit/product/Sample/feature/ChartTest.py=utf-8
+encoding//product/Sample/feature/Base.py=utf-8
+encoding//product/Sample/feature/ChartMorris.py=utf-8
+encoding//product/Sample/feature/Chartist.py=utf-8
+encoding//product/Sample/migrations/0001_initial.py=utf-8

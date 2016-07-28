@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^dashboard/', include('ciscowebkit.dashboard.urls')),
     url(r'^favicon\.ico$', RedirectView.as_view(url='/resource/images/favicon.ico')),
-    url(r'^.*/', views.action),
-    url(r'^', include('ciscowebkit.dashboard.urls')),
+    url(r'^', views.action),
+#     url(r'^.*/', views.action),
+#     url(r'^', include('ciscowebkit.dashboard.urls')),
 ]

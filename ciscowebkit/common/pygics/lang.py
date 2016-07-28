@@ -9,23 +9,8 @@ import sys
 import copy
 import json
 import time
-#import gevent
 import inspect
-
-# def pygics_patch():
-#     from gevent.monkey import patch_all
-#     if 'threading' in sys.modules: del sys.modules['threading']
-#     patch_all(socket=True,
-#               dns=True,
-#               time=True,
-#               select=True,
-#               thread=True,
-#               os=True,
-#               ssl=True,
-#               subprocess=True,
-#               sys=True,
-#               aggressive=True,
-#               Event=True)
+import threading
 
 #===============================================================================
 # target of source 
@@ -312,10 +297,10 @@ class Struct(Inf):
     def JSON2CODE(cls, jdata):
         try: return json.loads(jdata);
         except Exception as e: print str(e); return None
-
+        
 class L(Struct, list):
     
-    def __init__(self, *argv):
+    def __init__(self, *argv, **kargs):
         list.__init__(self)
         for val in argv:
             if instof(val, M) or instof(val, L): self << val
@@ -330,19 +315,32 @@ class L(Struct, list):
     
     def DUMPJSON(self, model_stamp=False):
         return json.dumps(self.DUMP(model_stamp))
-            
+    
     def __inf__(self): return Struct.__build_list_inf__(self)
     
     def __getitem__(self, index):
         try: return list.__getitem__(self, index)
         except: return None
     
+    def append(self, data):
+        list.append(self, data)
+        return self
+    
     def __lshift__(self, data):
-        self.append(data)
+        list.append(self, data)
+        return self
+    
+    def remove(self, data):
+        list.remove(self, data)
         return self
     
     def __rshift__(self, data):
-        if data in self: list.remove(self, data)
+        list.remove(self, data)
+        return self
+    
+    def merge(self, data):
+        if instof(data, list):
+            for val in data: self << val
         return self
     
     def __add__(self, data):
@@ -350,10 +348,6 @@ class L(Struct, list):
             for val in data: self << val
         return self
     
-    def __xor__(self, data):
-        if data in self: return True
-        return False
-
 class M(Struct, dict):
     
     def __init__(self, **kargs):
@@ -393,3 +387,273 @@ class M(Struct, dict):
     def __xor__(self, key):
         if self.has_key(key): return True
         return False
+    
+class Map(Struct, list):
+    
+    class X(L):
+        
+        def __init__(self, x, *data):
+            L.__init__(self, *data)
+            self.x = x
+            self.ye = len(data) - 1
+            
+    class x(L):
+        
+        def __init__(self, *data):
+            L.__init__(self, *data)
+            self.ye = len(data) - 1
+            
+    class Y(L):
+        
+        def __init__(self, y, *data):
+            L.__init__(self, *data)
+            self.y = y
+            self.xe = len(data) - 1
+            
+    class y(L):
+        
+        def __init__(self, *data):
+            L.__init__(self, *data)
+            self.xe = len(data) - 1
+    
+    class XY:
+        
+        def __init__(self, x, y, data):
+            self.x = x
+            self.y = y
+            self.data = data
+    
+    def __init__(self):
+        list.__init__(self)
+        self._x_xaxis_ = -1
+        self._x_yaxis_ = -1
+        
+    def DUMP(self, model_stamp=False):
+        return Struct.__dump_to_list__(self, model_stamp)
+    
+    def DUMPJSON(self, model_stamp=False):
+        return json.dumps(self.DUMP(model_stamp))
+    
+    def rotate(self):
+        xy = Map()
+        
+        xy.__addEmpty__(self._x_yaxis_, self._x_xaxis_)
+        for i in range(self._x_xaxis_ + 1):
+            for j in range(self._x_yaxis_ + 1):
+                xy[j][i] = self[i][j]
+        return xy
+    
+    def __inf__(self):
+        bstr = '-'
+        for i in range(0, self._x_xaxis_ + 1): bstr += '---------'
+        bstr += '\n'
+        pstr = bstr
+        for y in range(0, self._x_yaxis_ + 1):
+            pstr += '|'
+            for x in range(0, self._x_xaxis_ + 1):
+                d = self[x][y]
+                if d == None: pstr += '        |'
+                else: pstr += '%-8s|' % str(d)
+            else:
+                pstr += '\n' + bstr
+        return pstr
+    
+    def __addEmpty__(self, x, y):
+        if x > self._x_xaxis_:
+            for i in range(self._x_xaxis_, x):
+                self.append(list())
+                for j in range(0, self._x_yaxis_ + 1):
+                    self[-1].append(None)
+            self._x_xaxis_ = x
+        if y > self._x_yaxis_:
+            for d in self:
+                for i in range(self._x_yaxis_, y):
+                    d.append(None)
+            self._x_yaxis_ = y
+            
+    def __addy__(self, data):
+        if self._x_xaxis_ == data.xe:
+            for i in range(0, self._x_xaxis_ + 1):
+                self[i].append(data[i])
+        if self._x_xaxis_ > data.xe:
+            for i in range(0, self._x_xaxis_ + 1):
+                if i > data.xe: d = None
+                else: d = data[i]
+                self[i].append(d)
+        elif self._x_xaxis_ < data.xe:
+            self.__addEmpty__(data.xe, self._x_yaxis_)
+            for i in range(0, self._x_xaxis_ + 1):
+                self[i].append(data[i])
+        self._x_yaxis_ += 1
+        
+    def __addx__(self, data):
+        if self._x_yaxis_ == data.ye:
+            self.append(data)
+        elif self._x_yaxis_ > data.ye:
+            self.append(data)
+            for i in range(data.ye, self._x_yaxis_): self[-1].append(None)
+        elif self._x_yaxis_ < data.ye:
+            self.__addEmpty__(self._x_xaxis_, data.ye)
+            self.append(data)
+        self._x_xaxis_ += 1
+    
+    def __addY__(self, data):
+        self.__addEmpty__(data.xe, data.y)
+        for i in range(data.xe + 1):
+            self[i][data.y] = data[i]
+            
+    def __addX__(self, data):
+        self.__addEmpty__(data.x, data.ye)
+        for i in range(data.ye + 1):
+            self[data.x][i] = data[i]
+            
+    def __addXY__(self, x, y, data):
+        self.__addEmpty__(x, y)
+        self[x][y] = data
+        
+    def __lshift__(self, data):
+        if instof(data, Map.y): self.__addy__(data)
+        elif instof(data, Map.x): self.__addx__(data)
+        elif instof(data, Map.Y): self.__addY__(data)
+        elif instof(data, Map.X): self.__addX__(data)
+        elif instof(data, tuple): self.__addXY__(*data)
+        elif instof(data, Map.XY): self.__addXY__(data.x, data.y, data.data)
+        return self
+    
+class Meta(L):
+    
+    def __init__(self, *argv):
+        L.__init__(self, *argv)
+    
+    def __encode__(self, data):
+        return data
+    
+    def __decode__(self, data):
+        return data
+    
+    def __call__(self, index):
+        try: return list.__getitem__(self, index)
+        except: return None
+    
+    def __getitem__(self, index):
+        try: return self.__decode__(list.__getitem__(self, index))
+        except: return None
+    
+    def __iter__(self, *args, **kwargs):
+
+        class Liter:
+            
+            def __init__(self, ldata):
+                self.ldata = ldata
+                self.idx = 0
+                self.llen = len(ldata)
+                
+            def __iter__(self, *args, **kwargs):
+                return self
+            
+            def next(self):
+                if self.idx < self.llen:
+                    ret = self.ldata[self.idx]
+                    self.idx += 1
+                    return ret
+                else: raise StopIteration()
+                
+        return Liter(self)
+    
+    def append(self, data):
+        list.append(self, self.__encode__(data))
+        return self
+    
+    def __lshift__(self, data):
+        list.append(self, self.__encode__(data))
+        return self
+    
+    def remove(self, data):
+        f = None
+        for i in range(len(self)):
+            if data == self.__decode__(self(i)):
+                f = self(i); break
+        if f: list.remove(self, f)
+        return self
+    
+    def __rshift__(self, data):
+        f = None
+        for i in range(len(self)):
+            if data == self.__decode__(self(i)):
+                f = self(i); break
+        if f: list.remove(self, f)
+        return self
+
+class Table(M):
+    
+    class R(Map.y):
+        
+        def __init__(self, *col):
+            Map.y.__init__(self, *col)
+            
+        def __meta__(self, data):
+            return data
+        
+        def append(self, data):
+            Map.y.append(self, self.__meta__(data))
+            return self
+        
+        def __lshift__(self, data):
+            Map.y.append(self, self.__meta__(data))
+            return self
+    
+    def __init__(self, *head):
+        M.__init__(self, head=L(*head), records=Map())
+        
+    def __lshift__(self, record):
+        self.records << record
+        return self
+
+#===============================================================================
+# Task
+#===============================================================================
+
+class Task:
+    
+    class Worker(threading.Thread):
+        
+        def __init__(self, task):
+            threading.Thread.__init__(self)
+            self.task = task
+            
+        def run(self):
+            if self.task._task_delay > 0: time.sleep(self.task._task_delay)
+            while self.task._task_active == True:
+                if self.task._task_tick > 0: start_time = time.time()
+                try:
+                    self.task.task()
+                except Exception as e:
+                    self.task._task_active = False
+                    print str(e)
+                    break
+                if self.task._task_tick > 0:
+                    end_time = time.time()
+                    sleep_time = self.task._task_tick - (end_time - start_time)
+                    if sleep_time > 0: time.sleep(sleep_time)
+    
+    def __init__(self, tick=0, delay=0):
+        self._task_tick = tick
+        self._task_delay = delay
+        self._task_active = False
+        self._task_worker = Task.Worker(self)
+        
+    def task(self):
+        pass
+        
+    def start(self):
+        if self._task_active == False:
+            self._task_active = True
+            self._task_worker.start()
+    
+    def stop(self):
+        if self._task_active == True:
+            self._task_active = False
+            print 'Try Stop Thread'
+            self._task_worker.join()
+            print 'Thread Stopped'
+            

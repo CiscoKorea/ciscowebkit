@@ -48,8 +48,8 @@ INSTALLED_APPS = [
     #===========================================================================
     # Cisco Products
     #===========================================================================
-    'ciscowebkit.product.Sample',
-    'ciscowebkit.product.ACI',
+    'product.Sample',
+    'product.ACI',
 ]
 
 MIDDLEWARE_CLASSES = [
