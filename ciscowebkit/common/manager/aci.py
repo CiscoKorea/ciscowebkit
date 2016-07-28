@@ -86,12 +86,13 @@ class ApicDomain(Task, L):
         
     def addDomain(self, domain, ip, name, pwd):
         for dom in self:
-            if dom.domain == domain: return False
+            if dom.domain == domain: return None
         try:
-            self << Apic(domain, ip, name, pwd)
+            apic = Apic(domain, ip, name, pwd)
+            self << apic
             self.start()
-        except: return False
-        return True
+        except: return None
+        return apic
         
     def delDomain(self, domain):
         apic_ref = None

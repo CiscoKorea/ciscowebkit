@@ -24,7 +24,9 @@ class Setting(Feature):
     def get(self, request, *cmd):
         lo = Layout()
         
-        if self.info: lo.addRow().addCol(self.info)
+        if self.info:
+            lo.addRow().addCol(self.info)
+            self.info = None;
         
         apic_table = Table('Domain', 'Address', 'User', 'Password', 'Connected')
         for apic in APIC:
@@ -36,10 +38,12 @@ class Setting(Feature):
         return lo
     
     def post(self, request, data, *cmd):
-        if not APIC.addDomain(data.domain, data.ips, data.user, data.pwd): self.info = InfoBlock('연결실패', 'APIC 연결이 실패하였습니다. 연결정보를 확인하세요.')
-        else: self.info = None
+        apic = APIC.addDomain(data.domain, data.ips, data.user, data.pwd)
+        if apic: self.info = InfoBlock('연결성공', '%s의 APIC과 %s로 연결되었습니다.' % (apic.domain, apic.connected)) 
+        else: self.info = InfoBlock('연결실패', 'APIC 연결이 실패하였습니다. 연결정보를 확인하세요.')
         return self.get(request, *cmd)
     
     def delete(self, request, data, *cmd):
         APIC.delDomain(data)
+        self.info = InfoBlock('연결삭제', '%s의 연결을 제거하였습니다/' % data)
         return self.get(request, *cmd)
