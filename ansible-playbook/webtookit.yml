@@ -1,0 +1,86 @@
+---
+ - hosts: dev
+   gather_facts: yes 
+   vars:
+     app_dir : /opt/ciscowebkit
+
+   tasks:
+   - name: install required packages (RHEL/CentOS)
+     become: yes
+     package: name={{item}} state=present use=auto
+     with_items:
+       - mariadb-server
+       - mariadb-devel
+     when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+   - name: install required packages (Ubuntu/Debian)
+     become: yes
+     package: name={{item}} state=present use=auto
+     with_items:
+       - mariadb-server
+       - libmariadbclient-dev
+       - python-dev
+     when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+
+   - name: start mariadb-server
+     become: yes
+     service: name=mariadb state=restarted
+
+   - name: check pip
+     become: false
+     shell: which pip 
+     register: pip_status
+
+   - debug: msg={{ pip_status }}
+
+   - name: download get-pip
+     become : false
+     get_url: url=https://bootstrap.pypa.io/get-pip.py dest=/tmp/get-pip.py mode=0550
+     when: pip_status.rc != 0
+
+   - name: execute get-pip.py
+     become : yes
+     shell: /tmp/get-pip.py
+     when: pip_status.rc != 0
+
+   - name: install required package for python 
+     become: yes
+     pip: name={{item}} state=present
+     with_items:
+       - django
+       - mysqlclient
+       - python-mysqldb
+       - MySQL-python
+     ignore_errors: true
+
+   - mysql_db: name=ciscowebkit state=present encoding=utf8   
+     become: yes
+
+   - mysql_user: name=cisco password=cisco123 state=present priv=ciscowebkit.*:ALL login_user=root
+     become: yes
+
+   - name: clone ciscowebkit from github
+     become: yes
+     git: repo=https://github.com/CiscoKorea/ciscowebkit.git dest={{ app_dir }}
+   
+   - name: configure project with django
+     become: yes
+     django_manage: command=migrate app_path={{app_dir}} 
+
+   - name: makemigrations
+     become: yes
+     django_manage: command=makemigrations app_path={{ app_dir}}
+     
+   - name: create superuser 
+     become: yes
+     django_manage: command="createsuperuser --noinput --username=admin --email=hyungsok@cisco.com" app_path={{ app_dir}}
+     when: false
+
+   - name: test 
+     become: yes
+     django_manage: command=test app_path={{ app_dir}}
+
+
+
+
+
