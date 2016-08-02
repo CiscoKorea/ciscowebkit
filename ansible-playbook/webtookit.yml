@@ -22,9 +22,15 @@
        - python-dev
      when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
-   - name: start mariadb-server
+   - name: start mariadb-server(RHEL/CentOS)
      become: yes
      service: name=mariadb state=restarted
+     when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+   - name: start mariadb-server(Ubuntu/Debian)
+     become: yes
+     service: name=mariadb-server state=restarted
+     when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
    - name: check pip
      become: false
