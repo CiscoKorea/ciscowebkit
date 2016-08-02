@@ -14,6 +14,7 @@ class ChartistLine(__View__):
         for l in self.lines: self.series << L()
         self._link = self.__create_link__(option['link']) if 'link' in option else ''
         self._title = '<h3 class="cw-css-elem-title">%s</h3>' % option['title'] if 'title' in option else ''
+        if 'height' in option: self.opts['height'] = str(option['height']) + 'px'
         
     def grid(self, ymin=None, ymax=None):
         if ymin != None: self.opts['low'] = ymin
@@ -42,6 +43,7 @@ class ChartistArea(__View__):
         for l in self.lines: self.series << L()
         self._link = self.__create_link__(option['link']) if 'link' in option else ''
         self._title = '<h3 class="cw-css-elem-title">%s</h3>' % option['title'] if 'title' in option else ''
+        if 'height' in option: self.opts['height'] = str(option['height']) + 'px'
         
     def grid(self, ymin=None, ymax=None):
         if ymin != None: self.opts['low'] = ymin
@@ -64,10 +66,10 @@ class ChartistArea(__View__):
         return '<div>%s<div id="cw-view-%s" class="ct-chart"%s></div></div>' % (self._title, self._id, self._link)
 
 
-class ChartistVBar(__View__):
+class ChartistBar(__View__):
     
     def __init__(self, *lines, **option):
-        __View__.__init__(self, 'ctst_vbar', lines=L(*lines), opts=M(seriesBarDistance=15), labels=L(), series=L(), size=15, anima=False)
+        __View__.__init__(self, 'ctst_bar', lines=L(*lines), opts=M(seriesBarDistance=15), labels=L(), series=L(), size=15, anima=False)
         if len(self.lines) > 0:
             for l in self.lines: self.series << L()
             self.add = self.__addMapped__
@@ -76,6 +78,7 @@ class ChartistVBar(__View__):
             self.opts['distributeSeries'] = True
         self._link = self.__create_link__(option['link']) if 'link' in option else ''
         self._title = '<h3 class="cw-css-elem-title">%s</h3>' % option['title'] if 'title' in option else ''
+        if 'height' in option: self.opts['height'] = str(option['height']) + 'px'
         
     def grid(self, ymin=None, ymax=None):
         if ymin != None: self.opts['low'] = ymin
@@ -111,10 +114,10 @@ class ChartistVBar(__View__):
     def __render__(self):
         return '<div>%s<div id="cw-view-%s" class="ct-chart"%s></div></div>' % (self._title, self._id, self._link)
     
-class ChartistHBar(__View__):
+class ChartistSlide(__View__):
     
     def __init__(self, *lines, **option):
-        __View__.__init__(self, 'ctst_hbar', lines=L(*lines), opts=M(seriesBarDistance=5), labels=L(), series=L(), size=5, anima=False)
+        __View__.__init__(self, 'ctst_slide', lines=L(*lines), opts=M(seriesBarDistance=5), labels=L(), series=L(), size=5, anima=False)
         if len(self.lines) > 0:
             for l in self.lines: self.series << L()
             self.add = self.__addMapped__
@@ -123,6 +126,7 @@ class ChartistHBar(__View__):
             self.opts['distributeSeries'] = True
         self._link = self.__create_link__(option['link']) if 'link' in option else ''
         self._title = '<h3 class="cw-css-elem-title">%s</h3>' % option['title'] if 'title' in option else ''
+        if 'height' in option: self.opts['height'] = str(option['height']) + 'px'
         
     def grid(self, ymin=None, ymax=None):
         if ymin != None: self.opts['low'] = ymin
@@ -158,12 +162,13 @@ class ChartistHBar(__View__):
     def __render__(self):
         return '<div>%s<div id="cw-view-%s" class="ct-chart"%s></div></div>' % (self._title, self._id, self._link)
     
-class ChartistPie(__View__):
+class ChartistDonut(__View__):
     
-    def __init__(self, title, **option):
-        __View__.__init__(self, 'ctst_pie', title=title, opts=M(donutWidth='100%'), labels=L(), series=L())
+    def __init__(self, **option):
+        __View__.__init__(self, 'ctst_donut', opts=M(donutWidth='100%'), labels=L(), series=L())
         self._link = self.__create_link__(option['link']) if 'link' in option else ''
         self._title = '<h3 class="cw-css-elem-title">%s</h3>' % option['title'] if 'title' in option else ''
+        if 'height' in option: self.opts['height'] = str(option['height']) + 'px'
         
     def stroke(self, size):
         self.opts['donutWidth'] = str(size) + '%'

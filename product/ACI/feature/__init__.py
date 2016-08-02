@@ -1,4 +1,4 @@
 FEATURE_ORDER = ['Overview',
-                 'Show.Device',
+                 'Show.Devices',
                  'Setting']
 

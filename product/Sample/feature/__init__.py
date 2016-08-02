@@ -1,6 +1,8 @@
 FEATURE_ORDER = [
                  'Base',
                  'Chartist',
+                 'Morris',
+                 'Sparse',
                  'Feature2.Object_1',
                  'Feature2.Object_2',
                  'Feature3',
