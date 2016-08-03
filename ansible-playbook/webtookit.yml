@@ -29,7 +29,7 @@
 
    - name: start mariadb-server(Ubuntu/Debian)
      become: yes
-     service: name=mariadb-server state=restarted
+     service: name=mysql state=restarted
      when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
    - name: check pip
@@ -62,7 +62,7 @@
    - mysql_db: name=ciscowebkit state=present encoding=utf8   
      become: yes
 
-   - mysql_user: name=cisco password=cisco123 state=present priv=ciscowebkit.*:ALL login_user=root
+   - mysql_user: name=cisco password=cisco123 state=present priv="ciscowebkit.*:ALL,GRANT" login_user=root
      become: yes
 
    - name: clone ciscowebkit from github
@@ -85,10 +85,12 @@
    - name: test 
      become: yes
      django_manage: command=test app_path={{ app_dir}}
+     ignore_errors: true
 
    - name: runserver with 8080 port
      become: yes
-     django_manage: command='runserver 0.0.0.0:8080' app_path= {{app_dir}}
+     django_manage: command="runserver 0.0.0.0:8080" app_path={{app_dir}}
+     when: false
 
 
 
