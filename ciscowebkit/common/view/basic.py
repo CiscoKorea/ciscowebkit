@@ -18,8 +18,8 @@ class Layout(__View__):
         __View__.__init__(self, 'layout', rows=L(*rows))
         self._border = ' style="border: %dpx solid %s;"' % (option['border'][0], option['border'][1]) if 'border' in option else ''
         
-    def add(self, view):
-        self.rows << view
+    def __call__(self, *rows):
+        for row in rows: self.rows << row
         return self
         
     def __render__(self):
