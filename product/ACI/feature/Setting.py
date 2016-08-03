@@ -22,25 +22,25 @@ class Setting(Feature):
         self.info = None;
         
     def get(self, request, *cmd):
-        lo = Layout()
+        apic_table = Table('Domain', 'Address', 'User', 'Password', 'Connected')
+        for apic in APIC: apic_table.add(apic.domain, apic.ip, apic.name, apic.pwd, apic.connected, did=apic.domain)
         
         if self.info:
-            lo.addRow().addCol(self.info)
-            self.info = None;
+            lo = Layout(Row(Col(self.info)))
+            self.info = None
+        else: lo = Layout()
         
-        apic_table = Table('Domain', 'Address', 'User', 'Password', 'Connected')
-        for apic in APIC:
-            apic_table.add(apic.domain, apic.ip, apic.name, apic.pwd, apic.connected, did=apic.domain)
-        
-        lo.addRow().addCol(self.form_panel)
-        lo.addRow().addCol(Panel('Connection List', apic_table))
+        lo(
+            Row(self.form_panel),
+            Row(Panel('Connection List', apic_table))
+        )
         
         return lo
     
     def post(self, request, data, *cmd):
         apic = APIC.addDomain(data.domain, data.ips, data.user, data.pwd)
         if apic: self.info = InfoBlock('연결성공', u'%s의 APIC과 %s로 연결되었습니다.' % (apic.domain, apic.connected)) 
-        else: self.info = InfoBlock('연결실패', 'APIC 연결이 실패하였습니다. 연결정보를 확인하세요.')
+        else: self.info = InfoBlock('연결실패', 'APIC 연결이 실패하      였습니다. 연결정보를 확인하세요.')
         return self.get(request, *cmd)
     
     def delete(self, request, data, *cmd):

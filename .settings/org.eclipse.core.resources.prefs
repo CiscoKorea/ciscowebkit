@@ -3,6 +3,6 @@ encoding//product/ACI/feature/Overview.py=utf-8
 encoding//product/ACI/feature/Setting.py=utf-8
 encoding//product/ACI/feature/Show.py=utf-8
 encoding//product/Sample/feature/Base.py=utf-8
-encoding//product/Sample/feature/ChartMorris.py=utf-8
 encoding//product/Sample/feature/Chartist.py=utf-8
+encoding//product/Sample/feature/Morris.py=utf-8
 encoding//product/Sample/migrations/0001_initial.py=utf-8

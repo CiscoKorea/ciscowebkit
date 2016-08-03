@@ -1,7 +1,6 @@
 {{ pfm }}
 
 $(document).ready(function() {
-	do_scheduler();
 	show_dashboard();
 });
 
@@ -9,8 +8,19 @@ var now_feature = null;
 var now_url = null;
 var now_cmd = null;
 var now_sched = null;
+var pwr_sched = false;
 var spinner = null;
 var prev_html_md5 = null;
+
+function pwr_sched_toggle() {
+	if (pwr_sched == true) {
+		pwr_sched = false;
+		document.getElementById("cw-progress-bar").innerHTML = '<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"><span class="sr-only">100% Complete</span></div>';
+	} else {
+		pwr_sched = true;
+		do_scheduler();
+	}
+}
 
 function set_sched() {
 	if (now_feature["_tick"] > 0) { now_sched = {tick: now_feature["_tick"], exp: now_feature["_tick"]}; }
@@ -22,20 +32,25 @@ function del_sched() {
 }
 
 function do_scheduler() {
-	if (now_sched != null) {
-		sched = now_sched;
-		sched["exp"] = sched["exp"] - 500;
-		if (sched["exp"] <= 0) {
-			sched["exp"] = sched["tick"];
-			$.ajax({
-		        url: now_url,
-		        async: false,
-		        dataType: "json",
-		        success: function(data) { show_ux(data); }
-		    });
-		}
+	if (pwr_sched == true) {
+		if (now_sched != null) {
+			sched = now_sched;
+			sched["exp"] = sched["exp"] - 500;
+			var pct = ((sched["tick"] - sched["exp"]) * 100) / sched["tick"]
+			if (pct >= 100) { document.getElementById("cw-progress-bar").innerHTML = '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" style="width:' + pct + '%;"><span class="sr-only">' + pct + '% Complete</span></div>'; }
+			else { document.getElementById("cw-progress-bar").innerHTML = '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" style="width:' + pct + '%;"><span class="sr-only">' + pct + '% Complete</span></div>'; }
+			if (sched["exp"] <= 0) {
+				sched["exp"] = sched["tick"];
+				$.ajax({
+			        url: now_url,
+			        async: false,
+			        dataType: "json",
+			        success: function(data) { show_ux(data); }
+			    });
+			}
+		} else { document.getElementById("cw-progress-bar").innerHTML = '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"><span class="sr-only">100% Complete</span></div>'; }
+		setTimeout(do_scheduler, 500);
 	}
-	setTimeout(do_scheduler, 500);
 }
 
 function show_spinner() {
@@ -65,7 +80,7 @@ function hide_spinner() {
 
 function clear_products() {
 	var pnavs = document.getElementsByClassName("cw-pnav");
-	for (var i=0, pnav; pnav=pnavs[i]; i++) { pnav.classList.remove("navbar-product-active"); }
+	for (var i=0, pnav; pnav=pnavs[i]; i++) { pnav.classList.remove("cw-pnav-active"); }
 	var fnavs = document.getElementsByClassName("cw-fnav");
 	for (var i=0, fnav; fnav=fnavs[i]; i++) { fnav.style.display = "none"; }
 }
@@ -74,51 +89,38 @@ function clear_features() {
 	var pages = document.getElementsByClassName("cw-page");
 	for (var i=0, page; page=pages[i]; i++) { page.style.display = "none"; }
 	var fnav_items = document.getElementsByClassName("cw-fnavitem");
-	for (var i=0, fnav_item; fnav_item=fnav_items[i]; i++) { fnav_item.classList.remove("active"); }
+	for (var i=0, fnav_item; fnav_item=fnav_items[i]; i++) { fnav_item.classList.remove("cw-fnavitem-active"); }
 }
 
 function active_feature(code) {
 	document.getElementById("cw-page-" + code).style.display = "block";
-	document.getElementById("cw-fnav-" + code).classList.add("active");
+	document.getElementById("cw-fnav-" + code).classList.add("cw-fnavitem-active");
 }
 
 function show_dashboard() {
-	show_spinner();
-	del_sched();
 	clear_products();
 	clear_features();
 	document.getElementById("cw-feature-page").style.display = "none";
-	document.getElementById("cw-dashboard-page").style.display = "block";
-	hide_spinner();
+	document.getElementById("cw-page-dashboard").style.display = "block";
+	recv_view(pfm["dashboard"], null, pfm["dashboard"]["_url"]);
 }
 
 function show_product(code) {
 	clear_products();
-	document.getElementById("cw-dashboard-page").style.display = "none";
+	document.getElementById("cw-page-dashboard").style.display = "none";
 	document.getElementById("cw-feature-page").style.display = "block";
-	document.getElementById("cw-pnav-" + code).classList.add("navbar-product-active");
+	document.getElementById("cw-pnav-" + code).classList.add("cw-pnav-active");
 	document.getElementById("cw-fnav-" + code).style.display = "block";
 	show_feature(code, '');
 }
 
 function show_feature(code, cmd) {
-	show_spinner();
-	del_sched();
-	if (code != '') { now_feature = pfm[code]; }
-	now_cmd = cmd;
-	now_url = now_feature["_url"] + now_cmd;
 	clear_features();
-	document.getElementById("cw-page_title").innerHTML = now_feature["_title"] + " <small> " + now_feature["_desc"] + "</small>";
-	var get_processing = function () {
-		$.ajax({
-	        url: now_url,
-	        async: false,
-	        dataType: "json",
-	        success: function(data) { show_ux(data); }
-	    });
-	}
-	set_sched();
-	setTimeout(get_processing, 0);
+	if (code != '') { feature = pfm[code]; }
+	else { feature = now_feature; }
+	document.getElementById("cw-page_title").innerHTML = feature["_title"] + " <small> " + feature["_desc"] + "</small>";
+	active_feature(feature["_code"]);
+	recv_view(feature, cmd, feature["_url"] + cmd);
 }
 
 function get_cookie(c_name)
@@ -133,6 +135,24 @@ function get_cookie(c_name)
 		}
 	}
 	return "";
+}
+
+function recv_view(feature, cmd, url) {
+	show_spinner();
+	del_sched();
+	now_feature = feature;
+	now_cmd = cmd;
+	now_url = url;
+	var get_processing = function () {
+		$.ajax({
+	        url: now_url,
+	        async: false,
+	        dataType: "json",
+	        success: function(data) { show_ux(data); }
+	    });
+	}
+	set_sched();
+	setTimeout(get_processing, 0);
 }
 
 function send_form(data) {
@@ -179,22 +199,40 @@ function show_ux(data) {
 		document.getElementById("cw-page-" + code).innerHTML = data["_html"];
 		prev_html_md5 = data["_md5"];
 	}
-	active_feature(code);
 	window["show_ux_" + data["_ux"]](data);
 	hide_spinner();
 }
 
 ///////////////////////// UX Basic //////////////////////////
+function show_ux_none(data) {}
+function show_ux_empty(data) {}
+function show_ux_form(data) {}
+
 function show_ux_layout(data) {
-	var rows = data["row"];
-	for (var i=0, cols; cols=rows[i]; i++) {
-		for (var j=0; j < cols.length; j++) {
-			window["show_ux_" + cols[j]["view"]["_ux"]](cols[j]["view"]);
-		}
+	var rows = data["rows"];
+	for (var i=0, row; row=rows[i]; i++) {
+		window["show_ux_" + row["_ux"]](row)
 	}
 }
 
+function show_ux_layout_row(data) {
+	var cols = data["cols"];
+	for (var i=0, col; col=cols[i]; i++) {
+		window["show_ux_" + col["_ux"]](col)
+	}
+}
+
+function show_ux_layout_col(data) {
+	var view = data["view"];
+	window["show_ux_" + view["_ux"]](view)
+}
+
 function show_ux_panel(data) {
+	var view = data["view"];
+	window["show_ux_" + view["_ux"]](view);
+}
+
+function show_ux_plain(data) {
 	var view = data["view"];
 	window["show_ux_" + view["_ux"]](view);
 }
@@ -275,14 +313,11 @@ function show_ux_table(data) {
             [ 10, 25, 50, -1 ],
             [ '10 rows', '25 rows', '50 rows', 'Show all' ]
         ],
-        buttons: ['pageLength', 'csvHtml5'],
+        buttons: ['pageLength', 'colvis', 'excelHtml5', 'pdfHtml5', 'print'],
         search: { "regex": false },
         destroy: true
     });
     table.style.width = "100%";
-}
-
-function show_ux_form(data) {
 }
 
 function show_ux_ctst_line(data) {
@@ -348,7 +383,7 @@ function show_ux_ctst_area(data) {
     }
 }
 
-function show_ux_ctst_vbar(data) {
+function show_ux_ctst_bar(data) {
     var option = {
         fullWidth: true,
         height: 200,
@@ -375,7 +410,7 @@ function show_ux_ctst_vbar(data) {
     }
 }
 
-function show_ux_ctst_hbar(data) {
+function show_ux_ctst_slide(data) {
     var option = {
         fullWidth: true,
         height: 200,
@@ -404,7 +439,7 @@ function show_ux_ctst_hbar(data) {
     }
 }
 
-function show_ux_ctst_pie(data) {
+function show_ux_ctst_donut(data) {
     var labels = data["labels"];
     var series = data["series"];
     var totalValue = 0;
@@ -439,3 +474,79 @@ function show_ux_ctst_pie(data) {
 	    });
 	}
 }
+
+function show_ux_morr_line(data) {
+	var view_name = "cw-view-" + data["_id"];
+    document.getElementById(view_name).innerHTML = "";
+    var desc = {
+		element: view_name,
+	    data: data["data"],
+	    xkey: "tstamp",
+	    ykeys: data["lines"],
+	    labels: data["lines"],
+	    smooth:true,
+	    resize: true
+    };
+    for (var key in data["opts"]) { desc[key] = data["opts"][key]; }
+    Morris.Line(desc);
+}
+
+function show_ux_morr_area(data) {
+	var view_name = "cw-view-" + data["_id"];
+    document.getElementById(view_name).innerHTML = "";
+    var desc = {
+		element: view_name,
+	    data: data["data"],
+	    xkey: "tstamp",
+	    ykeys: data["lines"],
+	    labels: data["lines"],
+	    smooth:true,
+	    resize: true
+    };
+    for (var key in data["opts"]) { desc[key] = data["opts"][key]; }
+    Morris.Area(desc);
+}
+
+function show_ux_morr_bar(data) {
+	var view_name = "cw-view-" + data["_id"];
+    document.getElementById(view_name).innerHTML = "";
+    var desc = {
+		element: view_name,
+	    data: data["data"],
+	    xkey: "tstamp",
+	    ykeys: data["lines"],
+	    labels: data["lines"],
+	    barRatio: 0.4,
+	    xLabelAngle: 90,
+        hideHover: "auto",
+        resize: true
+    };
+    for (var key in data["opts"]) { desc[key] = data["opts"][key]; }
+    Morris.Bar(desc);
+}
+
+function show_ux_morr_donut(data) {
+	var view_name = "cw-view-" + data["_id"];
+    document.getElementById(view_name).innerHTML = "";
+    Morris.Donut({
+        element: view_name,
+        data : data["data"],
+        resize: true
+    });
+}
+
+function show_ux_justgage(data) {
+	document.getElementById("cw-view-" + data["_id"]).innerHTML = "";
+	var desc = {
+		id: "cw-view-" + data["_id"],
+	    value: data["value"],
+	    min: data["min"],
+	    max: data["max"],
+	}
+	for (var key in data["opts"]) { desc[key] = data["opts"][key]; }
+	var g = new JustGage(desc);
+}
+
+
+
+//#3498DB

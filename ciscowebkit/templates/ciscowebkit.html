@@ -11,71 +11,122 @@
 <meta name="author" content="">
 
 <title>Cisco Webkit</title>
-<link href="/resource/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="/resource/css/datatables.css" rel="stylesheet">
+<link href="/resource/css/morris.css" rel="stylesheet">
+<link href="/resource/css/chartist.css" rel="stylesheet">
+<link href="/resource/css/chartist-plugin-tooltip.css" rel="stylesheet">
+<link href="/resource/css/jquery.circliful.css" rel="stylesheet" type="text/css"/>
+<link href="/resource/css/font-awesome.css" rel="stylesheet">
+<link href="/resource/css/bootstrap.css" rel="stylesheet">
 <link href="/resource/css/sb-admin.css" rel="stylesheet">
-<link href="/resource/css/plugins/morris.css" rel="stylesheet">
-<link href="/resource/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-<link href="/resource/css/dataTables.bootstrap.css" rel="stylesheet">
-<link href="/resource/css/buttons.dataTables.min.css" rel="stylesheet">
-
-<link href="/resource/chartist/chartist.min.css" rel="stylesheet">
-<link href="/resource/chartist/tooltip/chartist-plugin-tooltip.css" rel="stylesheet">
-
-<link href="/resource/cw.css" rel="stylesheet">
+<link href="/resource/css/ciscowebkit.css" rel="stylesheet">
 
 </head>
 
 <body>
-
-	<script src="/resource/js/jquery.js"></script>
+	<!-- <script src="/resource/js/jquery-3.1.0.min.js"></script>  -->
+	<script src="/resource/js/jquery-3.1.0.min.js"></script>
+	<script src="/resource/js/datatables.min.js"></script>
+	<script src="/resource/js/spin.js"></script>
+	<script src="/resource/js/raphael-2.1.4.min.js"></script>
+	<script src="/resource/js/morris.min.js"></script>
+	<script src="/resource/js/chartist.min.js"></script>
+	<script src="/resource/js/chartist-plugin-tooltip.min.js"></script>
+	<script src="/resource/js/justgage.js"></script>
 	<script src="/resource/js/bootstrap.min.js"></script>
-	<script src="/resource/js/plugins/morris/raphael.min.js"></script>
-	<script src="/resource/js/plugins/morris/morris.min.js"></script>
-	<script src="/resource/js/plugins/flot/jquery.flot.js"></script>
-    <script src="/resource/js/plugins/flot/jquery.flot.tooltip.min.js"></script>
-    <script src="/resource/js/plugins/flot/jquery.flot.resize.js"></script>
-    <script src="/resource/js/plugins/flot/jquery.flot.pie.js"></script>
-    <script src="/resource/js/jquery.dataTables.min.js"></script>
-    <script src="/resource/js/dataTables.bootstrap.js"></script>
-    <script src="/resource/js/dataTables.buttons.min.js"></script>
-    <script src="/resource/js/buttons.html5.min.js"></script>
-    
-    <script src="/resource/chartist/chartist.min.js"></script>
-    <script src="/resource/chartist/tooltip/chartist-plugin-tooltip.min.js"></script>
-    
-    <script src="/resource/spin.js"></script>
     
 	<!-- Product -->
 	
-	<div id="wrapper">
 	
-		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-					<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" onclick="show_dashboard();">
-					<img src="/resource/images/logo.png" width="50px" heigth="50px" />
-				</a>
+	
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+				<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" onclick="show_dashboard();">
+				<img src="/resource/images/logo.png" width="40px" heigth="40px" />
+			</a>
 
 <!-- Products Navigation Bar -->				
 {{ cw_pnav }}
 <!-- End -->
+			
+			<span id="cw-progress-bar" class="progress pull-right" onclick="pwr_sched_toggle();">
+				<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"><span class="sr-only">100% Complete</span></div>
+			</span>
+			
+			<ul class="nav navbar-right top-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> <b class="caret"></b></a>
+                    <ul class="dropdown-menu alert-dropdown">
+                        <li>
+                            <a href="#">Alert Name <span class="label label-default">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-primary">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-success">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-info">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-warning">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-danger">Alert Badge</span></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">View All</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> SolSE <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+			
+			
+			
 				
-			</div>
-			<div class="collapse navbar-collapse navbar-ex1-collapse">
+		</div>
+		
+		
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
 
 <!-- Features Navigation Bar -->
 {{ cw_fnav }}
 <!-- End -->
 				
-			</div>
-		</nav>
+		</div>
+	</nav>
+	
+	<div id="cw-page-dashboard"></div>
+		
+	<div id="wrapper">
+		
 		<div id="page-wrapper">
 			<div class="container-fluid">
 			
-				<div id="cw-dashboard-page"></div>
-				
 				<div id="cw-feature-page">
 			
 					<div class="row">

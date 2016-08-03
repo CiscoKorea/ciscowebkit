@@ -15,7 +15,9 @@ from ciscowebkit.common.feature import Feature, SubFeature
 
 from product import PRODUCT_ORDER
 
-from ciscowebkit.common.manager.aci import ApicDomain
+from dashboard.views import Dashboard
+
+from ciscowebkit.common.manager.aci import ApicManager, ApicPreset
 
 class Engine(SingleTon):
             
@@ -28,9 +30,11 @@ class Engine(SingleTon):
         print inf(self.products)
         
     def __load_product_managers__(self):
-        self.APIC = ApicDomain()
-#         self.APIC.addDomain('testlab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
+        self.APIC = ApicManager()
+        self.APIC.addDomain('testlab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
+#         self.APIC.addDomain('testlab2', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
         greg('APIC', self.APIC)
+        greg('APICSET', ApicPreset)
         pass
     
     def __load_templates__(self):
@@ -42,6 +46,7 @@ class Engine(SingleTon):
     def __load_features__(self):
         self.products = M()
         self.products['_porder'] = L()
+        greg('PRODUCTS', self.products)
         for p in PRODUCT_ORDER: self.products._porder << p.lower()
         
         p_paths = Dir.showall('product/')
@@ -101,6 +106,15 @@ class Engine(SingleTon):
             for f in order.FEATURE_ORDER:
                 if '.' in f: self.products[p_name]._forder << (f.lower().split('.')[0], f.lower().split('.')[1])
                 else: self.products[p_name]._forder << f.lower()
+                
+        # Dashboard
+        self.products['dashboard'] = Dashboard()
+        self.products.dashboard['_term'] = True
+        self.products.dashboard['_name'] = 'dashboard'
+        self.products.dashboard['_code'] = 'dashboard'
+        self.products.dashboard['_url'] = '/dashboard/'
+        self.products.dashboard['_title'] = 'Dashboard'
+        self.products.dashboard['_desc'] = 'Cisco Webkit'
             
     def __build_template__(self):
         self.pfm = M()
@@ -112,7 +126,7 @@ class Engine(SingleTon):
         for p_name in self.products._porder:
             if p_name in self.products:
                 self.pfm[p_name] = None
-                pnav += '''                <a id="cw-pnav-%s" class="navbar-product cw-pnav" onclick="show_product(\'%s\');">%s</a>\n''' % (p_name, p_name, self.products[p_name]._title)
+                pnav += '''                <a id="cw-pnav-%s" class="cw-pnav" onclick="show_product(\'%s\');">%s</a>\n''' % (p_name, p_name, self.products[p_name]._title)
                 fnav += '            <ul id="cw-fnav-%s" class="nav navbar-nav side-nav cw-fnav">\n' % p_name
                 now_sub = None
                 for f_name in self.products[p_name]._forder:
@@ -143,6 +157,7 @@ class Engine(SingleTon):
                 if now_sub != None:
                     fnav += '</ul></li>\n'
                 fnav += '</ul>\n'
+        self.pfm['dashboard'] = self.products.dashboard
             
         self.product_nav_tpl = Template(pnav).render(Context())
         self.feature_nav_tpl = Template(fnav).render(Context())
@@ -170,17 +185,19 @@ class Engine(SingleTon):
         paths = filter(None, request.path.split('/'))
         pathlen = len(paths)
         if pathlen > 0:
-            feature = self.products[paths[0]]
-            if pathlen > 1:
-                feature = feature[paths[1]]
-                if feature._term:
-                    if pathlen > 2: data = self.__action_method__(request, feature, *paths[2:])
-                    else: data = self.__action_method__(request, feature)
-                elif pathlen > 2:
-                    feature = feature[paths[2]]
-                    if pathlen > 3: data = self.__action_method__(request, feature, *paths[3:])
-                    else: data = self.__action_method__(request, feature)
+            if paths[0] == 'dashboard': data = self.__action_method__(request, self.products.dashboard, *paths[1:])
+            else:
+                feature = self.products[paths[0]]
+                if pathlen > 1:
+                    feature = feature[paths[1]]
+                    if feature._term:
+                        if pathlen > 2: data = self.__action_method__(request, feature, *paths[2:])
+                        else: data = self.__action_method__(request, feature)
+                    elif pathlen > 2:
+                        feature = feature[paths[2]]
+                        if pathlen > 3: data = self.__action_method__(request, feature, *paths[3:])
+                        else: data = self.__action_method__(request, feature)
+                    else: data = self.page_not_found_tpl
                 else: data = self.page_not_found_tpl
-            else: data = self.page_not_found_tpl
             return HttpResponse(Struct.CODE2JSON(data), content_type="application/json")
         return HttpResponse(self.ciscowebkit_build)

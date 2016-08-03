@@ -20,10 +20,8 @@ from django.views.generic import RedirectView
 from . import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^dashboard/', include('ciscowebkit.dashboard.urls')),
     url(r'^favicon\.ico$', RedirectView.as_view(url='/resource/images/favicon.ico')),
+    url(r'^admin/', admin.site.urls),
+    url(r'^test', views.test),
     url(r'^', views.action),
-#     url(r'^.*/', views.action),
-#     url(r'^', include('ciscowebkit.dashboard.urls')),
 ]

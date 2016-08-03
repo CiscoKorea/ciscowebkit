@@ -4,52 +4,101 @@ Created on 2016. 7. 18.
 @author: "comfact"
 '''
 
-from ciscowebkit.common.pygics import L, M
+from ciscowebkit.common.pygics import instof, L, M
 from ciscowebkit.common.abstract import __View__
 
 class Layout(__View__):
+    
+    BLUE = '#4169e1'
+    GREEN = '#008000'
+    YELLOW = '#ffd700'
+    RED = '#ff0000'
+    
+    def __init__(self, *rows, **option):
+        __View__.__init__(self, 'layout', rows=L(*rows))
+        self._border = ' style="border: %dpx solid %s;"' % (option['border'][0], option['border'][1]) if 'border' in option else ''
+        
+    def __call__(self, *rows):
+        for row in rows: self.rows << row
+        return self
+        
+    def __render__(self):
+        html = '<div%s>' % self._border
+        idx = 0
+        for row in self.rows:
+            row['_id'] = self._id + 'R%d' % idx; idx += 1
+            html += row.__render__()
+        return html + '</div>'
+
+class Row(__View__):
+    
+    DEFAULT = 200
+    DOUBLE = 400
+    HALF = 100
+    
+    def __init__(self, *cols, **option):
+        __View__.__init__(self, 'layout_row', cols=L())
+        for col in cols:
+            if instof(col, Col): self.cols << col
+            else: self.cols << Col(col)
+        
+    def __render__(self):
+        html = '<div class="row">'
+        idx = 0
+        for col in self.cols:
+            col['_id'] = self._id + 'C%d' % idx; idx += 1
+            html += col.__render__()
+        html += '</div>'
+        return html
+
+class Col(__View__):
     
     LARGE = 'lg'
     MIDIUM = 'md'
     SMALL = 'sm'
     
-    def __init__(self):
-        __View__.__init__(self, 'layout', row=L())
-    
-    def addRow(self):
-        self.row << L()
-        return self
-    
-    def addCol(self, view, scr='lg', size=12):
-        self.row[-1] << M(view=view, scr=scr, size=size)
-        return self
-    
+    def __init__(self, view, *widths):
+        __View__.__init__(self, 'layout_col', view=view)
+        self._widths = L()
+        if len(widths) > 0:
+            for width in widths:
+                if instof(width, tuple): self._widths << width
+        else: self._widths << ('lg', 12)
+        
     def __render__(self):
-        html = ''
-        idx = 1;
-        for row in self.row:
-            html += '<div class="row">\n'
-            for col in row:
-                col.view['_id'] = self._id + '_L' + str(idx); idx += 1
-                html += '<div class="col-%s-%d">\n' % (col.scr, col.size) + col.view.__render__() + '</div>\n'
-            html += '</div>\n'
+        html = '<div class="'
+        for width in self._widths: html += 'col-%s-%d ' % width
+        self.view['_id'] = self._id + 'V'
+        html += '">' + self.view.__render__() + '</div>\n'
         return html
+    
+class Empty(__View__):
+    
+    def __init__(self):
+        __View__.__init__(self, 'empty')
 
 class Panel(__View__):
     
     DEFAULT = 'default'
-    RED = 'red'
-    GREEN = 'green'
-    YELLOW = 'yellow'
-    BLUE = 'primary'
-    PRIME = 'primary'
+    
     ACTIVE = 'active'
     SUCCESS = 'success'
-    INFO = 'info'
     WARNING = 'warning'
+    INFO = 'info'
     DANGER = 'danger'
     
-    def __init__(self, title, view, panel='default', icon='fa-sticky-note-o', link=None):
+    BLUE = 'primary'
+    GREEN = 'green'
+    YELLOW = 'yellow'
+    RED = 'red'
+    
+    LIGHT_BLUE = 'info'
+    LIGHT_GREEN = 'success'
+    LIGHT_YELLOW = 'warning'
+    LIGHT_RED = 'danger'
+    
+    
+    def __init__(self, title, view, panel='default', icon='fa-archive', link=None):
         __View__.__init__(self, 'panel', view=view)
         self._title = title
         self._panel = panel
@@ -57,16 +106,29 @@ class Panel(__View__):
         self._link = self.__create_link__(link)
         
     def __render__(self):
-        self.view['_id'] = self._id + '_P'
+        self.view['_id'] = self._id + 'P'
         return '''<div id="cw-view-%s" class="panel panel-%s">
 <div class="panel-heading"><h3 class="panel-title"><i class="fa %s"></i> %s</h3></div>
 <div class="panel-body"%s>%s</div>
 </div>
 ''' % (self._id, self._panel, self._icon, self._title, self._link, self.view.__render__())
 
+class Plain(__View__):
+    
+    def __init__(self, view, link=None):
+        __View__.__init__(self, 'plain', view=view)
+        self._link = self.__create_link__(link)
+        
+    def __render__(self):
+        self.view['_id'] = self._id + 'P'
+        return '''<div id="cw-view-%s" class="panel panel-default">
+<div class="panel-body"%s>%s</div>
+</div>
+''' % (self._id, self._link, self.view.__render__())
+
 class Text(__View__):
     
-    def __init__(self, text, link=None):
+    def __init__(self, text, link=None, height=None):
         __View__.__init__(self, 'text', text=text)
         self._link = self.__create_link__(link)
         

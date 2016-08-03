@@ -1,6 +1,6 @@
 /*!
- * Bootstrap v3.3.6 (http://getbootstrap.com)
- * Copyright 2011-2015 Twitter, Inc.
+ * Bootstrap v3.3.7 (http://getbootstrap.com)
+ * Copyright 2011-2016 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
@@ -1106,7 +1106,6 @@ a:focus {
   text-decoration: underline;
 }
 a:focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -2537,7 +2536,6 @@ select[size] {
 input[type="file"]:focus,
 input[type="radio"]:focus,
 input[type="checkbox"]:focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -3029,7 +3027,6 @@ select[multiple].input-lg {
 .btn.focus,
 .btn:active.focus,
 .btn.active.focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -3635,6 +3632,10 @@ tbody.collapse.in {
   bottom: 100%;
   margin-bottom: 2px;
 }
+
+.navbar-right {
+  float: right;
+}
 @media (min-width: 768px) {
   .navbar-right .dropdown-menu {
     right: 0;
@@ -3648,7 +3649,7 @@ tbody.collapse.in {
 .btn-group,
 .btn-group-vertical {
   position: relative;
-  display: inline-block;
+  display: block;
   vertical-align: middle;
 }
 .btn-group > .btn,
@@ -4180,6 +4181,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 @media (min-width: 768px) {
   .navbar-header {
     float: left;
+    width: 100%;
   }
 }
 .navbar-collapse {
@@ -4273,32 +4275,6 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   bottom: 0;
   margin-bottom: 0;
   border-width: 1px 0 0;
-}
-.navbar-product {
-  float: left;
-  height: 50px;
-  padding: 15px 15px;
-  font-size: 18px;
-  line-height: 20px;
-  color: #fff;
-  background-color: transparent;
-}
-.navbar-product-active {
-  float: left;
-  height: 50px;
-  padding: 15px 15px;
-  font-size: 18px;
-  line-height: 20px;
-  color: #fff;
-  background-color: #080808;
-}
-.navbar-product:hover,
-.navbar-product:focus {
-  text-decoration: none;
-}
-.navbar-product-active:hover,
-.navbar-product-active:focus {
-  text-decoration: none;
 }
 .navbar-brand {
   float: left;
@@ -4627,7 +4603,7 @@ fieldset[disabled] .navbar-default .btn-link:focus {
 .navbar-inverse .navbar-brand:hover,
 .navbar-inverse .navbar-brand:focus {
   color: #fff;
-  background-color: #080808;
+  background-color: transparent;
 }
 .navbar-inverse .navbar-text {
   color: #9d9d9d;
