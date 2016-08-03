@@ -484,6 +484,7 @@ function show_ux_morr_line(data) {
 	    xkey: "tstamp",
 	    ykeys: data["lines"],
 	    labels: data["lines"],
+	    hideHover:"auto",
 	    smooth:true,
 	    resize: true
     };
@@ -500,6 +501,7 @@ function show_ux_morr_area(data) {
 	    xkey: "tstamp",
 	    ykeys: data["lines"],
 	    labels: data["lines"],
+	    hideHover:"auto",
 	    smooth:true,
 	    resize: true
     };
@@ -516,9 +518,9 @@ function show_ux_morr_bar(data) {
 	    xkey: "tstamp",
 	    ykeys: data["lines"],
 	    labels: data["lines"],
+	    hideHover: "auto",
 	    barRatio: 0.4,
 	    xLabelAngle: 90,
-        hideHover: "auto",
         resize: true
     };
     for (var key in data["opts"]) { desc[key] = data["opts"][key]; }
@@ -531,6 +533,7 @@ function show_ux_morr_donut(data) {
     Morris.Donut({
         element: view_name,
         data : data["data"],
+        hideHover: "auto",
         resize: true
     });
 }

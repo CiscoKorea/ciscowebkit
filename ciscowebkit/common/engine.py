@@ -17,7 +17,7 @@ from product import PRODUCT_ORDER
 
 from dashboard.views import Dashboard
 
-from ciscowebkit.common.manager.aci import ApicManager, ApicPreset
+from ciscowebkit.common.manager.aci import ApicManager
 
 class Engine(SingleTon):
             
@@ -27,14 +27,11 @@ class Engine(SingleTon):
         self.__load_features__()
         self.__build_template__()
 
-        print inf(self.products)
-        
     def __load_product_managers__(self):
         self.APIC = ApicManager()
         self.APIC.addDomain('testlab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
 #         self.APIC.addDomain('testlab2', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
         greg('APIC', self.APIC)
-        greg('APICSET', ApicPreset)
         pass
     
     def __load_templates__(self):
