@@ -5,6 +5,7 @@ Created on 2016. 7. 27.
 @author: "comfact"
 '''
 
+import re
 import time
 from ciscowebkit.common import *
  
@@ -18,20 +19,54 @@ class Impl_Overview(Feature):
         
         lo = Layout()
         
-        cnt_tnt = APIC.getNoTenant()
-        cnt_bd  = APIC.getNoBD()
-        cnt_epg = APIC.getNoEPG()
-        cnt_ep  = APIC.getNoEP()
-        cnt_flt = APIC.getNoFilter()
-        cnt_ctr = APIC.getNoContract()
-        cnt_47d = APIC.getNoL47Device()
-        cnt_47g = APIC.getNoL47Graph()
-        cnt_nd  = APIC.getNoNode()
-        cnt_ft  = APIC.getNoFault()
+        cnt_nd, cnt_tnt, cnt_bd, cnt_epg, cnt_ep, cnt_flt, cnt_ctr, cnt_47d, cnt_47g, cnt_ft = APIC.getCntAll()
         cnt_size = [(Col.SMALL, 3), (Col.MIDIUM, 2), (Col.LARGE, 1)]
         
+        health = APIC.monitor()
+        
+        lines = L()
+        rows = L()
+        for i in range(0, 12):
+            row = L()
+            for dn in health:
+                if re.search('topology(/pod-\d)*$', dn):
+                    if dn not in lines: lines << dn
+                    row << health[dn][i]
+            rows << row
+        total_health = MorrisLine(*lines, height=200).grid(0, 100)
+        idx = 0
+        for row in rows:
+            total_health.add(health._tstamp[idx], *row); idx += 1
+        
+        lines = L()
+        rows = L()
+        for i in range(0, 12):
+            row = L()
+            for dn in health:
+                if re.search('node-[\w\W]+$', dn):
+                    if dn not in lines: lines << dn
+                    row << health[dn][i]
+            rows << row
+        node_health = MorrisLine(*lines, height=200).grid(0, 100)
+        idx = 0
+        for row in rows:
+            node_health.add(health._tstamp[idx], *row); idx += 1
+                
+        lines = L()
+        rows = L()
+        for i in range(0, 12):
+            row = L()
+            for dn in health:
+                if re.search('epg-[\w\W]+$', dn):
+                    if dn not in lines: lines << dn
+                    row << health[dn][i]
+            rows << row
+        epg_health = MorrisLine(*lines, height=200).grid(0, 100)
+        idx = 0
+        for row in rows:
+            epg_health.add(health._tstamp[idx], *row); idx += 1
+        
         for domain in APIC:
-            
             lo(
                 Row(Panel(domain.domain, Layout(
                     Row(
@@ -60,18 +95,13 @@ class Impl_Overview(Feature):
                     )
                 )))
             )
-        
+            
         lo(
             Row(
-                Col(Panel('TotalHealth', APICSET.getTotalHealthHist(height=200)), (Col.SMALL, 4)),
-                Col(Panel('NodeHealth', Layout(
-                    Row(
-                        Col(APICSET.getNodeHealthHist(height=200), (Col.SMALL, 7)),
-                        Col(APICSET.getNodeHealthCurr(height=200), (Col.SMALL, 5))
-                    )
-                )), (Col.SMALL, 8))
+                Col(Panel('TotalHealth', total_health), (Col.SMALL, 4)),
+                Col(Panel('NodeHealth', node_health), (Col.SMALL, 8))
             ),
-            Row(Panel('EpgHealth', APICSET.getEpgHealthCurr(height=200)))
+            Row(Panel('EpgHealth', epg_health))
         )
 
         return lo

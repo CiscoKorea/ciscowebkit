@@ -20,10 +20,12 @@ class Devices(SubFeature):
     def get(self, request, *cmd):
         if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
-        node_data = APIC.get('fabricNode', '?order-by=fabricNode.role,fabricNode.name')
-        cfrm_data = APIC.get('firmwareCtrlrRunning')
-        sfrm_data = APIC.get('firmwareRunning')
-        tsys_data = APIC.get('topSystem')
+        node_data, cfrm_data, sfrm_data, tsys_data = APIC.get(
+                                                              ('fabricNode', '?order-by=fabricNode.role,fabricNode.name'),
+                                                              'firmwareCtrlrRunning',
+                                                              'firmwareRunning',
+                                                              'topSystem'
+                                                              )
         
         lo = Layout()
         

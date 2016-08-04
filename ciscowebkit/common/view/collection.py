@@ -17,4 +17,4 @@ class JustGage(__View__):
         self._height = ' style="height:%dpx;"' % option['height'] if 'height' in option else ''
         
     def __render__(self):
-        return '<div>%s<div id="cw-view-%s" class="cw-resizable"%s%s></div></div>' % (self._title, self._id, self._link, self._height)
+        return '<div>%s<div id="cw-view-%s"%s%s></div></div>' % (self._title, self._id, self._link, self._height)

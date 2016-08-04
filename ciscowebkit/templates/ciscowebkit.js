@@ -45,7 +45,8 @@ function do_scheduler() {
 			        url: now_url,
 			        async: false,
 			        dataType: "json",
-			        success: function(data) { show_ux(data); }
+			        success: function(data) { show_ux(data); },
+					error: function(e) { show_error(); }
 			    });
 			}
 		} else { document.getElementById("cw-progress-bar").innerHTML = '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"><span class="sr-only">100% Complete</span></div>'; }
@@ -123,6 +124,12 @@ function show_feature(code, cmd) {
 	recv_view(feature, cmd, feature["_url"] + cmd);
 }
 
+function show_error() {
+	del_sched();
+	document.getElementById("cw-page_title").innerHTML = "Internal Error";
+	hide_spinner();
+}
+
 function get_cookie(c_name)
 {
 	if (document.cookie.length > 0) {
@@ -148,7 +155,8 @@ function recv_view(feature, cmd, url) {
 	        url: now_url,
 	        async: false,
 	        dataType: "json",
-	        success: function(data) { show_ux(data); }
+	        success: function(data) { show_ux(data); },
+	        error: function(e) { show_error(); }
 	    });
 	}
 	set_sched();
@@ -166,7 +174,8 @@ function send_form(data) {
 			headers: { "X-CSRFToken": get_cookie("csrftoken") },
 			dataType: "json",
 			data: JSON.stringify(data),
-			success: function(data) { show_ux(data); }
+			success: function(data) { show_ux(data); },
+			error: function(e) { show_error(); }
 		});
 	}
 	setTimeout(post_processing, 0);
@@ -183,7 +192,8 @@ function del_data(id) {
 			headers: { "X-CSRFToken": get_cookie("csrftoken") },
 			dataType: "json",
 			data: id,
-			success: function(data) { show_ux(data); }
+			success: function(data) { show_ux(data); },
+			error: function(e) { show_error(); }
 		});
 	}
 	setTimeout(del_processing, 0);
@@ -484,6 +494,7 @@ function show_ux_morr_line(data) {
 	    xkey: "tstamp",
 	    ykeys: data["lines"],
 	    labels: data["lines"],
+	    hideHover:"auto",
 	    smooth:true,
 	    resize: true
     };
@@ -500,6 +511,7 @@ function show_ux_morr_area(data) {
 	    xkey: "tstamp",
 	    ykeys: data["lines"],
 	    labels: data["lines"],
+	    hideHover:"auto",
 	    smooth:true,
 	    resize: true
     };
@@ -516,9 +528,9 @@ function show_ux_morr_bar(data) {
 	    xkey: "tstamp",
 	    ykeys: data["lines"],
 	    labels: data["lines"],
+	    hideHover: "auto",
 	    barRatio: 0.4,
 	    xLabelAngle: 90,
-        hideHover: "auto",
         resize: true
     };
     for (var key in data["opts"]) { desc[key] = data["opts"][key]; }
@@ -531,6 +543,7 @@ function show_ux_morr_donut(data) {
     Morris.Donut({
         element: view_name,
         data : data["data"],
+        hideHover: "auto",
         resize: true
     });
 }
