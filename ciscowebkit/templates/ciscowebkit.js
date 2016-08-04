@@ -217,6 +217,10 @@ function show_ux(data) {
 function show_ux_none(data) {}
 function show_ux_empty(data) {}
 function show_ux_form(data) {}
+function show_ux_error(data) {
+	document.getElementById("cw-page_title").innerHTML = "Internal Error";
+	window["show_ux_infodoc"](data)
+}
 
 function show_ux_layout(data) {
 	var rows = data["rows"];
@@ -337,6 +341,7 @@ function show_ux_ctst_line(data) {
             showPoint: true,
             fullWidth: true,
             height: 200,
+            axisX: { labelInterpolationFnc: function(value) { return value.slice(11,16); } },
             axisY: {onlyInteger: true},
             chartPadding: {right: 40},
             plugins: [Chartist.plugins.tooltip()]
@@ -367,6 +372,7 @@ function show_ux_ctst_area(data) {
             showPoint: true,
             fullWidth: true,
             height: 200,
+            axisX: { labelInterpolationFnc: function(value) { return value.slice(11,16); } },
             axisY: {onlyInteger: true},
             chartPadding: {right: 40},
             plugins: [Chartist.plugins.tooltip()]
@@ -406,7 +412,14 @@ function show_ux_ctst_bar(data) {
     var chart = new Chartist.Bar(
     		document.getElementById("cw-view-" + data["_id"]),
     		{labels: data["labels"], series: data["series"]},
-    		option).on('draw',function(ct){if(ct.type === 'bar'){ct.element.attr({style: "stroke-width:" + data["size"]});}});
+    		option)
+    chart.on('draw', function(ct) {
+    	if(ct.type === 'bar') {
+    		ct.element.attr({
+    			style: "stroke-width:" + data["size"] + ';stroke: hsl(' + Math.floor(Chartist.getMultiValue(ct.value)) + ', 50%, 50%);'
+    		});
+    	}
+    });
     if (data["anima"] == true) {
 	    chart.on('draw', function(ct) {
 	        if (ct.type === 'bar') {

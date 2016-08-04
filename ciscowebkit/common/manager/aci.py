@@ -227,16 +227,22 @@ class ApicManager(L):
             ('vnsCDev', '?rsp-subtree-include=count'),
             ('vnsGraphInst', '?rsp-subtree-include=count'),
         )
-        for domain in self:
-            cnt[0][domain.domain] = int(cnt[0][domain.domain][0].count)
-            cnt[1][domain.domain] = int(cnt[1][domain.domain][0].count)
-            cnt[2][domain.domain] = int(cnt[2][domain.domain][0].count)
-            cnt[3][domain.domain] = int(cnt[3][domain.domain][0].count)
-            cnt[4][domain.domain] = int(cnt[4][domain.domain][0].count)
-            cnt[5][domain.domain] = int(cnt[5][domain.domain][0].count)
-            cnt[6][domain.domain] = int(cnt[6][domain.domain][0].count)
-            cnt[7][domain.domain] = int(cnt[7][domain.domain][0].count)
-            cnt[8][domain.domain] = int(cnt[8][domain.domain][0].count)
+        try:
+            for domain in self:
+                cnt[0][domain.domain] = int(cnt[0][domain.domain][0].count)
+                cnt[1][domain.domain] = int(cnt[1][domain.domain][0].count)
+                cnt[2][domain.domain] = int(cnt[2][domain.domain][0].count)
+                cnt[3][domain.domain] = int(cnt[3][domain.domain][0].count)
+                cnt[4][domain.domain] = int(cnt[4][domain.domain][0].count)
+                cnt[5][domain.domain] = int(cnt[5][domain.domain][0].count)
+                cnt[6][domain.domain] = int(cnt[6][domain.domain][0].count)
+                cnt[7][domain.domain] = int(cnt[7][domain.domain][0].count)
+                cnt[8][domain.domain] = int(cnt[8][domain.domain][0].count)
+        except Exception as e:
+            print inf(self)
+            print str(e)
+            print 'Count Data', inf(cnt)
+            raise Apic.ApicError('getCntAll.cnt')
         
         rf = self.get(
             ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "cleared")&rsp-subtree-include=count'),
@@ -246,17 +252,23 @@ class ApicManager(L):
             ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "major")&rsp-subtree-include=count'),
             ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "critical")&rsp-subtree-include=count')
         )
-        flt = M(_order=L())
-        for domain in self:
-            flt._order << domain.domain
-            flt[domain.domain] = M()
-            flt[domain.domain]['cleared'] = int(rf[0][domain.domain][0].count)
-            flt[domain.domain]['info'] = int(rf[1][domain.domain][0].count)
-            flt[domain.domain]['warning'] = int(rf[2][domain.domain][0].count)
-            flt[domain.domain]['minor'] = int(rf[3][domain.domain][0].count)
-            flt[domain.domain]['major'] = int(rf[4][domain.domain][0].count)
-            flt[domain.domain]['critical'] = int(rf[5][domain.domain][0].count)
-        cnt << flt
+        try:
+            flt = M(_order=L())
+            for domain in self:
+                flt._order << domain.domain
+                flt[domain.domain] = M()
+                flt[domain.domain]['cleared'] = int(rf[0][domain.domain][0].count)
+                flt[domain.domain]['info'] = int(rf[1][domain.domain][0].count)
+                flt[domain.domain]['warning'] = int(rf[2][domain.domain][0].count)
+                flt[domain.domain]['minor'] = int(rf[3][domain.domain][0].count)
+                flt[domain.domain]['major'] = int(rf[4][domain.domain][0].count)
+                flt[domain.domain]['critical'] = int(rf[5][domain.domain][0].count)
+            cnt << flt
+        except Exception as e:
+            print inf(self)
+            print str(e)
+            print 'Fault Data', inf(rf)
+            raise Apic.ApicError('getCntAll.cnt')
         return cnt
     
     def getCntNode(self):

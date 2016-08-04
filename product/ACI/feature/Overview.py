@@ -19,7 +19,8 @@ class Impl_Overview(Feature):
         
         lo = Layout()
         
-        cnt_nd, cnt_tnt, cnt_bd, cnt_epg, cnt_ep, cnt_flt, cnt_ctr, cnt_47d, cnt_47g, cnt_ft = APIC.getCntAll()
+        try: cnt_nd, cnt_tnt, cnt_bd, cnt_epg, cnt_ep, cnt_flt, cnt_ctr, cnt_47d, cnt_47g, cnt_ft = APIC.getCntAll()
+        except: return Error('getCntAll')
         cnt_size = [(Col.SMALL, 3), (Col.MIDIUM, 2), (Col.LARGE, 1)]
         
         health = APIC.monitor()
@@ -33,7 +34,7 @@ class Impl_Overview(Feature):
                     if dn not in lines: lines << dn
                     row << health[dn][i]
             rows << row
-        total_health = MorrisLine(*lines, height=200).grid(0, 100)
+        total_health = ChartistArea(*lines, height=350).grid(0, 100).ani()
         idx = 0
         for row in rows:
             total_health.add(health._tstamp[idx], *row); idx += 1
@@ -47,10 +48,15 @@ class Impl_Overview(Feature):
                     if dn not in lines: lines << dn
                     row << health[dn][i]
             rows << row
-        node_health = MorrisLine(*lines, height=200).grid(0, 100)
+        node_health = ChartistLine(*lines, height=150).grid(0, 100).ani()
         idx = 0
         for row in rows:
             node_health.add(health._tstamp[idx], *row); idx += 1
+            
+        node_health_cur = ChartistBar('Node', height=200).grid(0, 100)
+        idx = 0
+        for line in lines:
+            node_health_cur.add(line, rows[-1][idx]); idx += 1
                 
         lines = L()
         rows = L()
@@ -61,10 +67,14 @@ class Impl_Overview(Feature):
                     if dn not in lines: lines << dn
                     row << health[dn][i]
             rows << row
-        epg_health = MorrisLine(*lines, height=200).grid(0, 100)
+        epg_health = ChartistLine(*lines, height=200).grid(0, 100).ani()
         idx = 0
         for row in rows:
             epg_health.add(health._tstamp[idx], *row); idx += 1
+        epg_health_cur = ChartistBar('EPG', height=200).grid(0, 100)
+        idx = 0
+        for line in lines:
+            epg_health_cur.add(line, rows[-1][idx]); idx += 1
         
         for domain in APIC:
             lo(
@@ -98,10 +108,18 @@ class Impl_Overview(Feature):
             
         lo(
             Row(
-                Col(Panel('TotalHealth', total_health), (Col.SMALL, 4)),
-                Col(Panel('NodeHealth', node_health), (Col.SMALL, 8))
+                Col(Panel('TotalHealth', total_health), (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                Col(Panel('NodeHealth', Layout(
+                    Row(node_health),
+                    Row(node_health_cur)
+                )), (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
             ),
-            Row(Panel('EpgHealth', epg_health))
+            Row(Panel('EpgHealth', Layout(
+                Row(
+                    Col(epg_health, (Col.SMALL, 12), (Col.MIDIUM, 6), (Col.LARGE, 6)),
+                    Col(epg_health_cur, (Col.SMALL, 12), (Col.MIDIUM, 6), (Col.LARGE, 6))
+                )
+            )))
         )
 
         return lo

@@ -28,7 +28,7 @@ class Engine(SingleTon):
         self.__build_template__()
 
     def __load_product_managers__(self):
-        self.APIC = ApicManager()
+        self.APIC = ApicManager(monitor_sec=5)
         self.APIC.addDomain('testlab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
 #         self.APIC.addDomain('testlab2', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
         greg('APIC', self.APIC)

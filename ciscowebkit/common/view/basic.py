@@ -76,6 +76,14 @@ class Empty(__View__):
     
     def __init__(self):
         __View__.__init__(self, 'empty')
+        
+class Error(__View__):
+    
+    def __init__(self, msg):
+        __View__.__init__(self, 'error', doc=msg)
+        
+    def __render__(self):
+        return '<pre id="cw-view-%s" class="well"></pre>' % self._id
 
 class Panel(__View__):
     

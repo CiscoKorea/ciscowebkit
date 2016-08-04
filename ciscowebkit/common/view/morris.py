@@ -48,8 +48,8 @@ class MorrisArea(__Morris__):
     
 class MorrisBar(__Morris__):
     
-    def __init__(self, *lines, **option):
-        __Morris__.__init__(self, 'morr_bar', *lines, **option)
+    def __init__(self, *bars, **option):
+        __Morris__.__init__(self, 'morr_bar', *bars, **option)
 
 class MorrisDonut(__View__):
     
