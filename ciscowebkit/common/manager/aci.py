@@ -6,13 +6,10 @@ Created on 2016. 7. 20.
 
 import re
 import time
-import gevent
 import requests
 from ciscowebkit.common import *
 
 class Apic(M):
-    
-    APIC_NUM_OF_SESSION = 8
     
     class ApicError(E):
         
@@ -24,129 +21,81 @@ class Apic(M):
         sepkv = re.match('^[\d.:]+(?P<sep>[,/&|])', ip)
         if sepkv: self._apic_ips = L(*ip.split(sepkv.group('sep')))
         else: self._apic_ips = L(ip)
-        self._apic_session = L()
-        self._apic_session_idx = 0
+        self._apic_session = None
+        self._apic_url = None
         self.aaaLogin()
         
     def aaaLogin(self):
         self['connected'] = None
-        for session in self._apic_session: del session
-        self._apic_session = L()
-        self._apic_session_idx = 0
+        self._apic_session = None
         connected = None
         for ip in self._apic_ips:
             url = 'https://' + ip + '/api/'
-            
-            def create_session():
-                session = requests.Session()
+            session = requests.Session()
+            try:
                 r = session.post(url + 'aaaLogin.json',
                                  data=Struct.CODE2JSON(M(aaaUser=M(attributes=M(name=self.name, pwd=self.pwd)))),
                                  verify=False)
-                if r.status_code == 200: self._apic_session << session
-
-            try:    
-                gtask = L()
-                for i in range(0, Apic.APIC_NUM_OF_SESSION): gtask << gevent.spawn(create_session())
-                gevent.joinall(gtask)
+                if r.status_code == 200: self._apic_session = session
                 self._apic_url = url
                 connected = ip
                 break
             except Exception as e: str(e)
         else: raise Apic.ApicError('Connection Failed')
-        
         self._apic_ips.remove(connected)
         self._apic_ips = L(connected, *self._apic_ips)
         self['connected'] = connected
         
     def aaaRefresh(self):
         if self.connected:
-            
-            def refresh_session(i):
-                r = self._apic_session[i].get(self._apic_url + 'aaaRefresh.json', verify=False)
-                if r.status_code != 200: self.aaaLogin()
-            
-            gtask = L()
-            for i in range(0, Apic.APIC_NUM_OF_SESSION): gtask << gevent.spawn(refresh_session())
-            gevent.joinall(gtask)
+            r = self._apic_session.get(self._apic_url + 'aaaRefresh.json', verify=False)
+            if r.status_code != 200: self.aaaLogin()
             
     def getRawData(self, *targets):
         if self.connected:
-            result = L()
-            
-            def get_request(ri, i, target):
-                if not instof(target, tuple): target = (target, '')
-                r = self._apic_session[i].get(self._apic_url + 'class/%s.json%s' % (target), verify=False)
-                if r.status_code == 200: result[ri] = Struct.JSON2DATA(r.text)
-            
             ret = L()
-            gtask = L()
-            result_idx = 0
             for target in targets:
-                if self._apic_session_idx == Apic.APIC_NUM_OF_SESSION:
-                    gevent.joinall(gtask)
-                    gtask = L()
-                    ret + result
-                    result = L()
-                    self._apic_session_idx = 0
-                    result_idx = 0
-                result << None
-                gtask << gevent.spawn(get_request(result_idx, self._apic_session_idx, target))
-                self._apic_session_idx += 1
-                result_idx += 1
-            gevent.joinall(gtask)
-            ret + result
+                if not instof(target, tuple): target = (target, '')
+                r = self._apic_session.get(self._apic_url + 'class/%s.json%s' % (target), verify=False)
+                if r.status_code == 200: ret << Struct.JSON2DATA(r.text)
+                else: ret << None
             return ret
         return None
     
     def get(self, *targets):
         if self.connected:
-            result = L()
-            
-            def get_request(ri, i, target):
+            ret = L()
+            for target in targets:
                 if not instof(target, tuple): target = (target, '')
-                r = self._apic_session[i].get(self._apic_url + 'class/%s.json%s' % (target), verify=False)
+                r = self._apic_session.get(self._apic_url + 'class/%s.json%s' % (target), verify=False)
                 if r.status_code == 200:
-                    md_list = Struct.JSON2DATA(r.text).imdata
-                    result[ri] = L()
-                    for md in md_list:
-                        for key in md:
-                            attr = md[key].attributes
+                    imdata = Struct.JSON2DATA(r.text).imdata
+                    wellform = L()
+                    for im in imdata:
+                        for key in im:
+                            attr = im[key].attributes
                             attr['_model'] = key
                             attr['_domain'] = self.domain
-                            result[ri] << attr
-            
-            ret = L()
-            gtask = L()
-            result_idx = 0
-            for target in targets:
-                if self._apic_session_idx == Apic.APIC_NUM_OF_SESSION:
-                    gevent.joinall(gtask)
-                    gtask = L()
-                    ret + result
-                    result = L()
-                    self._apic_session_idx = 0
-                    result_idx = 0
-                result << None
-                gtask << gevent.spawn(get_request(result_idx, self._apic_session_idx, target))
-                self._apic_session_idx += 1
-                result_idx += 1
-            gevent.joinall(gtask)
-            ret + result
+                            wellform << attr
+                    ret << wellform
+                else: ret << None
             return ret
         return None
     
     def getHealth(self):
-        ret = M()
-        total, node, epg = self.get('fabricHealthTotal', 
-                               'fabricNodeHealth5min', 
-                               ('healthInst', '?query-target-filter=wcard(healthInst.dn,"^uni/tn-.*/ap-.*/epg-")&order-by=healthInst.dn'))
-        for h in total: ret[self.domain + '/' + h.dn.replace('/health', '')] = int(h.cur)
-        for h in node:
-            rns = h.dn.split('/')
-            ret[self.domain + '/' + rns[0] + '/' + rns[1] + '/' + rns[2]] = int(h.healthAvg)
-        for h in epg:
-            ret[self.domain + '/' + h.dn.replace('/health', '')] = int(h.cur)
-        return ret
+        if self.connected:
+            ret = M()
+            total, node, epg = self.get('fabricHealthTotal', 
+                                   'fabricNodeHealth5min', 
+                                   ('healthInst', '?query-target-filter=wcard(healthInst.dn,"^uni/tn-.*/ap-.*/epg-")&order-by=healthInst.dn'))
+            for h in total: ret[self.domain + '/' + h.dn.replace('/health', '')] = int(h.cur)
+            for h in node:
+                rns = h.dn.split('/')
+                ret[self.domain + '/' + rns[0] + '/' + rns[1] + '/' + rns[2]] = int(h.healthAvg)
+            for h in epg:
+                ret[self.domain + '/' + h.dn.replace('/health', '')] = int(h.cur)
+            return ret
+        return None
         
 class ApicManager(L):
     
