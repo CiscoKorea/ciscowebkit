@@ -332,7 +332,13 @@ function show_ux_table(data) {
             [ 10, 25, 50, -1 ],
             [ '10 rows', '25 rows', '50 rows', 'Show all' ]
         ],
-        buttons: ['pageLength', 'colvis', 'excelHtml5', 'pdfHtml5', 'print'],
+        buttons: [
+            {extend:'pageLength', text:'<i class="fa fa-align-justify"></i>', titleAttr:'Rows'},
+            {extend:'colvis', text:'<i class="fa fa-th-list"></i>', titleAttr:'Cols'},
+            {extend:'excelHtml5', text:'<i class="fa fa-file-excel-o"></i>', titleAttr:'Excel'},
+            {extend:'pdfHtml5', text:'<i class="fa fa-file-pdf-o"></i>', titleAttr:'PDF'},
+            {extend:'print', text:'<i class="fa fa-print"></i>', titleAttr:'Print'}
+        ],
         search: { "regex": false },
         destroy: true
     });
