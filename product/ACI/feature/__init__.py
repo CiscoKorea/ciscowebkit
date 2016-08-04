@@ -1,4 +1,7 @@
 FEATURE_ORDER = ['Overview',
-                 'Show.Devices',
+                 'Show.Device',
+                 'Show.EPG',
+                 'Show.EP',
+                 'Show.Contract',
                  'Setting']
 

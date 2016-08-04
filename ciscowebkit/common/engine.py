@@ -28,7 +28,7 @@ class Engine(SingleTon):
         self.__build_template__()
 
     def __load_product_managers__(self):
-        self.APIC = ApicManager(monitor_sec=5)
+        self.APIC = ApicManager(monitor_sec=10)
         self.APIC.addDomain('testlab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
 #         self.APIC.addDomain('testlab2', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
         greg('APIC', self.APIC)
@@ -132,11 +132,11 @@ class Engine(SingleTon):
                         feature = self.products[p_name][m_name][s_name]
                         if now_sub != None and now_sub != m_name:
                             fnav += '''            </ul></li>
-            <li id="cw-fnav-%s_%s" class="ftbar cw-fnavitem"><a href="javascript:;" data-toggle="collapse" data-target="#cw-fsnav-%s-%s" class="collapsed" aria-expanded="false"><i class="fa fa-fw fa-car"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="cw-fsnav-%s-%s" class="collapse" aria-expanded="false">
-''' % (p_name, m_name, p_name, m_name, self.products[p_name][m_name]._title, p_name, m_name)
+            <li id="cw-fnav-%s_%s" class="ftbar cw-fnavitem"><a href="javascript:;" data-toggle="collapse" data-target="#cw-fsnav-%s-%s" class="collapsed" aria-expanded="false"><i class="fa fa-fw %s"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="cw-fsnav-%s-%s" class="collapse" aria-expanded="false">
+''' % (p_name, m_name, p_name, m_name, self.products[p_name][m_name]._icon, self.products[p_name][m_name]._title, p_name, m_name)
                         if now_sub == None:
-                            fnav += '''            <li id="cw-fnav-%s_%s" class="ftbar cw-fnavitem"><a href="javascript:;" data-toggle="collapse" data-target="#cw-fsnav-%s-%s" class="collapsed" aria-expanded="false"><i class="fa fa-fw fa-car"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="cw-fsnav-%s-%s" class="collapse" aria-expanded="false">
-''' % (p_name, m_name, p_name, m_name, self.products[p_name][m_name]._title, p_name, m_name)
+                            fnav += '''            <li id="cw-fnav-%s_%s" class="ftbar cw-fnavitem"><a href="javascript:;" data-toggle="collapse" data-target="#cw-fsnav-%s-%s" class="collapsed" aria-expanded="false"><i class="fa fa-fw %s"></i> %s <i class="fa fa-fw fa-caret-down"></i></a><ul id="cw-fsnav-%s-%s" class="collapse" aria-expanded="false">
+''' % (p_name, m_name, p_name, m_name, self.products[p_name][m_name]._icon, self.products[p_name][m_name]._title, p_name, m_name)
                         now_sub = m_name
                         fnav += '            <li id="cw-fnav-%s_%s_%s" class="ftbar cw-fnavitem" onclick="show_feature(\'%s\',\'\');"><a><i class="fa fa-fw %s"></i> %s</a></li>' % (p_name, m_name, s_name, feature._code, feature._icon, feature._title)
                         page += '<div id="cw-page-%s_%s_%s" class="cw-page"></div>\n' % (p_name, m_name, s_name)

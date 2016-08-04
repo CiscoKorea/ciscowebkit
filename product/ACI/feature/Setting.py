@@ -10,11 +10,11 @@ from ciscowebkit.common import *
 class Setting(Feature):
     
     def __init__(self):
-        Feature.__init__(self)
+        Feature.__init__(self, icon='fa-wrench')
         
         form = Form('Connect')
         form.addText('domain', 'Domain', 'input unique domain name')
-        form.addText('ips', 'IPs', 'x.x.x.x/y.y.y.y/z.z.z.z')
+        form.addText('ips', 'APIC Address', 'x.x.x.x/y.y.y.y/z.z.z.z')
         form.addText('user', 'User', 'input admin name')
         form.addText('pwd', 'Password', 'input admin password')
         self.form_panel = Panel('Add Connection', form)

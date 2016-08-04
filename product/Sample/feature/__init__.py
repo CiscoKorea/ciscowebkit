@@ -1,4 +1,5 @@
 FEATURE_ORDER = [
+                 'HelloWorld',
                  'Base',
                  'Chartist',
                  'Morris',

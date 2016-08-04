@@ -9,10 +9,10 @@ import re
 import time
 from ciscowebkit.common import *
  
-class Impl_Overview(Feature):
+class Overview(Feature):
      
     def __init__(self):
-        Feature.__init__(self, 10)
+        Feature.__init__(self, 10, 'fa-dashboard')
      
     def get(self, request, *cmd):
         if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
@@ -34,47 +34,50 @@ class Impl_Overview(Feature):
                     if dn not in lines: lines << dn
                     row << health[dn][i]
             rows << row
-        total_health = ChartistArea(*lines, height=350).grid(0, 100).ani()
+        total_health = ChartistArea(*lines, height=300).grid(0, 100).ani()
         idx = 0
         for row in rows:
             total_health.add(health._tstamp[idx], *row); idx += 1
         
         lines = L()
         rows = L()
+        cur_rows = L()
         for i in range(0, 12):
             row = L()
             for dn in health:
                 if re.search('node-[\w\W]+$', dn):
                     if dn not in lines: lines << dn
                     row << health[dn][i]
+                    if i == 11: cur_rows << health[dn][i]
             rows << row
         node_health = ChartistLine(*lines, height=150).grid(0, 100).ani()
         idx = 0
         for row in rows:
             node_health.add(health._tstamp[idx], *row); idx += 1
             
-        node_health_cur = ChartistBar('Node', height=200).grid(0, 100)
-        idx = 0
-        for line in lines:
-            node_health_cur.add(line, rows[-1][idx]); idx += 1
+        node_health_cur = ChartistBar(height=150).grid(0, 100)
+        for idx in range(0, len(lines)):
+            node_health_cur.add(lines[idx], cur_rows[idx])
                 
         lines = L()
         rows = L()
+        cur_rows = L()
         for i in range(0, 12):
             row = L()
             for dn in health:
                 if re.search('epg-[\w\W]+$', dn):
                     if dn not in lines: lines << dn
                     row << health[dn][i]
+                    if i == 11: cur_rows << health[dn][i]
             rows << row
         epg_health = ChartistLine(*lines, height=200).grid(0, 100).ani()
         idx = 0
         for row in rows:
             epg_health.add(health._tstamp[idx], *row); idx += 1
-        epg_health_cur = ChartistBar('EPG', height=200).grid(0, 100)
-        idx = 0
-        for line in lines:
-            epg_health_cur.add(line, rows[-1][idx]); idx += 1
+        
+        epg_health_cur = ChartistBar(height=200).grid(0, 100)
+        for idx in range(0, len(lines)):
+            epg_health_cur.add(lines[idx], cur_rows[idx])
         
         for domain in APIC:
             lo(
@@ -116,8 +119,8 @@ class Impl_Overview(Feature):
             ),
             Row(Panel('EpgHealth', Layout(
                 Row(
-                    Col(epg_health, (Col.SMALL, 12), (Col.MIDIUM, 6), (Col.LARGE, 6)),
-                    Col(epg_health_cur, (Col.SMALL, 12), (Col.MIDIUM, 6), (Col.LARGE, 6))
+                    Col(epg_health, (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                    Col(epg_health_cur, (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
                 )
             )))
         )

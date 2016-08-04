@@ -46,7 +46,7 @@ function do_scheduler() {
 			        async: false,
 			        dataType: "json",
 			        success: function(data) { show_ux(data); },
-					error: function(e) { show_error(); }
+					error: function(e) { show_error(e); }
 			    });
 			}
 		} else { document.getElementById("cw-progress-bar").innerHTML = '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"><span class="sr-only">100% Complete</span></div>'; }
@@ -124,9 +124,9 @@ function show_feature(code, cmd) {
 	recv_view(feature, cmd, feature["_url"] + cmd);
 }
 
-function show_error() {
+function show_error(e) {
 	del_sched();
-	document.getElementById("cw-page_title").innerHTML = "Internal Error";
+	document.getElementById("cw-page_title").innerHTML = "Internal Error <small> " + e + "</small>";
 	hide_spinner();
 }
 
@@ -156,7 +156,7 @@ function recv_view(feature, cmd, url) {
 	        async: false,
 	        dataType: "json",
 	        success: function(data) { show_ux(data); },
-	        error: function(e) { show_error(); }
+	        error: function(e) { show_error(e); }
 	    });
 	}
 	set_sched();
@@ -175,7 +175,7 @@ function send_form(data) {
 			dataType: "json",
 			data: JSON.stringify(data),
 			success: function(data) { show_ux(data); },
-			error: function(e) { show_error(); }
+			error: function(e) { show_error(e); }
 		});
 	}
 	setTimeout(post_processing, 0);
@@ -193,7 +193,7 @@ function del_data(id) {
 			dataType: "json",
 			data: id,
 			success: function(data) { show_ux(data); },
-			error: function(e) { show_error(); }
+			error: function(e) { show_error(e); }
 		});
 	}
 	setTimeout(del_processing, 0);
@@ -209,7 +209,12 @@ function show_ux(data) {
 		document.getElementById("cw-page-" + code).innerHTML = data["_html"];
 		prev_html_md5 = data["_md5"];
 	}
-	window["show_ux_" + data["_ux"]](data);
+	try {
+		window["show_ux_" + data["_ux"]](data);
+	} catch (e) {
+		console.log(e);
+		show_error(e);
+	}
 	hide_spinner();
 }
 
@@ -404,7 +409,7 @@ function show_ux_ctst_bar(data) {
         fullWidth: true,
         height: 200,
         chartPadding: {right: 40},
-        axisX: {showLabel: true},
+        axisX: {showLabel: false},
         axisY: {onlyInteger: true},
         plugins: [Chartist.plugins.tooltip()]
     }
