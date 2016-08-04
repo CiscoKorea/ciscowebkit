@@ -16,13 +16,19 @@
        - python-devel
      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
+   - name: add repository for ubuntu 12.04
+     become: yes
+     apt_repository: repo='deb http://mirror.klaus-uwe.me/mariadb/repo/5.5/ubuntu precise main' state=present
+     when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '12.04'
+
 #   - name: update apt repository 
 #     become: yes
 #     apt: update_cache=yes 
 
    - name: install required packages (Ubuntu/Debian)
      become: yes
-     package: name={{item}} state=present use=auto
+#     apt: name={{item}} state=present allow_unauthenticated=yes update_cache=yes
+     package: name={{item}} state=present
      with_items:
        - mariadb-server
        - libmariadbclient-dev
@@ -68,6 +74,7 @@
        - python-mysqldb
        - MySQL-python
        - gevent
+       - requests
      ignore_errors: true
 
    - mysql_db: name=ciscowebkit state=present encoding=utf8   
