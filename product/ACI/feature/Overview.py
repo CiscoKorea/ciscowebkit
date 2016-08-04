@@ -106,23 +106,23 @@ class Overview(Feature):
                             )
                         ), (Col.SMALL, 5), (Col.MIDIUM, 4), (Col.LARGE, 3))
                     )
-                )))
+                ), icon='fa-exchange'))
             )
             
         lo(
             Row(
-                Col(Panel('TotalHealth', total_health), (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                Col(Panel('TotalHealth', total_health, icon='fa-exchange'), (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
                 Col(Panel('NodeHealth', Layout(
                     Row(node_health),
                     Row(node_health_cur)
-                )), (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
+                ), icon='fa-exchange'), (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
             ),
             Row(Panel('EpgHealth', Layout(
                 Row(
                     Col(epg_health, (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
                     Col(epg_health_cur, (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
                 )
-            )))
+            ), icon='fa-exchange'))
         )
 
         return lo
