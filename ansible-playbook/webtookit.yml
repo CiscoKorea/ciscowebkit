@@ -11,15 +11,30 @@
      with_items:
        - mariadb-server
        - mariadb-devel
+       - "@Development tools"
+       - git
+       - python-devel
      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+   - name: add repository for ubuntu 12.04
+     become: yes
+     apt_repository: repo='deb http://mirror.klaus-uwe.me/mariadb/repo/5.5/ubuntu precise main' state=present
+     when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '12.04'
+
+#   - name: update apt repository 
+#     become: yes
+#     apt: update_cache=yes 
 
    - name: install required packages (Ubuntu/Debian)
      become: yes
-     package: name={{item}} state=present use=auto
+#     apt: name={{item}} state=present allow_unauthenticated=yes update_cache=yes
+     package: name={{item}} state=present
      with_items:
        - mariadb-server
        - libmariadbclient-dev
        - python-dev
+       - libssl-dev
+       - git
      when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
    - name: start mariadb-server(RHEL/CentOS)
@@ -36,6 +51,7 @@
      become: false
      shell: which pip 
      register: pip_status
+     ignore_errors: true
 
    - debug: msg={{ pip_status }}
 
@@ -57,6 +73,8 @@
        - mysqlclient
        - python-mysqldb
        - MySQL-python
+       - gevent
+       - requests
      ignore_errors: true
 
    - mysql_db: name=ciscowebkit state=present encoding=utf8   
