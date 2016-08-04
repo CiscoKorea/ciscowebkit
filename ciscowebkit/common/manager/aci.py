@@ -93,7 +93,8 @@ class Apic(M):
                 rns = h.dn.split('/')
                 ret[self.domain + '/' + rns[0] + '/' + rns[1] + '/' + rns[2]] = int(h.healthAvg)
             for h in epg:
-                ret[self.domain + '/' + h.dn.replace('/health', '')] = int(h.cur)
+                rns = h.dn.split('/')
+                ret[self.domain + '/' + rns[1] + '/' + rns[2] + '/' + rns[3]] = int(h.cur)
             return ret
         return None
         
