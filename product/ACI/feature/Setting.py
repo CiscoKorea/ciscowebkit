@@ -17,7 +17,7 @@ class Setting(Feature):
         form.addText('ips', 'APIC Address', 'x.x.x.x/y.y.y.y/z.z.z.z')
         form.addText('user', 'User', 'input admin name')
         form.addText('pwd', 'Password', 'input admin password')
-        self.form_panel = Panel('Add Connection', form)
+        self.form_panel = Panel('Add Connection', form, icon='fa-asterisk')
         
         self.info = None;
         
@@ -32,7 +32,7 @@ class Setting(Feature):
         
         lo(
             Row(self.form_panel),
-            Row(Panel('Connection List', apic_table))
+            Row(Panel('Connection List', apic_table, icon='fa-table'))
         )
         
         return lo

@@ -30,7 +30,11 @@ class Overview(Feature):
         for i in range(0, 12):
             row = L()
             for dn in health:
-                if re.search('topology(/pod-\d)*$', dn):
+                if re.search('topology/pod-\d+$', dn):
+                    if dn not in lines: lines << dn
+                    row << health[dn][i]
+            for dn in health:
+                if re.search('topology$', dn):
                     if dn not in lines: lines << dn
                     row << health[dn][i]
             rows << row
@@ -56,8 +60,12 @@ class Overview(Feature):
             node_health.add(health._tstamp[idx], *row); idx += 1
             
         node_health_cur = ChartistBar(height=150).grid(0, 100)
+        node_health_data = L()
         for idx in range(0, len(lines)):
-            node_health_cur.add(lines[idx], cur_rows[idx])
+            node_health_data << (lines[idx], cur_rows[idx])
+        node_health_data = sorted(node_health_data, key=lambda node: node[1])
+        for idx in range(0, len(node_health_data)):
+            node_health_cur.add(node_health_data[idx][0], node_health_data[idx][1])
                 
         lines = L()
         rows = L()
@@ -76,8 +84,12 @@ class Overview(Feature):
             epg_health.add(health._tstamp[idx], *row); idx += 1
         
         epg_health_cur = ChartistBar(height=200).grid(0, 100)
+        epg_health_data = L()
         for idx in range(0, len(lines)):
-            epg_health_cur.add(lines[idx], cur_rows[idx])
+            epg_health_data << (lines[idx], cur_rows[idx])
+        epg_health_data = sorted(epg_health_data, key=lambda node: node[1])
+        for idx in range(0, len(epg_health_data)):
+            epg_health_cur.add(epg_health_data[idx][0], epg_health_data[idx][1])
         
         for domain in APIC:
             lo(

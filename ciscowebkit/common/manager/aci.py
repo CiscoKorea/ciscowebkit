@@ -340,23 +340,16 @@ class ApicManager(L):
 
 if __name__ == '__main__':
     
-    am = ApicManager(monitor_sec=5).addDomain('domain1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
+#     am = ApicManager(monitor_sec=5).addDomain('domain1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
+#     while True:
+#         print inf(am.monitor())
+#         time.sleep(1)
+#     del am
     
-#     data = am.get(('healthInst', '?query-target-filter=wcard(healthInst.dn,"^uni/tn-.*/ap-.*/epg-")&order-by=healthInst.dn'))
-#     print inf(data)
+    ad = Apic('domain1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
+    data = ad.get(('fvRsPathAtt', '')); print inf(data), len(data[0])
     
-#     data = am.getCntL47Graph(); print inf(data)
-    
-    while True:
-        print inf(am.monitor())
-        time.sleep(1)
-    
-    del am
-    
-    
-#     ad = Apic('domain1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
-#     data = ad.get('fabricHealthTotal'); print inf(data)
-#     data = ad.get('fabricNodeHealth5min'); print inf(data)
+#     data = ad.get('compVNic'); print inf(data), len(data[0])
     
     
     
