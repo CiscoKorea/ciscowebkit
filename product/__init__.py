@@ -1,1 +1,1 @@
-PRODUCT_ORDER = ['ACI', 'NXOS', 'UCS', 'Sample']
+PRODUCT_ORDER = ['ACI', 'NXOS', 'UCS']
