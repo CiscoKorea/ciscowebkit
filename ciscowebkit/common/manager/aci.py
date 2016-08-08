@@ -189,8 +189,8 @@ class ApicManager(L):
             apic = Apic(domain, ip, name, pwd)
             self << apic
             self.monitor = ApicManager.Monitoring(self, self._monitor_sec)
-        except: pass
-        return self
+        except: return None
+        return apic
         
     def delDomain(self, domain):
         apic_ref = None
