@@ -162,13 +162,13 @@ class ApicManager(L):
             for dn in self._mondata.topology:
                 self._mondata.topology[dn].pop(0)
                 if len(self._mondata.topology[dn]) < 12: del_list << dn
-            for dn in del_list: self._modata.topology >> dn
+            for dn in del_list: self._mondata.topology >> dn
             
             del_list = L()
             for dn in self._mondata.epg:
                 self._mondata.epg[dn].pop(0)
                 if len(self._mondata.epg[dn]) < 12: del_list << dn
-            for dn in del_list: self._modata.epg>> dn
+            for dn in del_list: self._mondata.epg>> dn
 
             self._mutex.unlock()
     
