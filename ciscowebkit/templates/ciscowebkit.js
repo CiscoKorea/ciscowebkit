@@ -11,6 +11,7 @@ var now_sched = null;
 var pwr_sched = false;
 var spinner = null;
 var prev_html_md5 = null;
+var now_dashboard = true;
 
 function pwr_sched_toggle() {
 	if (pwr_sched == true) {

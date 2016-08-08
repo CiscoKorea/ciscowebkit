@@ -94,26 +94,26 @@ class Overview(Feature):
             lo(
                 Row(Panel(domain.domain, Layout(
                     Row(
-                        Col(JustGage(cnt_nd[domain.domain], 0, 1000, desc="Nodes", height=100), *cnt_size),
-                        Col(JustGage(cnt_tnt[domain.domain], 0, 1000, desc="Tenants", height=100), *cnt_size),
+                        Col(JustGage(cnt_nd[domain.domain], 0, 1000, desc="Nodes", height=100, link=(PRODUCTS.aci.show.device, None)), *cnt_size),
+                        Col(JustGage(cnt_tnt[domain.domain], 0, 1000, desc="Tenants", height=100, link=(PRODUCTS.aci.show.tenant, None)), *cnt_size),
                         Col(JustGage(cnt_bd[domain.domain], 0, 1000, desc="BDs", height=100), *cnt_size),
-                        Col(JustGage(cnt_epg[domain.domain], 0, 1000, desc="EPGs", height=100), *cnt_size),
-                        Col(JustGage(cnt_ep[domain.domain], 0, 1000, desc="EPs", height=100), *cnt_size),
+                        Col(JustGage(cnt_epg[domain.domain], 0, 1000, desc="EPGs", height=100, link=(PRODUCTS.aci.show.epg, None)), *cnt_size),
+                        Col(JustGage(cnt_ep[domain.domain], 0, 1000, desc="EPs", height=100, link=(PRODUCTS.aci.show.ep, None)), *cnt_size),
                         Col(JustGage(cnt_flt[domain.domain], 0, 1000, desc="Filters", height=100), *cnt_size),
-                        Col(JustGage(cnt_ctr[domain.domain], 0, 1000, desc="Contracts", height=100), *cnt_size),
+                        Col(JustGage(cnt_ctr[domain.domain], 0, 1000, desc="Contracts", height=100, link=(PRODUCTS.aci.show.contract, None)), *cnt_size),
                         Col(JustGage(cnt_47d[domain.domain], 0, 1000, desc="L4/7Devices", height=100), *cnt_size),
                         Col(JustGage(cnt_47g[domain.domain], 0, 1000, desc="L4/7Graphs", height=100), *cnt_size),
                         Col(Empty(), (Col.SMALL, 4), (Col.MIDIUM, 2), (Col.LARGE, 1)),
                         Col(Layout(
                             Row(
                                 Col(Text(''), (Col.SMALL, 4)),
-                                Col(JustGage(cnt_ft[domain.domain]['critical'], 0, 100, desc="Critical", height=50), (Col.SMALL, 4)),
-                                Col(JustGage(cnt_ft[domain.domain]['major'], 0, 100, desc="Major", height=50), (Col.SMALL, 4))
+                                Col(JustGage(cnt_ft[domain.domain]['critical'], 0, 100, desc="Critical", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4)),
+                                Col(JustGage(cnt_ft[domain.domain]['major'], 0, 100, desc="Major", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4))
                             ),
                             Row(
                                 Col(Text(''), (Col.SMALL, 4)),
-                                Col(JustGage(cnt_ft[domain.domain]['minor'], 0, 100, desc="Minor", height=50), (Col.SMALL, 4)),
-                                Col(JustGage(cnt_ft[domain.domain]['warning'], 0, 100, desc="Warning", height=50), (Col.SMALL, 4))
+                                Col(JustGage(cnt_ft[domain.domain]['minor'], 0, 100, desc="Minor", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4)),
+                                Col(JustGage(cnt_ft[domain.domain]['warning'], 0, 100, desc="Warning", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4))
                             )
                         ), (Col.SMALL, 5), (Col.MIDIUM, 4), (Col.LARGE, 3))
                     )
@@ -122,13 +122,13 @@ class Overview(Feature):
             
         lo(
             Row(
-                Col(Panel('TotalHealth', total_health, icon='fa-exchange'), (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
-                Col(Panel('NodeHealth', Layout(
+                Col(Panel('Total Health', total_health, icon='fa-exchange'), (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                Col(Panel('Node Health', Layout(
                     Row(node_health),
                     Row(node_health_cur)
                 ), icon='fa-exchange'), (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
             ),
-            Row(Panel('EpgHealth', Layout(
+            Row(Panel('EPG Health', Layout(
                 Row(
                     Col(epg_health, (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
                     Col(epg_health_cur, (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
