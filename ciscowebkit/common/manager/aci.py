@@ -6,6 +6,7 @@ Created on 2016. 7. 20.
 
 import re
 import time
+import copy
 import requests
 from ciscowebkit.common import *
 
@@ -112,14 +113,15 @@ class ApicManager(L):
                 try: apic.aaaRefresh()
                 except: pass
                 
-    class Monitoring(Task, M):
+    class Monitoring(Task):
         
         def __init__(self, am, monitor_sec):
             Task.__init__(self, monitor_sec)
-            M.__init__(self)
             self._am = am
+            self._mondata = M()
+            self._mutex = Mutex()
             itime = time.time()
-            self._tstamp = [
+            self._mondata['_tstamp'] = [
                             time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(itime - (monitor_sec * 11))),
                             time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(itime - (monitor_sec * 10))),
                             time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(itime - (monitor_sec * 9))),
@@ -136,18 +138,23 @@ class ApicManager(L):
             self.start()
             
         def __call__(self):
-            return self
+            self._mutex.lock()
+            ret = copy.deepcopy(self._mondata)
+            self._mutex.unlock()
+            return ret
         
         def task(self):
-            self._tstamp.append(time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time())))
+            self._mutex.lock()
+            self._mondata._tstamp.append(time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time())))
             for apic in self._am:
                 health = apic.getHealth()
                 for dn in health:
-                    if dn not in self: self[dn] = [None, None, None, None, None, None, None, None, None, None, None, health[dn]]
+                    if dn not in self._mondata: self._mondata[dn] = [None, None, None, None, None, None, None, None, None, None, None, health[dn]]
                     else:
-                        self[dn].append(health[dn])
-                        self[dn] = self[dn][1:]
-            self._tstamp = self._tstamp[1:]
+                        self._mondata[dn].append(health[dn])
+                        self._mondata[dn].pop(0)
+            self._mondata._tstamp.pop(0)
+            self._mutex.unlock()
     
     def __init__(self, refresh_sec=300, monitor_sec=300):
         L.__init__(self)

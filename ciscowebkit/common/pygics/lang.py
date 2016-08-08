@@ -656,4 +656,13 @@ class Task:
             print 'Try Stop Thread'
             self._task_worker.join()
             print 'Thread Stopped'
-            
+
+class Mutex:
+    
+    def __init__(self):
+        self._lock = threading.Lock()
+    
+    def lock(self): self._lock.acquire()
+    
+    def unlock(self): self._lock.release()
+        
