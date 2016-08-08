@@ -41,6 +41,12 @@ class Row(__View__):
         for col in cols:
             if instof(col, Col): self.cols << col
             else: self.cols << Col(col)
+            
+    def __call__(self, *cols):
+        for col in cols:
+            if instof(col, Col): self.cols << col
+            else: self.cols << Col(col)
+        return self
         
     def __render__(self):
         html = '<div class="row">'
@@ -175,6 +181,14 @@ class InfoBlock(__View__):
         
     def __render__(self):
         return '<div id="cw-view-%s"%s></div>' % (self._id, self._link)
+    
+class InfoNoti(__View__):
+    
+    def __init__(self, title, msg='', panel='default', icon='fa-info-circle', link=None):
+        __View__.__init__(self, 'infonoti', title=title, msg=msg, panel=panel, icon=icon, link=self.__create_link__(link))
+        
+    def __render__(self):
+        return '<div id="cw-view-%s"></div>' % self._id
     
 class InfoPanel(__View__):
     

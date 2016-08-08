@@ -85,17 +85,19 @@ class Apic(M):
     
     def getHealth(self):
         if self.connected:
-            ret = M()
+            ret = M(topology=M(), epg=M())
             total, node, epg = self.get('fabricHealthTotal', 
                                    'fabricNodeHealth5min', 
                                    ('healthInst', '?query-target-filter=wcard(healthInst.dn,"^uni/tn-.*/ap-.*/epg-")&order-by=healthInst.dn'))
-            for h in total: ret[self.domain + '/' + h.dn.replace('/health', '')] = int(h.cur)
+            for h in total:
+                ret.topology[self.domain + '/' + h.dn.replace('/health', '')] = int(h.cur)
             for h in node:
                 rns = h.dn.split('/')
-                ret[self.domain + '/' + rns[0] + '/' + rns[1] + '/' + rns[2]] = int(h.healthAvg)
+                ret.topology[self.domain + '/' + rns[0] + '/' + rns[1] + '/' + rns[2]] = int(h.healthAvg)
             for h in epg:
                 rns = h.dn.split('/')
-                ret[self.domain + '/' + rns[1] + '/' + rns[2] + '/' + rns[3]] = int(h.cur)
+                ret.epg[self.domain + '/' + rns[1][3:] + '/' + rns[2][3:] + '/' + rns[3][4:]] = int(h.cur)
+                
             return ret
         return None
         
@@ -118,7 +120,7 @@ class ApicManager(L):
         def __init__(self, am, monitor_sec):
             Task.__init__(self, monitor_sec)
             self._am = am
-            self._mondata = M()
+            self._mondata = M(topology=M(), epg=M())
             self._mutex = Mutex()
             itime = time.time()
             self._mondata['_tstamp'] = [
@@ -145,15 +147,29 @@ class ApicManager(L):
         
         def task(self):
             self._mutex.lock()
+            
             self._mondata._tstamp.append(time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time())))
             for apic in self._am:
                 health = apic.getHealth()
-                for dn in health:
-                    if dn not in self._mondata: self._mondata[dn] = [None, None, None, None, None, None, None, None, None, None, None, health[dn]]
-                    else:
-                        self._mondata[dn].append(health[dn])
-                        self._mondata[dn].pop(0)
-            self._mondata._tstamp.pop(0)
+                for dn in health.topology:
+                    if dn not in self._mondata.topology: self._mondata.topology[dn] = [None, None, None, None, None, None, None, None, None, None, None, None, health.topology[dn]]
+                    else: self._mondata.topology[dn].append(health.topology[dn])
+                for dn in health.epg:
+                    if dn not in self._mondata.epg: self._mondata.epg[dn] = [None, None, None, None, None, None, None, None, None, None, None, None, health.epg[dn]]
+                    else: self._mondata.epg[dn].append(health.epg[dn])
+            
+            del_list = L()
+            for dn in self._mondata.topology:
+                self._mondata.topology[dn].pop(0)
+                if len(self._mondata.topology[dn]) < 12: del_list << dn
+            for dn in del_list: self._modata.topology >> dn
+            
+            del_list = L()
+            for dn in self._mondata.epg:
+                self._mondata.epg[dn].pop(0)
+                if len(self._mondata.epg[dn]) < 12: del_list << dn
+            for dn in del_list: self._modata.epg>> dn
+
             self._mutex.unlock()
     
     def __init__(self, refresh_sec=300, monitor_sec=300):
@@ -247,7 +263,6 @@ class ApicManager(L):
                 cnt[7][domain.domain] = int(cnt[7][domain.domain][0].count)
                 cnt[8][domain.domain] = int(cnt[8][domain.domain][0].count)
         except Exception as e:
-            print inf(self)
             print str(e)
             print 'Count Data', inf(cnt)
             raise Apic.ApicError('getCntAll.cnt')
@@ -273,7 +288,6 @@ class ApicManager(L):
                 flt[domain.domain]['critical'] = int(rf[5][domain.domain][0].count)
             cnt << flt
         except Exception as e:
-            print inf(self)
             print str(e)
             print 'Fault Data', inf(rf)
             raise Apic.ApicError('getCntAll.cnt')
@@ -352,9 +366,9 @@ if __name__ == '__main__':
 #         print inf(am.monitor())
 #         time.sleep(1)
 #     del am
-    
+
     ad = Apic('domain1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
-    data = ad.get(('fvRsPathAtt', '')); print inf(data), len(data[0])
+    data = ad.get(('faultInfo', '?query-target-filter=eq(faultInfo.severity, "critical")'),); print inf(data), len(data[0])
     
 #     data = ad.get('compVNic'); print inf(data), len(data[0])
     

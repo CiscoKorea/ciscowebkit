@@ -6,6 +6,7 @@ Created on 2016. 7. 5.
 '''
 
 from ciscowebkit.common import *
+from ciscowebkit.common.view.basic import InfoPanel
 
 class Show(Feature):
     
@@ -33,6 +34,11 @@ class Device(SubFeature):
             ctrl = Table('ID', 'Name', 'Model', 'Serial', 'Version', 'INB Mgmt IP', 'OOB Mgmt IP', 'State', 'Uptime', title='Controller')
             spne = Table('ID', 'Name', 'Model', 'Serial', 'Version', 'INB Mgmt IP', 'OOB Mgmt IP', 'State', 'Uptime', title='Spine')
             leaf = Table('ID', 'Name', 'Model', 'Serial', 'Version', 'INB Mgmt IP', 'OOB Mgmt IP', 'State', 'Uptime', title='Leaf')
+            
+            cnt_ctrl = 0
+            cnt_spne = 0
+            cnt_leaf = 0
+            
             for node in node_data[domain]:
                 for tsys in tsys_data[domain]:
                     if node.dn + '/' in tsys.dn:
@@ -43,6 +49,7 @@ class Device(SubFeature):
                         uptime = tsys.systemUpTime
                         break
                 if node.role == 'controller':
+                    cnt_ctrl += 1
                     for firm in cfrm_data[domain]:
                         if node.dn + '/' in firm.dn:
                             ctrl.add(id,
@@ -56,6 +63,7 @@ class Device(SubFeature):
                                      uptime[:-5])
                             break
                 elif node.role == 'spine':
+                    cnt_spne += 1
                     for firm in sfrm_data[domain]:
                         if node.dn + '/' in firm.dn:
                             spne.add(id,
@@ -69,6 +77,7 @@ class Device(SubFeature):
                                      uptime[:-4])
                             break
                 elif node.role == 'leaf':
+                    cnt_leaf += 1
                     for firm in sfrm_data[domain]:
                         if node.dn + '/' in firm.dn:
                             leaf.add(id,
@@ -81,8 +90,91 @@ class Device(SubFeature):
                                      'Service' if state == 'in-service' else 'Enormal',
                                      uptime[:-4])
                             break
-            lo(Row(Panel(domain, Layout(Row(ctrl), Row(spne), Row(leaf)), icon='fa-table')))
+            lo(
+                Row(Panel(domain, Layout(
+                    Row(
+                        Col(InfoPanel('Controller', cnt_ctrl, panel=Panel.BLUE, icon='fa-map-signs'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                        Col(InfoPanel('Spine', cnt_spne, panel=Panel.BLUE, icon='fa-tree'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                        Col(InfoPanel('Leaf', cnt_leaf, panel=Panel.BLUE, icon='fa-leaf'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4))
+                    ),
+                    Row(ctrl),
+                    Row(spne),
+                    Row(leaf)
+                ), icon='fa-table'))
+            )
             
+        return lo
+    
+class Tenant(SubFeature):
+    
+    '''Tenants Informantion'''
+    
+    def __init__(self): SubFeature.__init__(self, icon='fa-users')
+    
+    def get(self, request, *cmd):
+        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        
+        lo = Layout()
+        
+        tns, eps, bds, ctxs, ctrs, flts, epgs = APIC.get(
+                                                         ('fvTenant', '?rsp-prop-include=naming-only'),
+                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=fvCEp&rsp-prop-include=naming-only'),
+                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=fvBD&rsp-prop-include=naming-only'),
+                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=fvCtx&rsp-prop-include=naming-only'),
+                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=vzBrCP&rsp-prop-include=naming-only'),
+                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=vzFilter&rsp-prop-include=naming-only'),
+                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=fvAEPg&rsp-prop-include=naming-only'),
+                                                         )
+        
+        for domain in tns._order:
+            tntable = Table('Name', 'EPG', 'EP', 'Bridge Domain', 'Context', 'Contract', 'Filter')
+            tn_cnt = 0
+            
+            for tn in tns[domain]:
+                tn_cnt += 1
+                name = tn.name
+                bd_data = '<ul style="margin:0px">'
+                ctx_data = '<ul style="margin:0px">'
+                ctr_data = '<ul style="margin:0px">'
+                flt_data = '<ul style="margin:0px">'
+                ep_data = '<ul style="margin:0px">'
+                epg_data = '<ul style="margin:0px">'
+                
+                
+                for bd in bds[domain]:
+                    if tn.dn in bd.dn: bd_data += '<li><small>' + bd.name + '</small></li>'
+                
+                for ctx in ctxs[domain]:
+                    if tn.dn in ctx.dn: ctx_data += '<li><small>' + ctx.name + '</small></li>'
+                    
+                for ctr in ctrs[domain]:
+                    if tn.dn in ctr.dn: ctr_data += '<li><small>' + ctr.name + '</small></li>'
+                    
+                for flt in flts[domain]:
+                    if tn.dn in flt.dn: flt_data += '<li><small>' + flt.name + '</small></li>'
+                    
+                for epg in epgs[domain]:
+                    if tn.dn in epg.dn: epg_data += '<li><small>' + epg.name + '</small></li>'
+                    
+                for ep in eps[domain]:
+                    if tn.dn in ep.dn: ep_data += '<li><small>' + ep.name + '</small></li>'
+                    
+                bd_data += '</ul>'
+                ctx_data += '</ul>'
+                ctr_data += '</ul>'
+                flt_data += '</ul>'
+                ep_data += '</ul>'
+                epg_data += '</ul>'
+                
+                tntable.add(name, epg_data, ep_data, bd_data, ctx_data, ctr_data, flt_data)
+            
+            lo(
+                Row(Panel(domain, Layout(
+                    Row(InfoPanel('Tenants', tn_cnt, panel=Panel.BLUE, icon='fa-users')),
+                    Row(tntable)
+                ), icon='fa-table'))
+            )
+        
         return lo
     
 class EPG(SubFeature):
@@ -107,8 +199,10 @@ class EPG(SubFeature):
         
         for domain in epgs._order:
             egtable = Table('EPG', 'Tenant', 'App Profile', 'Bridge Domain', 'Context', 'Provided Contract', 'Consumed Contract', 'Binding Path', 'Encap') 
+            eg_cnt = 0
             
             for epg in epgs[domain]:
+                eg_cnt += 1
                 rns = epg.dn.split('/')
                 name = epg.name
                 tenant = rns[1][3:]
@@ -132,16 +226,16 @@ class EPG(SubFeature):
                     
                 for prov in provs[domain]:
                     if epg.dn == prov.tDn:
-                        provided += '<li>' + prov.dn.split('/')[2][4:] + '</li>'
+                        provided += '<li><small>' + prov.dn.split('/')[2][4:] + '</small></li>'
                 
                 for cons in conss[domain]:
                     if epg.dn == cons.tDn:
-                        consumed += '<li>' + cons.dn.split('/')[2][4:] + '</li>'
+                        consumed += '<li><small>' + cons.dn.split('/')[2][4:] + '</small></li>'
                 
                 for path in paths[domain]:
                     if epg.dn in path.dn:
                         trns = path.tDn.split('/')
-                        binding += '<li>' + trns[1][4:] + '/' + (trns[2][10:] if 'protpaths' in trns[2] else trns[2][6:]) + '/' + path.tDn.split('[')[1][:-1] + '</li>'
+                        binding += '<li><small>' + trns[1][4:] + '/' + (trns[2][10:] if 'protpaths' in trns[2] else trns[2][6:]) + '/' + path.tDn.split('[')[1][:-1] + '</small></li>'
                         if encap == ' ': encap = path.encap
                         
                 provided += '</ul>'
@@ -149,8 +243,13 @@ class EPG(SubFeature):
                 binding += '</ul>'
                 
                 egtable.add(name, tenant, app, bd_data, ctx_data, provided, consumed, binding, encap)
-            
-            lo(Row(Panel(domain, egtable, icon='fa-table')))
+                
+            lo(
+                Row(Panel(domain, Layout(
+                    Row(InfoPanel('End-Point Groups', eg_cnt, panel=Panel.BLUE, icon='fa-object-group')),
+                    Row(egtable)
+                ), icon='fa-table'))
+            )
         
         return lo
     
@@ -158,7 +257,7 @@ class EP(SubFeature):
     
     '''End-Point Informantion'''
     
-    def __init__(self): SubFeature.__init__(self, icon='fa-dot-circle-o')
+    def __init__(self): SubFeature.__init__(self, icon='fa-plug')
     
     def get(self, request, *cmd):
         if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
@@ -173,8 +272,15 @@ class EP(SubFeature):
         
         for domain in ceps._order:
             eptable = Table('Mac', 'EPG', 'IP', 'Interface', 'Encap', 'Nic Type', 'Computing')
+            ep_cnt = 0
+            dnic_cnt = 0
+            mgmt_cnt = 0
+            hnic_cnt = 0
+            pnic_cnt = 0
+            vnic_cnt = 0
             
             for cep in ceps[domain]:
+                ep_cnt += 1
                 rns = cep.dn.split('/')
                 epg = rns[1][3:] + '/' + rns[2][3:] + '/' + rns[3][4:]
                 mac = cep.mac
@@ -193,30 +299,47 @@ class EP(SubFeature):
                 for nic in nics[domain]:
                     if cep.mac == nic.mac:
                         if nic._model == 'compDNic':
-                            nic_type += '<li>Discovered</li>'
+                            nic_type += '<li><small>Discovered</small></li>'
                             comp += '<li> </li>'
+                            dnic_cnt += 1
                         elif nic._model == 'compMgmtNic':
-                            nic_type += '<li>Management</li>'
+                            nic_type += '<li><small>Management</small></li>'
                             nic_rns = nic.dn.split('/')
-                            comp += '<li>' + nic_rns[1][5:] + '/' + nic_rns[2].split(']')[1][1:] + '/' + nic_rns[3][3:] + '/' + nic.tType + '</li>'
+                            comp += '<li><small>' + nic_rns[1][5:] + '/' + nic_rns[2].split(']')[1][1:] + '/' + nic_rns[3][3:] + '/' + nic.tType + '</small></li>'
+                            mgmt_cnt += 1
                         elif nic._model == 'compHpNic':
-                            nic_type += '<li>Hypervisor</li>'
+                            nic_type += '<li><small>Hypervisor</small></li>'
                             nic_rns = nic.dn.split('/')
-                            comp += '<li>' + nic_rns[1][5:] + '/' + nic_rns[2].split(']')[1][1:] + '/' + nic_rns[3][3:] + '/' + nic_rns[4][6:] + '</li>'
+                            comp += '<li><small>' + nic_rns[1][5:] + '/' + nic_rns[2].split(']')[1][1:] + '/' + nic_rns[3][3:] + '/' + nic_rns[4][6:] + '</small></li>'
+                            hnic_cnt += 1
                         elif nic._model == 'compPpNic':
-                            nic_type += '<li>Pysical</li>'
+                            nic_type += '<li><small>Pysical</small></li>'
                             comp += '<li> </li>'
+                            pnic_cnt += 1
                         elif nic._model == 'compVNic':
-                            nic_type += '<li>Virtual</li>'
+                            nic_type += '<li><small>Virtual</small></li>'
                             nic_rns = nic.dn.split('/')
-                            comp += '<li>' + nic_rns[1][5:] + '/' + nic_rns[2].split(']')[1][1:] + '/' + nic_rns[3][3:] + ('/"%s"' % nic.name) + '</li>'
+                            comp += '<li><small>' + nic_rns[1][5:] + '/' + nic_rns[2].split(']')[1][1:] + '/' + nic_rns[3][3:] + ('/"%s"' % nic.name) + '</small></li>'
+                            vnic_cnt += 1
                 
                 nic_type += '</ul>'
                 comp += '</ul>'
                 
                 eptable.add(mac, epg, ip, intf, encap, nic_type, comp)
             
-            lo(Row(Panel(domain, eptable, icon='fa-table')))
+            lo(
+                Row(Panel(domain, Layout(
+                    Row(
+                        Col(InfoPanel('End Points', ep_cnt, panel=Panel.BLUE, icon='fa-plug'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                        Col(InfoPanel('Discovered', dnic_cnt, panel=Panel.BLUE, icon='fa-flag-checkered'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                        Col(InfoPanel('Management', mgmt_cnt, panel=Panel.BLUE, icon='fa-cog'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                        Col(InfoPanel('Physical', pnic_cnt, panel=Panel.BLUE, icon='fa-server'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                        Col(InfoPanel('Hypervisor', hnic_cnt, panel=Panel.BLUE, icon='fa-cubes'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                        Col(InfoPanel('Virtual', vnic_cnt, panel=Panel.BLUE, icon='fa-cube'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2))
+                    ),
+                    Row(eptable)
+                ), icon='fa-table'))
+            )
                 
         return lo
 
@@ -240,7 +363,11 @@ class Contract(SubFeature):
         
         for domain in cps._order:
             ctr_table = Table('Name', 'Tenant', 'Scope', 'Subject', 'Provider', 'Consumer')
+            ctr_cnt = 0
+            prv_cnt = 0
+            con_cnt = 0
             for cp in cps[domain]:
+                ctr_cnt += 1
                 ctr_rec = L()
                 rns = cp.dn.split('/')
                 rn = rns[2]
@@ -254,14 +381,69 @@ class Contract(SubFeature):
                     if rn in prov.dn:
                         trns = prov.tDn.split('/')
                         ctr_rec[4] += '<li><small>' + tenant + '/' + trns[2][3:] + '/' + trns[3][4:] + '</small></li>'
+                        prv_cnt += 1
                 ctr_rec[4] += '</ul>'
                 ctr_rec[5] += '<ul style="margin:0px">'
                 for cons in conss[domain]:
                     if rn in cons.dn:
                         trns = cons.tDn.split('/')
                         ctr_rec[5] += '<li><small>' + tenant + '/' + trns[2][3:] + '/' + trns[3][4:] + '</small></li>'
+                        con_cnt += 1
                 ctr_rec[5] += '</ul>'
                 ctr_table.add(*ctr_rec)
-            lo(Row(Panel(domain, Layout(Row(ctr_table)), icon='fa-table')))
+                
+            lo(
+                Row(Panel(domain, Layout(
+                    Row(
+                        Col(InfoPanel('Contracts', ctr_cnt, panel=Panel.BLUE, icon='fa-ticket'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                        Col(InfoPanel('Provider', prv_cnt, panel=Panel.BLUE, icon='fa-truck'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                        Col(InfoPanel('Consumer', con_cnt, panel=Panel.BLUE, icon='fa-shopping-bag'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4))
+                    ),
+                    Row(ctr_table)
+                ), icon='fa-table'))
+            )
         
         return lo
+
+class Fault(SubFeature):
+    
+    '''Contracts Information'''
+    
+    def __init__(self): SubFeature.__init__(self, icon='fa-warning')
+    
+    def get(self, request, *cmd):
+        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        
+        lo = Layout()
+        
+        cris, majs, mins, wars = APIC.get(
+                                          ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "critical")'),
+                                          ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "major")'),
+                                          ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "minor")'),
+                                          ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "warning")')
+                                          )
+        for domain in cris._order:
+            dom_lo = Layout()
+            
+        
+            for cri in cris[domain]:
+                dom_lo(Row(InfoNoti(cri.subject.upper(), cri.code + ' : ' + cri.descr, panel=Panel.RED, icon='fa-bolt')))
+        
+            for maj in majs[domain]:
+                dom_lo(Row(InfoNoti(maj.subject.upper(), maj.code + ' : ' + maj.descr, panel=Panel.DANGER, icon='fa-exclamation-triangle')))
+                
+            for min in mins[domain]:
+                dom_lo(Row(InfoNoti(min.subject.upper(), min.code + ' : ' + min.descr, panel=Panel.YELLOW, icon='fa-exclamation-circle')))
+                
+            for war in wars[domain]:
+                dom_lo(Row(InfoNoti(war.subject.upper(), war.code + ' : ' + war.descr, panel=Panel.WARNING, icon='fa-exclamation')))
+                
+            lo(Row(Panel(domain, dom_lo)))
+        
+        return lo
+    
+    
+    
+
+
+

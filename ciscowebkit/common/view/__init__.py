@@ -1,5 +1,5 @@
 
-from ciscowebkit.common.view.basic import Layout, Row, Col, Empty, Error, Panel, Plain, Text, VList, HList, InfoBlock, InfoPanel, InfoDoc, Table, Form
+from ciscowebkit.common.view.basic import Layout, Row, Col, Empty, Error, Panel, Plain, Text, VList, HList, InfoBlock, InfoNoti, InfoPanel, InfoDoc, Table, Form
 
 from ciscowebkit.common.view.chartist import ChartistLine, ChartistArea, ChartistBar, ChartistSlide, ChartistDonut
 

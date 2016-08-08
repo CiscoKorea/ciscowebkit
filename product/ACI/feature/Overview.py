@@ -12,7 +12,7 @@ from ciscowebkit.common import *
 class Overview(Feature):
      
     def __init__(self):
-        Feature.__init__(self, 10, 'fa-dashboard')
+        Feature.__init__(self, 3, 'fa-dashboard')
      
     def get(self, request, *cmd):
         if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
@@ -29,14 +29,14 @@ class Overview(Feature):
         rows = L()
         for i in range(0, 12):
             row = L()
-            for dn in health:
+            for dn in health.topology:
                 if re.search('topology/pod-\d+$', dn):
                     if dn not in lines: lines << dn
-                    row << health[dn][i]
-            for dn in health:
+                    row << health.topology[dn][i]
+            for dn in health.topology:
                 if re.search('topology$', dn):
                     if dn not in lines: lines << dn
-                    row << health[dn][i]
+                    row << health.topology[dn][i]
             rows << row
         total_health = ChartistArea(*lines, height=300).grid(0, 100).ani()
         idx = 0
@@ -48,11 +48,11 @@ class Overview(Feature):
         cur_rows = L()
         for i in range(0, 12):
             row = L()
-            for dn in health:
+            for dn in health.topology:
                 if re.search('node-[\w\W]+$', dn):
                     if dn not in lines: lines << dn
-                    row << health[dn][i]
-                    if i == 11: cur_rows << health[dn][i]
+                    row << health.topology[dn][i]
+                    if i == 11: cur_rows << health.topology[dn][i]
             rows << row
         node_health = ChartistLine(*lines, height=150).grid(0, 100).ani()
         idx = 0
@@ -72,11 +72,10 @@ class Overview(Feature):
         cur_rows = L()
         for i in range(0, 12):
             row = L()
-            for dn in health:
-                if re.search('epg-[\w\W]+$', dn):
-                    if dn not in lines: lines << dn
-                    row << health[dn][i]
-                    if i == 11: cur_rows << health[dn][i]
+            for dn in health.epg:
+                if dn not in lines: lines << dn
+                row << health.epg[dn][i]
+                if i == 11: cur_rows << health.epg[dn][i]
             rows << row
         epg_health = ChartistLine(*lines, height=200).grid(0, 100).ani()
         idx = 0

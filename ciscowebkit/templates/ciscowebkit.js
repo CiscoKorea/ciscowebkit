@@ -295,12 +295,20 @@ function show_ux_infoblock(data) {
 	document.getElementById("cw-view-" + data["_id"]).innerHTML = html;
 }
 
+function show_ux_infonoti(data) {
+	var html = '<div class="panel panel-' + data["panel"]+ '"><div class="panel-heading"><h3 class="panel-title"><i class="fa ' + data["icon"] + '"></i> ' + data["title"] + '</h3><small>' + data["msg"] + '</small></div></div>';
+	document.getElementById("cw-view-" + data["_id"]).innerHTML = html;
+}
+
 function show_ux_infopanel(data) {
 	var html = '<div class="panel panel-' + data["panel"]+ '"><div class="panel-heading"><div class="row"><div class="col-xs-3">';
 	html += '<i class="fa ' + data["icon"] + ' fa-5x"></i></div><div class="col-xs-9 text-right">';
-	html += '<div class="huge">' + data["count"] + '</div><div>' + data["title"] + '</div></div></div></div><a' + data["link"] + '>';
-	html += '<div class="panel-footer"><span class="pull-left">' + data["desc"] + '</span>';
-	html += '<span class="pull-right">View Details <i class="fa fa-arrow-circle-right"></i></span><div class="clearfix"></div></div></a></div>';
+	html += '<div class="huge">' + data["count"] + '</div><div>' + data["title"] + '</div></div></div></div>'
+	if (data["link"] != "") {
+		html += '<a' + data["link"] + '><div class="panel-footer"><span class="pull-left">' + data["desc"] + '</span>';
+		html += '<span class="pull-right">View Details <i class="fa fa-arrow-circle-right"></i></span><div class="clearfix"></div></div></a>';
+	}
+	html += '</div>';
 	document.getElementById("cw-view-" + data["_id"]).innerHTML = html;
 }
 

@@ -121,7 +121,20 @@
 	z-index: 1000;
 }
 
+
 ::-webkit-scrollbar {
-	width: 0px;
-	background: transparent;
+	width: 10px; 
+	height: 10px; 
 }
+
+::-webkit-scrollbar-track {
+	background: #222; 
+}
+
+::-webkit-scrollbar-thumb {
+	background: #aaa; 
+}
+
+
+
+
