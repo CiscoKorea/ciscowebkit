@@ -8,7 +8,112 @@ import re
 import time
 import copy
 import requests
-from ciscowebkit.common import *
+from ciscowebkit.common.pygics import *
+
+
+
+# import pymysql
+# from ciscowebkit.common.manager.aci.acitoolkit.acitoolkit as aci
+# class ACIManager:
+#     
+#     class APIC(M):
+#         
+#         class APIC_CONNECTION_FAILED(E):
+#             def __init__(self, ips, user, pwd): E.__init__(self, 'Connection Failed %s@%s:%s' % (user, str(ips), pwd))
+#             
+#         class APIC_PERSISTENT_ERROR(E):
+#             def __init__(self): E.__init__(self, 'Access Denied Persistent Data')
+#         
+#         def __init__(self, domain, ips, user, pwd):
+#             M.__init__(self, domain=domain, ip=ips, user=user, pwd=pwd)
+#             sepkv = re.match('^[\d.:]+(?P<sep>[,/&|])', ip)
+#             if sepkv: self._ips = L(*ips.split(sepkv.group('sep')))
+#             else: self._ips = L(ips)
+#             
+#             #===================================================================
+#             # Connect APIC
+#             #===================================================================
+#             
+#             for ip in self._ips:
+#                 session = aci.Session('https://%s' % ip, user, pwd)
+#                 resp = session.login()
+#                 if resp.ok: break
+#             else: raise ACIManager.APIC.APIC_CONNECTION_FAILED(self_ips, user, pwd)
+#             self._session = session
+#             
+#             #===================================================================
+#             # Connect DB
+#             #===================================================================
+#             
+#             
+#             
+#             
+#             
+#             
+#             cnx = mysql.connect(user=args.mysqllogin,
+#                         password=args.mysqlpassword,
+#                         host=args.mysqlip)
+#             if args.daemon:
+#                 logging.info("Connecting to mysql database")
+#             c = cnx.cursor()
+#         
+#             with warnings.catch_warnings():
+#                 warnings.filterwarnings('ignore')
+#                 c.execute('CREATE DATABASE IF NOT EXISTS endpointtracker;')
+#                 cnx.commit()
+#             c.execute('USE endpointtracker;')
+#             with warnings.catch_warnings():
+#                 warnings.filterwarnings('ignore')
+#                 c.execute('''CREATE TABLE IF NOT EXISTS endpoints (
+#                                  mac       CHAR(18) NOT NULL,
+#                                  ip        CHAR(16),
+#                                  tenant    CHAR(100) NOT NULL,
+#                                  app       CHAR(100) NOT NULL,
+#                                  epg       CHAR(100) NOT NULL,
+#                                  interface CHAR(100) NOT NULL,
+#                                  timestart TIMESTAMP NOT NULL,
+#                                  timestop  TIMESTAMP);''')
+#                 cnx.commit()
+#             
+#             
+#             
+#     
+#     def __init__(self):
+#         pass
+#     
+#     
+#     def addDomain(self, domain, ip, name, pwd):
+#         
+#         session = aci.Session('http://%sargs.url, args.login, args.password)
+#     
+#         print session.uid, session.pwd, session.api
+#         
+#         resp = session.login()
+#         if not resp.ok:
+#             print '%% Could not login to APIC'
+#             sys.exit(0)
+#         
+#         
+#         pass
+#     
+#     def delDomain(self, domain):
+#         
+#         pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class Apic(M):
     
@@ -368,7 +473,8 @@ if __name__ == '__main__':
 #     del am
 
     ad = Apic('domain1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
-    data = ad.get(('faultInfo', '?query-target-filter=eq(faultInfo.severity, "critical")'),); print inf(data), len(data[0])
+    data = ad.get(('fvRsCons', '?query-target-filter=wcard(fvRsCons.dn,"/out-")'),); print inf(data), len(data[0])
+    data = ad.get(('l3extInstP', ''),); print inf(data), len(data[0])
     
 #     data = ad.get('compVNic'); print inf(data), len(data[0])
     

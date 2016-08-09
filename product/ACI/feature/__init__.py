@@ -4,6 +4,7 @@ FEATURE_ORDER = ['Overview',
                  'Show.EPG',
                  'Show.EP',
                  'Show.Contract',
+                 'Show.L3_External',
                  'Show.Fault',
                  'Setting']
 

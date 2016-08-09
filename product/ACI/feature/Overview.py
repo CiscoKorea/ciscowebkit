@@ -66,7 +66,7 @@ class Overview(Feature):
         node_health_data = sorted(node_health_data, key=lambda node: node[1])
         for idx in range(0, len(node_health_data)):
             node_health_cur.add(node_health_data[idx][0], node_health_data[idx][1])
-                
+        
         lines = L()
         rows = L()
         cur_rows = L()

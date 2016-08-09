@@ -319,7 +319,7 @@ function show_ux_infodoc(data) {
 
 function show_ux_table(data) {
 	var table = document.getElementById("cw-view-" + data["_id"]);
-	var html = '<table id="cw-view-T-' + data["_id"] + '"class="table table-bordered table-hover' + (data["_stripe"] ? ' table-striped' : '') + '"' + data["_link"] + '><thead><tr role="row">';
+	var html = '<table width="100%" id="cw-view-T-' + data["_id"] + '"class="table table-bordered table-hover' + (data["_stripe"] ? ' table-striped' : '') + '"' + data["_link"] + '><thead><tr role="row">';
     var heads = data["heads"];
     for (var i=0, head; head=heads[i]; i++) { html += "<th>" + head + "</th>"; }
     html += "</tr></thead><tbody>";
@@ -336,7 +336,8 @@ function show_ux_table(data) {
     table.innerHTML = html
     
     var dt = $("#cw-view-T-" + data["_id"]).DataTable({
-        dom: 'Bfrtip',
+    	scrollX: true,
+    	dom: 'Bfrtip',
         lengthMenu: [
             [ 10, 25, 50, -1 ],
             [ '10 rows', '25 rows', '50 rows', 'Show all' ]
@@ -351,7 +352,6 @@ function show_ux_table(data) {
         search: { "regex": false },
         destroy: true
     });
-    table.style.width = "100%";
 }
 
 function show_ux_ctst_line(data) {

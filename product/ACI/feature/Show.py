@@ -330,7 +330,7 @@ class EP(SubFeature):
             lo(
                 Row(Panel(domain, Layout(
                     Row(
-                        Col(InfoPanel('End Points', ep_cnt, panel=Panel.BLUE, icon='fa-plug'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                        Col(InfoPanel('EP', ep_cnt, panel=Panel.BLUE, icon='fa-plug'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
                         Col(InfoPanel('Discovered', dnic_cnt, panel=Panel.BLUE, icon='fa-flag-checkered'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
                         Col(InfoPanel('Management', mgmt_cnt, panel=Panel.BLUE, icon='fa-cog'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
                         Col(InfoPanel('Physical', pnic_cnt, panel=Panel.BLUE, icon='fa-server'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
@@ -405,9 +405,75 @@ class Contract(SubFeature):
         
         return lo
 
+class L3_External(SubFeature):
+    
+    '''L3 External Network Information'''
+    
+    def __init__(self): SubFeature.__init__(self, icon='fa-cloud')
+    
+    def get(self, request, *cmd):
+        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        
+        lo = Layout()
+        
+        insps, isubs, ctxs, provs, conss = APIC.get(
+                                                    'l3extInstP',
+                                                    'l3extSubnet',
+                                                    'fvCtx',
+                                                    ('fvRsProv', '?query-target-filter=wcard(fvRsProv.dn,"/out-")'),
+                                                    ('fvRsCons', '?query-target-filter=wcard(fvRsCons.dn,"/out-")')
+                                                    )
+        
+        for domain in insps._order:
+            l3table = Table('L3 External', 'Tenant', 'Context', 'L3 Outside', 'Subnets', 'Provided Contract', 'Consumed Contract')
+            l3_cnt = 0
+            
+            for insp in insps[domain]:
+                l3_cnt += 1
+                rns = insp.dn.split('/')
+                name = insp.name
+                tenant = rns[1][3:]
+                context = ' '
+                l3_out = rns[2][4:]
+                subnet = '<ul style="margin:0px">'
+                provided = '<ul style="margin:0px">'
+                consumed = '<ul style="margin:0px">'
+                
+                for ctx in ctxs[domain]:
+                    if insp.scope == ctx.scope:
+                        context = ctx.name
+                        break
+                    
+                for isub in isubs[domain]:
+                    if insp.dn in isub.dn:
+                        subnet += '<li><small>%s</small></li>' % isub.ip
+                
+                for prov in provs[domain]:
+                    if insp.dn in prov.dn:
+                        provided += '<li><small>%s</small></li>' % prov.tDn.split('/brc-')[1]
+                
+                for cons in conss[domain]:
+                    if insp.dn in cons.dn:
+                        consumed += '<li><small>%s</small></li>' % cons.tDn.split('/brc-')[1]
+                        
+                subnet += '</ul>'
+                provided += '</ul>'
+                consumed += '</ul>'
+                
+                l3table.add(name, tenant, context, l3_out, subnet, provided, consumed)
+                
+            lo(
+                Row(Panel(domain, Layout(
+                    Row(InfoPanel('L3 External', l3_cnt, panel=Panel.BLUE, icon='fa-cloud')),
+                    Row(l3table)
+                ), icon='fa-table'))
+            )
+        
+        return lo
+
 class Fault(SubFeature):
     
-    '''Contracts Information'''
+    '''Faults Information'''
     
     def __init__(self): SubFeature.__init__(self, icon='fa-warning')
     
@@ -423,22 +489,39 @@ class Fault(SubFeature):
                                           ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "warning")')
                                           )
         for domain in cris._order:
-            dom_lo = Layout()
+            fttable = Table('Type', 'Subject', 'Description', 'Code')
+            cri_cnt = 0
+            maj_cnt = 0
+            min_cnt = 0
+            war_cnt = 0
             
-        
             for cri in cris[domain]:
-                dom_lo(Row(InfoNoti(cri.subject.upper(), cri.code + ' : ' + cri.descr, panel=Panel.RED, icon='fa-bolt')))
+                fttable.add('Critical', cri.subject.upper(), cri.descr, cri.code, type=Table.DANGER)
+                cri_cnt += 1
         
             for maj in majs[domain]:
-                dom_lo(Row(InfoNoti(maj.subject.upper(), maj.code + ' : ' + maj.descr, panel=Panel.DANGER, icon='fa-exclamation-triangle')))
+                fttable.add('Major', maj.subject.upper(), maj.descr, maj.code, type=Table.DANGER)
+                maj_cnt += 1
                 
             for min in mins[domain]:
-                dom_lo(Row(InfoNoti(min.subject.upper(), min.code + ' : ' + min.descr, panel=Panel.YELLOW, icon='fa-exclamation-circle')))
+                fttable.add('Minor', min.subject.upper(), min.descr, min.code, type=Table.WARNING)
+                min_cnt += 1
                 
             for war in wars[domain]:
-                dom_lo(Row(InfoNoti(war.subject.upper(), war.code + ' : ' + war.descr, panel=Panel.WARNING, icon='fa-exclamation')))
+                fttable.add('Warning', war.subject.upper(), war.descr, war.code, type=Table.WARNING)
+                war_cnt += 1
                 
-            lo(Row(Panel(domain, dom_lo)))
+            lo(
+                Row(Panel(domain, Layout(
+                    Row(
+                        Col(InfoPanel('CRITICAL', cri_cnt, panel=Panel.RED, icon='fa-bolt'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
+                        Col(InfoPanel('MAJOR', maj_cnt, panel=Panel.DANGER, icon='fa-exclamation-triangle'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
+                        Col(InfoPanel('MINOR', min_cnt, panel=Panel.YELLOW, icon='fa-exclamation-circle'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
+                        Col(InfoPanel('WARNING', war_cnt, panel=Panel.WARNING, icon='fa-exclamation'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3))
+                    ),
+                    Row(fttable)
+                ), icon='fa-table'))
+            )
         
         return lo
     
