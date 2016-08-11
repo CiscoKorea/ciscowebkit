@@ -128,3 +128,40 @@ class HealthScore(object):
         url = '/api/node/mo/{}/health.json'.format(dn)
         obj = cls._get_by_url(session, url)[0]
         return obj
+    
+    
+    
+    #===========================================================================
+    # Additional Feature
+    #===========================================================================
+    
+    @classmethod
+    def get_topology_health(cls, session):
+        ret = {}
+        resp = session.get('/api/class/fabricHealthTotal.json?')
+        scores = json.loads(resp.text)['imdata']
+        for score in scores:
+            dn = score['fabricHealthTotal']['attributes']['dn']
+            value = int(score['fabricHealthTotal']['attributes']['cur'])
+            if dn == 'topology/health': dn = 'total'
+            else: dn = dn[9:-7]
+            ret[dn] = value
+        resp = session.get('/api/class/fabricNodeHealth5min.json?')
+        scores = json.loads(resp.text)['imdata']
+        for score in scores:
+            dn = score['fabricNodeHealth5min']['attributes']['dn'].split('/sys/')[0][9:]
+            value = int(score['fabricNodeHealth5min']['attributes']['healthAvg'])
+            ret[dn] = value
+        return ret
+    
+    @classmethod
+    def get_tenant_health(cls, session):
+        ret = {}
+        resp = session.get('/api/class/healthInst.json?query-target-filter=wcard(healthInst.dn,"^uni/tn-")')
+        scores = json.loads(resp.text)['imdata']
+        for score in scores:
+            dn = score['healthInst']['attributes']['dn'][4:-7]
+            if 'topology' in dn: continue
+            value = int(score['healthInst']['attributes']['cur'])
+            ret[dn] = value
+        return ret

@@ -17,7 +17,7 @@ from product import PRODUCT_ORDER
 
 from dashboard.views import Dashboard
 
-from ciscowebkit.common.manager.aci import ApicManager
+from ciscowebkit.common.manager.aci import ACIManager
 
 class Engine(SingleTon):
             
@@ -28,11 +28,9 @@ class Engine(SingleTon):
         self.__build_template__()
 
     def __load_product_managers__(self):
-        self.APIC = ApicManager(monitor_sec=60)
-        self.APIC.addDomain('testlab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
-#         self.APIC.addDomain('testlab2', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
-        greg('APIC', self.APIC)
-        pass
+        self.acimng = ACIManager(mon_sec=60, mon_cnt=10)
+        self.acimng.addDomain('testlab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
+        greg('ACI', self.acimng)
     
     def __load_templates__(self):
         self.ciscowebkit_tpl = loader.get_template('ciscowebkit.html')

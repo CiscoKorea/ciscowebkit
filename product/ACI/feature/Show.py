@@ -19,18 +19,18 @@ class Device(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-cogs')
     
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
         lo = Layout()
         
-        node_data, cfrm_data, sfrm_data, tsys_data = APIC.get(
-                                                              ('fabricNode', '?order-by=fabricNode.role,fabricNode.name'),
-                                                              'firmwareCtrlrRunning',
-                                                              'firmwareRunning',
-                                                              'topSystem'
+        node_data, cfrm_data, sfrm_data, tsys_data = ACI.get(
+                                                             ('fabricNode', 'order-by=fabricNode.role,fabricNode.name'),
+                                                             'firmwareCtrlrRunning',
+                                                             'firmwareRunning',
+                                                             'topSystem'
                                                               )
         
-        for domain in node_data._order:
+        for domain in ACI._order:
             ctrl = Table('ID', 'Name', 'Model', 'Serial', 'Version', 'INB Mgmt IP', 'OOB Mgmt IP', 'State', 'Uptime', title='Controller')
             spne = Table('ID', 'Name', 'Model', 'Serial', 'Version', 'INB Mgmt IP', 'OOB Mgmt IP', 'State', 'Uptime', title='Spine')
             leaf = Table('ID', 'Name', 'Model', 'Serial', 'Version', 'INB Mgmt IP', 'OOB Mgmt IP', 'State', 'Uptime', title='Leaf')
@@ -112,21 +112,21 @@ class Tenant(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-users')
     
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
         lo = Layout()
         
-        tns, eps, bds, ctxs, ctrs, flts, epgs = APIC.get(
-                                                         ('fvTenant', '?rsp-prop-include=naming-only'),
-                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=fvCEp&rsp-prop-include=naming-only'),
-                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=fvBD&rsp-prop-include=naming-only'),
-                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=fvCtx&rsp-prop-include=naming-only'),
-                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=vzBrCP&rsp-prop-include=naming-only'),
-                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=vzFilter&rsp-prop-include=naming-only'),
-                                                         ('fvTenant', '?query-target=subtree&target-subtree-class=fvAEPg&rsp-prop-include=naming-only'),
-                                                         )
+        tns, eps, bds, ctxs, ctrs, flts, epgs = ACI.get(
+                                                        ('fvTenant', 'rsp-prop-include=naming-only'),
+                                                        ('fvTenant', 'query-target=subtree&target-subtree-class=fvCEp&rsp-prop-include=naming-only'),
+                                                        ('fvTenant', 'query-target=subtree&target-subtree-class=fvBD&rsp-prop-include=naming-only'),
+                                                        ('fvTenant', 'query-target=subtree&target-subtree-class=fvCtx&rsp-prop-include=naming-only'),
+                                                        ('fvTenant', 'query-target=subtree&target-subtree-class=vzBrCP&rsp-prop-include=naming-only'),
+                                                        ('fvTenant', 'query-target=subtree&target-subtree-class=vzFilter&rsp-prop-include=naming-only'),
+                                                        ('fvTenant', 'query-target=subtree&target-subtree-class=fvAEPg&rsp-prop-include=naming-only'),
+                                                        )
         
-        for domain in tns._order:
+        for domain in ACI._order:
             tntable = Table('Name', 'EPG', 'EP', 'Bridge Domain', 'Context', 'Contract', 'Filter')
             tn_cnt = 0
             
@@ -184,20 +184,20 @@ class EPG(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-object-group')
     
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
         lo = Layout()
         
-        epgs, ctxs, bds, provs, conss, paths = APIC.get(
-                                                        ('fvAEPg', '?order-by=fvAEPg.dn'),
-                                                        'fvCtx',
-                                                        'fvBD',
-                                                        'vzRtProv',
-                                                        'vzRtCons',
-                                                        'fvRsPathAtt'
-                                                        )
+        epgs, ctxs, bds, provs, conss, paths = ACI.get(
+                                                       ('fvAEPg', 'order-by=fvAEPg.dn'),
+                                                       'fvCtx',
+                                                       'fvBD',
+                                                       'vzRtProv',
+                                                       'vzRtCons',
+                                                       'fvRsPathAtt'
+                                                       )
         
-        for domain in epgs._order:
+        for domain in ACI._order:
             egtable = Table('EPG', 'Tenant', 'App Profile', 'Bridge Domain', 'Context', 'Provided Contract', 'Consumed Contract', 'Binding Path', 'Encap') 
             eg_cnt = 0
             
@@ -260,17 +260,19 @@ class EP(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-plug')
     
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
         lo = Layout()
         
-        ceps, paths, nics = APIC.get(
-                                     ('fvCEp', '?order-by=fvCEp.dn'),
-                                     'fvRsCEpToPathEp',
-                                     'compNic'
-                                     )
+        ceps, paths, nics = ACI.get(
+                                    ('fvCEp', 'order-by=fvCEp.dn'),
+                                    'fvRsCEpToPathEp',
+                                    'compNic'
+                                    )
         
-        for domain in ceps._order:
+        epts = ACI.getEPTrack()
+        
+        for domain in ACI._order:
             eptable = Table('Mac', 'EPG', 'IP', 'Interface', 'Encap', 'Nic Type', 'Computing')
             ep_cnt = 0
             dnic_cnt = 0
@@ -295,7 +297,7 @@ class EP(SubFeature):
                         path_trns = path.tDn.split('/')
                         intf = path_trns[1][4:] + '/' + (path_trns[2][10:] if 'protpaths' in path_trns[2] else path_trns[2][6:]) + '/' + path.tDn.split('[')[1][:-1]
                         break
-                
+                    
                 for nic in nics[domain]:
                     if cep.mac == nic.mac:
                         if nic._model == 'compDNic':
@@ -327,6 +329,12 @@ class EP(SubFeature):
                 
                 eptable.add(mac, epg, ip, intf, encap, nic_type, comp)
             
+            ept_table = Table('Mac', 'EPG', 'IP', 'Interface', 'Time Start', 'Time Stop')
+            ept_cnt = 0
+            for ept in epts[domain]:
+                ept_table.add(ept.mac, ept.epg, ept.ip, ept.interface, ept.timestart, ept.timestop)
+                ept_cnt += 1
+            
             lo(
                 Row(Panel(domain, Layout(
                     Row(
@@ -337,7 +345,9 @@ class EP(SubFeature):
                         Col(InfoPanel('Hypervisor', hnic_cnt, panel=Panel.BLUE, icon='fa-cubes'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
                         Col(InfoPanel('Virtual', vnic_cnt, panel=Panel.BLUE, icon='fa-cube'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2))
                     ),
-                    Row(eptable)
+                    Row(eptable),
+                    Row(InfoPanel('EP Tracking', ept_cnt, panel=Panel.BLUE, icon='fa-history')),
+                    Row(ept_table)
                 ), icon='fa-table'))
             )
                 
@@ -350,18 +360,18 @@ class Contract(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-ticket')
     
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
-        cps, subjs, conss, provs = APIC.get(
-                                        ('vzBrCP', '?order-by=vzBrCP.modTs'),
-                                        'vzSubj',
-                                        'vzRtCons',
-                                        'vzRtProv'
-                                        )
+        cps, subjs, conss, provs = ACI.get(
+                                           ('vzBrCP', 'order-by=vzBrCP.modTs'),
+                                           'vzSubj',
+                                           'vzRtCons',
+                                           'vzRtProv'
+                                           )
         
         lo = Layout()
         
-        for domain in cps._order:
+        for domain in ACI._order:
             ctr_table = Table('Name', 'Tenant', 'Scope', 'Subject', 'Provider', 'Consumer')
             ctr_cnt = 0
             prv_cnt = 0
@@ -397,7 +407,7 @@ class Contract(SubFeature):
                     Row(
                         Col(InfoPanel('Contracts', ctr_cnt, panel=Panel.BLUE, icon='fa-ticket'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
                         Col(InfoPanel('Provider', prv_cnt, panel=Panel.BLUE, icon='fa-truck'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
-                        Col(InfoPanel('Consumer', con_cnt, panel=Panel.BLUE, icon='fa-shopping-bag'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4))
+                        Col(InfoPanel('Consumer', con_cnt, panel=Panel.BLUE, icon='fa-shopping-cart'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4))
                     ),
                     Row(ctr_table)
                 ), icon='fa-table'))
@@ -412,19 +422,19 @@ class L3_External(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-cloud')
     
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
         lo = Layout()
         
-        insps, isubs, ctxs, provs, conss = APIC.get(
-                                                    'l3extInstP',
-                                                    'l3extSubnet',
-                                                    'fvCtx',
-                                                    ('fvRsProv', '?query-target-filter=wcard(fvRsProv.dn,"/out-")'),
-                                                    ('fvRsCons', '?query-target-filter=wcard(fvRsCons.dn,"/out-")')
-                                                    )
+        insps, isubs, ctxs, provs, conss = ACI.get(
+                                                   'l3extInstP',
+                                                   'l3extSubnet',
+                                                   'fvCtx',
+                                                   ('fvRsProv', 'query-target-filter=wcard(fvRsProv.dn,"/out-")'),
+                                                   ('fvRsCons', 'query-target-filter=wcard(fvRsCons.dn,"/out-")')
+                                                   )
         
-        for domain in insps._order:
+        for domain in ACI._order:
             l3table = Table('L3 External', 'Tenant', 'Context', 'L3 Outside', 'Subnets', 'Provided Contract', 'Consumed Contract')
             l3_cnt = 0
             
@@ -478,17 +488,17 @@ class Fault(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-warning')
     
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
         lo = Layout()
         
-        cris, majs, mins, wars = APIC.get(
-                                          ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "critical")'),
-                                          ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "major")'),
-                                          ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "minor")'),
-                                          ('faultInfo', '?query-target-filter=eq(faultInfo.severity, "warning")')
-                                          )
-        for domain in cris._order:
+        cris, majs, mins, wars = ACI.get(
+                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "critical")'),
+                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "major")'),
+                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "minor")'),
+                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "warning")')
+                                         )
+        for domain in ACI._order:
             fttable = Table('Type', 'Subject', 'Description', 'Code')
             cri_cnt = 0
             maj_cnt = 0

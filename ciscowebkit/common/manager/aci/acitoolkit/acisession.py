@@ -620,7 +620,7 @@ class Session(object):
         """
         get_url = self.api + url
         logging.debug(get_url)
-
+        
         resp = self.session.get(get_url, timeout=timeout, verify=self.verify_ssl)
         if resp.status_code == 403:
             logging.error(resp.text)

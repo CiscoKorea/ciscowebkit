@@ -35,9 +35,11 @@ def typeof(obj):
     elif 'function' in t: return 'function'
     elif 'instancemethod' in t: return 'method'
     elif 'instance' in t: return 'instance'
+    elif 'classmethod' in t: return 'classmethod'
     elif 'classobj' in t: return 'class'
     elif 'class' in t: return 'class'
     elif 'module' in t: return 'module'
+    elif 'static' in t: return 'static'
     return 'unknown'
 
 def nameof(obj):
@@ -331,11 +333,11 @@ class L(Struct, list):
         return self
     
     def remove(self, data):
-        list.remove(self, data)
+        if data in self: list.remove(self, data)
         return self
     
     def __rshift__(self, data):
-        list.remove(self, data)
+        if data in self: list.remove(self, data)
         return self
     
     def merge(self, data):
@@ -346,6 +348,10 @@ class L(Struct, list):
     def __add__(self, data):
         if instof(data, list):
             for val in data: self << val
+        return self
+    
+    def __sub__(self, idx=0):
+        self.pop(idx)
         return self
     
 class M(Struct, dict):
@@ -653,9 +659,8 @@ class Task:
     def stop(self):
         if self._task_active == True:
             self._task_active = False
-            print 'Try Stop Thread'
+            self._task_worker._Thread__stop()
             self._task_worker.join()
-            print 'Thread Stopped'
 
 class Mutex:
     

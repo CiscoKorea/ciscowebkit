@@ -15,125 +15,136 @@ class Overview(Feature):
         Feature.__init__(self, 10, 'fa-dashboard')
      
     def get(self, request, *cmd):
-        if len(APIC) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
         lo = Layout()
         
-        try: cnt_nd, cnt_tnt, cnt_bd, cnt_epg, cnt_ep, cnt_flt, cnt_ctr, cnt_47d, cnt_47g, cnt_ft = APIC.getCntAll()
-        except: return Error('getCntAll')
-        cnt_size = [(Col.SMALL, 3), (Col.MIDIUM, 2), (Col.LARGE, 1)]
+        cnt_nd, cnt_tnt, cnt_bd, cnt_epg, cnt_ep, cnt_flt, cnt_ctr, cnt_47d, cnt_47g, cnt_f_cri, cnt_f_maj, cnt_f_min, cnt_f_war = ACI.getCount(('fabricNode', 'query-target-filter=ne(fabricNode.role,"controller")'),
+                                                                                                                                                'fvTenant',
+                                                                                                                                                'fvBD',
+                                                                                                                                                'fvAEPg',
+                                                                                                                                                'fvCEp',
+                                                                                                                                                'vzFilter',
+                                                                                                                                                'vzBrCP',
+                                                                                                                                                'vnsCDev',
+                                                                                                                                                'vnsGraphInst',
+                                                                                                                                                ('faultInfo', 'query-target-filter=eq(faultInfo.severity,"critical")&rsp-subtree-include=count'),
+                                                                                                                                                ('faultInfo', 'query-target-filter=eq(faultInfo.severity,"major")&rsp-subtree-include=count'),
+                                                                                                                                                ('faultInfo', 'query-target-filter=eq(faultInfo.severity,"minor")&rsp-subtree-include=count'),
+                                                                                                                                                ('faultInfo', 'query-target-filter=eq(faultInfo.severity,"warning")&rsp-subtree-include=count'))
+        health = ACI.getHealthHist()
         
-        health = APIC.monitor()
+        #=======================================================================
+        # Topology Health
+        #=======================================================================
+        
+        total_lines = L()
+        node_lines = L()
+        total_rows = L()
+        node_rows = L()
+        node_rows_now = L()
+        node_data_now = L()
+        last_idx = ACI.mon_cnt - 1
+        for domain in ACI._order:
+            for i in range(0, ACI.mon_cnt):
+                total_row = L(health._tstamp[i])
+                node_row = L(health._tstamp[i])
+                for dn in health[domain].topology:
+                    if re.search('^pod-\d+$', dn):
+                        if i == 0: total_lines << (domain + '/' + dn)
+                        total_row << health[domain].topology[dn][i]
+                    elif 'node-' in dn:
+                        if i == 0: node_lines << (domain + '/' + dn)
+                        elif i == last_idx: node_rows_now << health[domain].topology[dn][i]
+                        node_row << health[domain].topology[dn][i]
+                if i == 0: total_lines << (domain + '/total')
+                total_row << health[domain].topology.total[i]
+                total_rows << total_row
+                node_rows << node_row
+        total_health = ChartistArea(*total_lines, height=300).grid(0, 100).ani()
+        for row in total_rows: total_health.add(*row)
+        node_health = ChartistLine(*node_lines, height=150).grid(0, 100).ani()
+        for row in node_rows: node_health.add(*row)
+        node_health_now = ChartistBar(height=150).grid(0, 100)
+        for i in range(0, len(node_lines)): node_data_now << (node_lines[i], node_rows_now[i])
+        node_data_now = sorted(node_data_now, key=lambda node: node[1])
+        node_data_now_len = len(node_data_now)
+        for i in range(0, node_data_now_len if node_data_now_len < 20 else 20): node_health_now.add(node_data_now[i][0], node_data_now[i][1])
+        
+        #=======================================================================
+        # EPG Health
+        #=======================================================================
         
         lines = L()
         rows = L()
-        for i in range(0, 12):
-            row = L()
-            for dn in health.topology:
-                if re.search('topology/pod-\d+$', dn):
-                    if dn not in lines: lines << dn
-                    row << health.topology[dn][i]
-            for dn in health.topology:
-                if re.search('topology$', dn):
-                    if dn not in lines: lines << dn
-                    row << health.topology[dn][i]
-            rows << row
-        total_health = ChartistArea(*lines, height=300).grid(0, 100).ani()
-        idx = 0
-        for row in rows:
-            total_health.add(health._tstamp[idx], *row); idx += 1
-        
-        lines = L()
-        rows = L()
-        cur_rows = L()
-        for i in range(0, 12):
-            row = L()
-            for dn in health.topology:
-                if re.search('node-[\w\W]+$', dn):
-                    if dn not in lines: lines << dn
-                    row << health.topology[dn][i]
-                    if i == 11: cur_rows << health.topology[dn][i]
-            rows << row
-        node_health = ChartistLine(*lines, height=150).grid(0, 100).ani()
-        idx = 0
-        for row in rows:
-            node_health.add(health._tstamp[idx], *row); idx += 1
-            
-        node_health_cur = ChartistBar(height=150).grid(0, 100)
-        node_health_data = L()
-        for idx in range(0, len(lines)):
-            node_health_data << (lines[idx], cur_rows[idx])
-        node_health_data = sorted(node_health_data, key=lambda node: node[1])
-        for idx in range(0, len(node_health_data)):
-            node_health_cur.add(node_health_data[idx][0], node_health_data[idx][1])
-        
-        lines = L()
-        rows = L()
-        cur_rows = L()
-        for i in range(0, 12):
-            row = L()
-            for dn in health.epg:
-                if dn not in lines: lines << dn
-                row << health.epg[dn][i]
-                if i == 11: cur_rows << health.epg[dn][i]
-            rows << row
+        rows_now = L()
+        data_now = L()
+        for domain in ACI._order:
+            for i in range(0, ACI.mon_cnt):
+                row = L(health._tstamp[i])
+                for dn in health[domain].tenant:
+                    if 'epg-' in dn:
+                        if i == 0: lines << (domain + '/' + dn)
+                        elif i == last_idx: rows_now << health[domain].tenant[dn][i]
+                        row << health[domain].tenant[dn][i]
+                rows << row
         epg_health = ChartistLine(*lines, height=200).grid(0, 100).ani()
-        idx = 0
-        for row in rows:
-            epg_health.add(health._tstamp[idx], *row); idx += 1
+        for row in rows: epg_health.add(*row)
+        epg_health_now = ChartistBar(height=200).grid(0, 100)
+        for i in range(0, len(lines)): data_now << (lines[i], rows_now[i])
+        data_now = sorted(data_now, key=lambda node: node[1])
+        data_now_len = len(data_now)
+        for i in range(0, data_now_len if data_now_len < 20 else 20): epg_health_now.add(data_now[i][0], data_now[i][1])
         
-        epg_health_cur = ChartistBar(height=200).grid(0, 100)
-        epg_health_data = L()
-        for idx in range(0, len(lines)):
-            epg_health_data << (lines[idx], cur_rows[idx])
-        epg_health_data = sorted(epg_health_data, key=lambda node: node[1])
-        for idx in range(0, len(epg_health_data)):
-            epg_health_cur.add(epg_health_data[idx][0], epg_health_data[idx][1])
-            
-        for domain in APIC:
+        def resolution(data, res):
+            div = data / res
+            return data, res * div, res * (div + 1)
+        
+        cnt_size = [(Col.SMALL, 3), (Col.MIDIUM, 2), (Col.LARGE, 1)]
+        for domain in ACI._order:
             lo(
-                Row(Panel(domain.domain, Layout(
+                Row(Panel(domain, Layout(
                     Row(
-                        Col(JustGage(cnt_nd[domain.domain], 0, 1000, desc="Nodes", height=100, link=(PRODUCTS.aci.show.device, None)), *cnt_size),
-                        Col(JustGage(cnt_tnt[domain.domain], 0, 1000, desc="Tenants", height=100, link=(PRODUCTS.aci.show.tenant, None)), *cnt_size),
-                        Col(JustGage(cnt_bd[domain.domain], 0, 1000, desc="BDs", height=100), *cnt_size),
-                        Col(JustGage(cnt_epg[domain.domain], 0, 1000, desc="EPGs", height=100, link=(PRODUCTS.aci.show.epg, None)), *cnt_size),
-                        Col(JustGage(cnt_ep[domain.domain], 0, 1000, desc="EPs", height=100, link=(PRODUCTS.aci.show.ep, None)), *cnt_size),
-                        Col(JustGage(cnt_flt[domain.domain], 0, 1000, desc="Filters", height=100), *cnt_size),
-                        Col(JustGage(cnt_ctr[domain.domain], 0, 1000, desc="Contracts", height=100, link=(PRODUCTS.aci.show.contract, None)), *cnt_size),
-                        Col(JustGage(cnt_47d[domain.domain], 0, 1000, desc="L4/7Devices", height=100), *cnt_size),
-                        Col(JustGage(cnt_47g[domain.domain], 0, 1000, desc="L4/7Graphs", height=100), *cnt_size),
+                        Col(JustGage(*resolution(cnt_nd[domain], 100), desc="Nodes", height=100, link=(PRODUCTS.aci.show.device, None)), *cnt_size),
+                        Col(JustGage(*resolution(cnt_tnt[domain], 100), desc="Tenants", height=100, link=(PRODUCTS.aci.show.tenant, None)), *cnt_size),
+                        Col(JustGage(*resolution(cnt_bd[domain], 100), desc="BDs", height=100), *cnt_size),
+                        Col(JustGage(*resolution(cnt_epg[domain], 100), desc="EPGs", height=100, link=(PRODUCTS.aci.show.epg, None)), *cnt_size),
+                        Col(JustGage(*resolution(cnt_ep[domain], 100), desc="EPs", height=100, link=(PRODUCTS.aci.show.ep, None)), *cnt_size),
+                        Col(JustGage(*resolution(cnt_flt[domain], 100), desc="Filters", height=100), *cnt_size),
+                        Col(JustGage(*resolution(cnt_ctr[domain], 100), desc="Contracts", height=100, link=(PRODUCTS.aci.show.contract, None)), *cnt_size),
+                        Col(JustGage(*resolution(cnt_47d[domain], 100), desc="L4/7Devices", height=100), *cnt_size),
+                        Col(JustGage(*resolution(cnt_47g[domain], 100), desc="L4/7Graphs", height=100), *cnt_size),
                         Col(Empty(), (Col.SMALL, 4), (Col.MIDIUM, 2), (Col.LARGE, 1)),
                         Col(Layout(
                             Row(
                                 Col(Text(''), (Col.SMALL, 4)),
-                                Col(JustGage(cnt_ft[domain.domain]['critical'], 0, 100, desc="Critical", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4)),
-                                Col(JustGage(cnt_ft[domain.domain]['major'], 0, 100, desc="Major", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4))
+                                Col(JustGage(*resolution(cnt_f_cri[domain], 100), desc="Critical", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4)),
+                                Col(JustGage(*resolution(cnt_f_maj[domain], 100), desc="Major", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4))
                             ),
                             Row(
                                 Col(Text(''), (Col.SMALL, 4)),
-                                Col(JustGage(cnt_ft[domain.domain]['minor'], 0, 100, desc="Minor", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4)),
-                                Col(JustGage(cnt_ft[domain.domain]['warning'], 0, 100, desc="Warning", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4))
+                                Col(JustGage(*resolution(cnt_f_min[domain], 100), desc="Minor", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4)),
+                                Col(JustGage(*resolution(cnt_f_war[domain], 100), desc="Warning", height=50, link=(PRODUCTS.aci.show.fault, None)), (Col.SMALL, 4))
                             )
                         ), (Col.SMALL, 5), (Col.MIDIUM, 4), (Col.LARGE, 3))
                     )
-                ), icon='fa-exchange'))
+                ), icon='fa-retweet'))
             )
             
         lo(
             Row(
-                Col(Panel('Total Health', total_health, icon='fa-exchange'), (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                Col(Panel('Total Health', total_health, icon='fa-retweet'), (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
                 Col(Panel('Node Health', Layout(
                     Row(node_health),
-                    Row(node_health_cur)
-                ), icon='fa-exchange'), (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
+                    Row(node_health_now)
+                ), icon='fa-retweet'), (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
             ),
             Row(Panel('EPG Health', Layout(
                 Row(
                     Col(epg_health, (Col.SMALL, 12), (Col.MIDIUM, 4), (Col.LARGE, 4)),
-                    Col(epg_health_cur, (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
+                    Col(epg_health_now, (Col.SMALL, 12), (Col.MIDIUM, 8), (Col.LARGE, 8))
                 )
-            ), icon='fa-exchange'))
+            ), icon='fa-retweet'))
         )
 
         return lo
