@@ -150,7 +150,7 @@ class HealthScore(object):
         scores = json.loads(resp.text)['imdata']
         for score in scores:
             dn = score['fabricNodeHealth5min']['attributes']['dn'].split('/sys/')[0][9:]
-            value = int(score['fabricNodeHealth5min']['attributes']['healthAvg'])
+            value = int(score['fabricNodeHealth5min']['attributes']['healthLast'])
             ret[dn] = value
         return ret
     
