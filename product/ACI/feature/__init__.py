@@ -6,6 +6,7 @@ FEATURE_ORDER = ['Overview',
                  'Show.Contract',
                  'Show.L3_External',
                  'Show.Fault',
+                 'Stats.Interface_Utilization',
                  'Stats.EPG_Utilization',
                  'Setting']
 

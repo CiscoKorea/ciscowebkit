@@ -468,8 +468,15 @@ if __name__ == '__main__':
         
 #     print inf(am.Test1.get('l2IngrBytes5min'))
 #     print inf(am.Test1.get(('l2IngrBytesAg15min', 'query-target-filter=wcard(l2IngrBytesAg15min.dn,"uni/tn-.*/ap-.*/epg-.*")'))[0])
+
+#     print inf(am.Test1.get('l1PhysIf'))
     
-    print inf(am.Test1.get(('l2IngrBytesAgHist15min', 'query-target-filter=wcard(l2IngrBytesAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/HDl2IngrBytesAg15min-0")')))
+    
+    print inf(am.Test1.get('eqptIngrTotalHist5min'))
+#     print inf(am.Test1.get(('eqptIngrTotalHist5min', 'query-target-filter=wcard(eqptIngrTotalHist5min.dn,"sys/phys-.*/HDeqptIngrTotal5min-0")')))
+#     objs = am.Test1.get(('eqptEgrTotalHist5min', 'query-target-filter=wcard(eqptEgrTotalHist5min.dn,"sys/phys-.*/HDeqptEgrTotal5min-0")'))
+#     print inf(objs)
+#     print len(objs)
     
     am.delDomain('Test1')
     
