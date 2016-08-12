@@ -182,6 +182,23 @@ function send_form(data) {
 	setTimeout(post_processing, 0);
 }
 
+function send_form_imidiate(data) {
+	var post_processing = function () {
+		$.ajax({
+			type: "POST",
+			url: now_url,
+			contentType: "application/json; charset=utf-8",
+			async: false,
+			headers: { "X-CSRFToken": get_cookie("csrftoken") },
+			dataType: "json",
+			data: JSON.stringify(data),
+			success: function(data) { show_ux(data); },
+			error: function(e) { show_error(e); }
+		});
+	}
+	setTimeout(post_processing, 0);
+}
+
 function del_data(id) {
 	show_spinner();
 	var del_processing = function () {
@@ -352,6 +369,10 @@ function show_ux_table(data) {
         search: { "regex": false },
         destroy: true
     });
+}
+
+function show_ux_terminal(data) {
+	$("#cw-view-" + data["_id"]).focus();
 }
 
 function show_ux_ctst_line(data) {

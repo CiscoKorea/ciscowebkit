@@ -8,5 +8,6 @@ FEATURE_ORDER = ['Overview',
                  'Show.Fault',
                  'Stats.Interface_Utilization',
                  'Stats.EPG_Utilization',
+                 'Tool.Console',
                  'Setting']
 

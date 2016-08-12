@@ -242,7 +242,7 @@ class Form(__View__):
         self._submit = submit
         self._order = L()
     
-    def addText(self, name, title, placeholder=''):
+    def addText(self, name, title='', placeholder=''):
         self[name] = M(_type='text', name=name, title=title, placeholder=placeholder)
         self._order << name
         return self
@@ -261,9 +261,62 @@ class Form(__View__):
             elem = self[name]
             idx += 1
             data += '''%s: $('#%s').val(),''' % (name, _id)
-            if elem._type == 'text': form += '''<div class="form-group"><label>%s</label><input id="%s" class="form-control" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)
+            if elem._type == 'text':
+                if elem.title == '': form += '''<div class="form-group"><input id="%s" class="form-control" placeholder="%s"></div>''' % (_id, elem.placeholder)
+                else: form += '''<div class="form-group"><label>%s</label><input id="%s" class="form-control" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)
             elif elem._type == 'textarea': form += '''<div class="form-group"><label>%s</label><textarea id="%s" class="form-control" row="3" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)
         data += '}'
         html = '''<form id="%s" roll="form">%s<div><span class="pull-right"><p class="btn btn-default" onclick="send_form(%s);">%s</p></span></div></form>''' % (self._id, form, data, self._submit)
         return html
+
+class Terminal(__View__):
+    
+    def __init__(self, init_scr='', init_loc='', line_cnt=200):
+        __View__.__init__(self, 'terminal')
+        self.setScreen(init_scr)
+        self.setLocation(init_loc)
+        self.line_cnt = line_cnt
+        
+    def addScreen(self, scr):
+        self.screen += scr
+        lcnt = self.screen.count('\n')
+        if lcnt > self.line_cnt:
+            lines = self.screen.split('\n')
+            self.screen = '\n'.join(lines[-self.line_cnt:])
+        return self
+    
+    def setScreen(self, scr):
+        self.screen = scr
+        return self
+    
+    def setLocation(self, loc):
+        if loc != '': self.location = loc + ' '
+        else: self.location = ''
+        return self
+        
+    def __render__(self):
+        html = '''
+<div class="panel panel-default">
+    <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-terminal"></i></h3></div>
+    <div class="panel-body">
+        <div class="cw-term-background" onclick="$('#cw-view-%s').focus();">
+            <pre class="cw-term-screen">%s</pre>
+            <div class="cw-term-input>
+                <form roll="form">
+                    <label class="cw-term-location">%s$&nbsp;</label>
+                    <span class="cw-term-command">
+                        <input type="text" id="cw-view-%s" class="cw-term-command-text" onkeydown="if (event.keyCode == 13) { send_form_imidiate({cmd:$('#cw-view-%s').val()}); }" />
+                    </span>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+''' % (self._id, self.screen, self.location, self._id, self._id)
+        return html
+        
+        
+        
+        
+        
         
