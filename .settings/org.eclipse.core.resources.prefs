@@ -2,6 +2,7 @@ eclipse.preferences.version=1
 encoding//product/ACI/feature/Overview.py=utf-8
 encoding//product/ACI/feature/Setting.py=utf-8
 encoding//product/ACI/feature/Show.py=utf-8
+encoding//product/ACI/feature/Stats.py=utf-8
 encoding//product/Sample/feature/Base.py=utf-8
 encoding//product/Sample/feature/Chartist.py=utf-8
 encoding//product/Sample/feature/Morris.py=utf-8

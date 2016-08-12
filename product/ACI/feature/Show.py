@@ -6,7 +6,6 @@ Created on 2016. 7. 5.
 '''
 
 from ciscowebkit.common import *
-from ciscowebkit.common.view.basic import InfoPanel
 
 class Show(Feature):
     
