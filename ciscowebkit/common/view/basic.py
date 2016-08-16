@@ -298,6 +298,11 @@ class Form(__View__):
         self._order << name
         return self
     
+    def addPassword(self, name, title, placeholder=''):
+        self[name] = M(_type='password', name=name, title=title, placeholder=placeholder)
+        self._order << name
+        return self
+
     def __render__(self):
         data = '{'
         form = ''
@@ -310,6 +315,9 @@ class Form(__View__):
             if elem._type == 'text':
                 if elem.title == '': form += '''<div class="form-group"><input id="%s" class="form-control" placeholder="%s"></div>''' % (_id, elem.placeholder)
                 else: form += '''<div class="form-group"><label>%s</label><input id="%s" class="form-control" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)
+            elif elem._type == 'password':
+                if elem.title == '': form += '''<div class="form-group"><input id="%s" type="password" class="form-control" placeholder="%s"></div>''' % (_id, elem.placeholder)
+                else: form += '''<div class="form-group"><label>%s</label><input id="%s" type="password" class="form-control" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)                
             elif elem._type == 'textarea': form += '''<div class="form-group"><label>%s</label><textarea id="%s" class="form-control" row="3" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)
         data += '}'
         html = '''<form id="%s" roll="form">%s<div><span class="pull-right"><p class="btn btn-default" onclick="send_form(%s);">%s</p></span></div></form>''' % (self._id, form, data, self._submit)
