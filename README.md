@@ -27,6 +27,8 @@ mysql > GRANT ALL PRIVILEGES ON ciscowebkit.* TO 'cisco'@'localhost' IDENTIFIED 
 ```
 $> pip install django
 $> pip install mysqlclient
+$> pip install pymysql
+$> pip install tabulate
 $> cd CISCOWEBKIT_ROOT
 $> python manage.py makemigrations
 $> python manage.py migrate
