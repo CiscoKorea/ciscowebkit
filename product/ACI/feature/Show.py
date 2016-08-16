@@ -492,32 +492,36 @@ class Fault(SubFeature):
         lo = Layout()
         
         cris, majs, mins, wars = ACI.get(
-                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "critical")'),
-                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "major")'),
-                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "minor")'),
-                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "warning")')
+                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "critical")&order-by=faultInfo.created|desc'),
+                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "major")&order-by=faultInfo.created|desc'),
+                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "minor")&order-by=faultInfo.created|desc'),
+                                         ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "warning")&order-by=faultInfo.created|desc')
                                          )
         for domain in ACI._order:
-            fttable = Table('Type', 'Subject', 'Description', 'Code')
+            fttable = Table('Type', 'Subject', 'Time Stamp', 'Object', 'Status', 'Description', 'Code')
             cri_cnt = 0
             maj_cnt = 0
             min_cnt = 0
             war_cnt = 0
             
             for cri in cris[domain]:
-                fttable.add('Critical', cri.subject.upper(), cri.descr, cri.code, type=Table.DANGER)
+                tstamp = cri.created.split('T')
+                fttable.add('Critical', cri.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], cri.dn.split('/fault-')[0], cri.lc, cri.descr, cri.code, type=Table.DANGER)
                 cri_cnt += 1
         
             for maj in majs[domain]:
-                fttable.add('Major', maj.subject.upper(), maj.descr, maj.code, type=Table.DANGER)
+                tstamp = maj.created.split('T')
+                fttable.add('Major', maj.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], maj.dn.split('/fault-')[0], maj.lc, maj.descr, maj.code, type=Table.DANGER)
                 maj_cnt += 1
                 
             for min in mins[domain]:
-                fttable.add('Minor', min.subject.upper(), min.descr, min.code, type=Table.WARNING)
+                tstamp = min.created.split('T')
+                fttable.add('Minor', min.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], min.dn.split('/fault-')[0], min.lc, min.descr, min.code, type=Table.WARNING)
                 min_cnt += 1
                 
             for war in wars[domain]:
-                fttable.add('Warning', war.subject.upper(), war.descr, war.code, type=Table.WARNING)
+                tstamp = war.created.split('T')
+                fttable.add('Warning', war.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], war.dn.split('/fault-')[0], war.lc, war.descr, war.code, type=Table.WARNING)
                 war_cnt += 1
                 
             lo(

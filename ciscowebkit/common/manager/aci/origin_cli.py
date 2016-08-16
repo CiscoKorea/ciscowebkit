@@ -1,11 +1,37 @@
 '''
-Created on 2016. 8. 16.
+Created on 2016. 8. 12.
 
 @author: "comfact"
 '''
 
+import re
+import sys
+import getopt
+import logging
 from cmd import Cmd
 from ciscowebkit.common.manager.aci.acitoolkit import *
+import requests
+import pprint
+READLINE = True
+NOT_NO_ARGS = 'show exit help configure switchto switchback interface no'
+try:
+    import readline
+    # The following is required for command completion on Mac OS
+    import rlcompleter
+    if 'libedit' in readline.__doc__:
+        readline.parse_and_bind("bind ^I rl_complete")
+    else:
+        readline.parse_and_bind("tab: complete")
+except:
+    try:
+        import pyreadline
+    except:
+        READLINE = False
+
+
+def error_message(resp):
+    print 'Error:  Unable to push configuration to APIC'
+    print 'Reason:', resp.text
 
 
 class SubMode(Cmd):
@@ -1222,7 +1248,7 @@ class ContractConfigSubMode(SubMode):
         return line
 
 
-class AciCli(SubMode):
+class CmdLine(SubMode):
 
     """
     Help is available through '?'
@@ -1314,3 +1340,92 @@ class AciCli(SubMode):
     def complete_configure(self, text, line, begidx, endidx):
         completions = ['terminal']
         return completions
+
+
+class MockStdin:
+
+    def __init__(self, filename, original_stdin):
+        self.original_stdin = original_stdin
+        f = open(filename)
+        self.lines = f.readlines()
+        f.close()
+
+    def readline(self):
+        line = self.lines.pop(0)
+        print line
+        if len(self.lines) == 0:
+            sys.stdin = self.original_stdin
+        return line
+
+
+def main(apic):
+    cmdLine = CmdLine()
+    cmdLine.apic = apic
+    cmdLine.cmdloop()
+
+# *** MAIN LOOP ***
+if __name__ == '__main__':
+    LOGIN = 'admin'
+    PASSWORD = '1234Qwer'
+    URL = 'https://10.72.86.21'
+    OUTPUTFILE = ''
+    DEBUGFILE = None
+    DEBUGLEVEL = logging.CRITICAL
+    usage = ('Usage: acitoolkitcli.py -l <login> -p <password> -u <url> '
+             '[-o <output-file>] [-t <test-file>]')
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],
+                                   "hl:p:u:do:f:t:",
+                                   ["help", "apic-login=", "apic-password=",
+                                    "apic-url=", "enable-debug",
+                                    "output-file=", "debug-file=",
+                                    "test-file="])
+    except getopt.GetoptError:
+        print sys.argv[0], ': illegal option'
+        print usage
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ('-h', '--help'):
+            print usage
+            sys.exit()
+        elif opt in ('-l', '--apic-login'):
+            LOGIN = arg
+        elif opt in ('-p', '--apic-password'):
+            PASSWORD = arg
+        elif opt in ('-u', '--apic-url'):
+            URL = arg
+        elif opt in ('-o', '--output-file'):
+            OUTPUTFILE = arg
+        elif opt in ('-d', '--enable-debug'):
+            DEBUGLEVEL = logging.DEBUG
+        elif opt in ('-f', '--debug-file'):
+            DEBUGFILE = arg
+        elif opt in ('-t', '--test-file'):
+            TESTFILE = arg
+
+    if URL == '' or LOGIN == '' or PASSWORD == '':
+        print usage
+        sys.exit(2)
+
+    logging.basicConfig(format=('%(levelname)s:[%(module)s:'
+                                '%(funcName)s]:%(message)s'),
+                        filename=DEBUGFILE, filemode='w',
+                        level=DEBUGLEVEL)
+
+    apic = Session(URL, LOGIN, PASSWORD)
+    try:
+        apic.login()
+    except requests.exceptions.ConnectionError:
+        print '%% Could not connect to APIC.'
+        sys.exit(2)
+    except requests.exceptions.MissingSchema:
+        print '%% Invalid URL.'
+        sys.exit(2)
+
+    if 'TESTFILE' in locals():
+        sys.stdin = MockStdin(TESTFILE, sys.stdin)
+
+    try:
+        main(apic)
+    except KeyboardInterrupt:
+        pass

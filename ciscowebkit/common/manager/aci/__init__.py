@@ -472,7 +472,11 @@ if __name__ == '__main__':
 #     print inf(am.Test1.get('l1PhysIf'))
     
     
-    print inf(am.Test1.get('eqptIngrTotalHist5min'))
+#     objs = am.Test1.get('faultInfo')
+#     for obj in objs:
+#         if 'po3' in obj.dn:
+#             print obj.dn
+    print inf(am.Test1.get('faultInfo'))
 #     print inf(am.Test1.get(('eqptIngrTotalHist5min', 'query-target-filter=wcard(eqptIngrTotalHist5min.dn,"sys/phys-.*/HDeqptIngrTotal5min-0")')))
 #     objs = am.Test1.get(('eqptEgrTotalHist5min', 'query-target-filter=wcard(eqptEgrTotalHist5min.dn,"sys/phys-.*/HDeqptEgrTotal5min-0")'))
 #     print inf(objs)
