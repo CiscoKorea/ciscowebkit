@@ -75,6 +75,8 @@
        - MySQL-python
        - gevent
        - requests
+       - tabulate
+       - pymysql
      ignore_errors: true
 
    - mysql_db: name=ciscowebkit state=present encoding=utf8   
