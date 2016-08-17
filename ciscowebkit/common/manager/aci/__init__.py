@@ -120,8 +120,15 @@ class ACIManager(M):
             def __call__(self):
                 ret = L()
                 cursor = self._db.cursor()
-                cursor.execute('USE ciscowebkit;')
-                cursor.execute('SELECT * FROM %s;' % self._table_name)
+                try:
+                    cursor.execute('USE ciscowebkit;')
+                    cursor.execute('SELECT * FROM %s;' % self._table_name)
+                except:
+                    self._db.close()
+                    self._db = pymysql.connect(user='cisco', password='cisco123', host='localhost')
+                    self._cursor = self._db.cursor()
+                    self._cursor.execute('USE ciscowebkit;')
+                    cursor.execute('SELECT * FROM %s;' % self._table_name)
                 for row in cursor: ret << M(mac=row[0], epg=row[2] + '/' + row[3] + '/' + row[4], ip=row[1], interface=row[5], timestart=str(row[6]), timestop=str(row[7]))
                 cursor.close()
                 return ret
