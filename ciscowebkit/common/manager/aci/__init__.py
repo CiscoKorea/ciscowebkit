@@ -8,12 +8,13 @@ import re
 import json
 import time
 import copy
-import warnings
-import requests
-from ciscowebkit.common.pygics import *
-
 import pymysql
+import requests
+
+from ciscowebkit.common.pygics import *
 from ciscowebkit.common.manager.aci import acitoolkit as acitool
+from ciscowebkit.common.manager.aci.eptracker import EPTracker
+from ciscowebkit.common.manager.aci.healthmon import HealthMon
 
 class ACIManager(M):
      
@@ -22,9 +23,6 @@ class ACIManager(M):
         class APIC_CONNECTION_FAILED(E):
             def __init__(self, apic): E.__init__(self, 'Connection Failed %s@%s:%s' % (apic.user, str(apic.ips), apic.pwd))
              
-        class APIC_PERSISTENT_ERROR(E):
-            def __init__(self): E.__init__(self, 'Access Denied Persistent Data')
-            
         class ACITOOLKIT_CLASS_WRAPPER(object):
             
             class ACITOOLKIT_METHOD_WRAPPER:
@@ -38,138 +36,6 @@ class ACIManager(M):
                         if typeof(cls.__dict__[key]) == 'classmethod':
                             self.__setattr__(key, ACIManager.APIC.ACITOOLKIT_CLASS_WRAPPER.ACITOOLKIT_METHOD_WRAPPER(apic, cls, key))
             
-        class HealthMon:
-            
-            def __init__(self, apic):
-                self._apic = apic
-                self._session = acitool.Session('https://%s' % apic.connected, apic.user, apic.pwd)
-                resp = self._session.login()
-                if not resp.ok:
-                    self._session.close()
-                    raise ACIManager.APIC.APIC_CONNECTION_FAILED(apic)
-                
-            def __del__(self):
-                self._session.close()
-                
-            def __call__(self):
-                topology = acitool.HealthScore.get_topology_health(self._session)
-                tenant = acitool.HealthScore.get_tenant_health(self._session)
-                return M(topology=topology, tenant=tenant)
-                
-        class EPTracker(Task):
-            
-            def __init__(self, apic):
-                Task.__init__(self, 2, 2)
-                self._apic = apic
-                self._session = acitool.Session('https://%s' % apic.connected, apic.user, apic.pwd)
-                resp = self._session.login()
-                if not resp.ok:
-                    self._session.close()
-                    raise ACIManager.APIC.APIC_CONNECTION_FAILED(apic)
-                
-                self._table_name = 'aci_%s_eptracker' % apic.domain
-                try:
-                    self._db = pymysql.connect(user='cisco', password='cisco123', host='localhost')
-                    self._cursor = self._db.cursor()
-                    self._cursor.execute('USE ciscowebkit;')
-                except:
-                    self._db.close()
-                    self._session.close()
-                    raise ACIManager.APIC.APIC_PERSISTENT_ERROR()
-                with warnings.catch_warnings():
-                    warnings.filterwarnings('ignore')
-                    self._cursor.execute('''CREATE TABLE IF NOT EXISTS %s (
-                                            mac       CHAR(18) NOT NULL,
-                                            ip        CHAR(16),
-                                            tenant    CHAR(100) NOT NULL,
-                                            app       CHAR(100) NOT NULL,
-                                            epg       CHAR(100) NOT NULL,
-                                            interface CHAR(100) NOT NULL,
-                                            timestart TIMESTAMP NOT NULL,
-                                            timestop  TIMESTAMP);''' % self._table_name)
-                    self._db.commit()
-                endpoints = acitool.Endpoint.get(self._session)
-                for ep in endpoints:
-                    try: epg = ep.get_parent()
-                    except AttributeError: continue
-                    app_profile = epg.get_parent()
-                    tenant = app_profile.get_parent()
-                    if ep.if_dn:
-                        for dn in ep.if_dn:
-                            match = re.match('protpaths-(\d+)-(\d+)', dn.split('/')[2])
-                            if match:
-                                if match.group(1) and match.group(2):
-                                    int_name = "Nodes: " + match.group(1) + "-" + match.group(2) + " " + ep.if_name
-                                    pass
-                    else: int_name = ep.if_name
-                    try: data = (self._table_name, ep.mac, ep.ip, tenant.name, app_profile.name, epg.name, int_name, self.convert_timestamp_to_mysql(ep.timestamp))
-                    except ValueError, e: print str(e); continue
-                    ep_exists = self._cursor.execute('''SELECT * FROM %s WHERE mac="%s" AND timestop="0000-00-00 00:00:00";''' % (self._table_name, ep.mac))
-                    self._cursor.fetchall()
-                    if not ep_exists:
-                        self._cursor.execute('''INSERT INTO %s (mac, ip, tenant, app, epg, interface, timestart) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s");''' % data)
-                        self._db.commit()
-                acitool.Endpoint.subscribe(self._session)
-                self.start()
-            
-            def __del__(self):
-                self.stop()
-                self._db.close()
-                self._session.close()
-                
-            def __call__(self):
-                ret = L()
-                cursor = self._db.cursor()
-                try:
-                    cursor.execute('USE ciscowebkit;')
-                    cursor.execute('SELECT * FROM %s;' % self._table_name)
-                except:
-                    self._db.close()
-                    self._db = pymysql.connect(user='cisco', password='cisco123', host='localhost')
-                    self._cursor = self._db.cursor()
-                    self._cursor.execute('USE ciscowebkit;')
-                    cursor.execute('SELECT * FROM %s;' % self._table_name)
-                for row in cursor: ret << M(mac=row[0], epg=row[2] + '/' + row[3] + '/' + row[4], ip=row[1], interface=row[5], timestart=str(row[6]), timestop=str(row[7]))
-                cursor.close()
-                return ret
-                
-            def task(self):
-                while True:
-                    try:
-                        if acitool.Endpoint.has_events(self._session):
-                            ep = acitool.Endpoint.get_event(self._session)
-                            try: epg = ep.get_parent()
-                            except AttributeError: continue
-                            app_profile = epg.get_parent()
-                            tenant = app_profile.get_parent()
-                            if ep.is_deleted():
-                                ep.if_name = None
-                                data = (self._table_name, self.convert_timestamp_to_mysql(ep.timestamp), ep.mac, tenant.name)
-                                self._cursor.execute('''UPDATE %s SET timestop="%s", timestart=timestart WHERE mac="%s" AND tenant="%s" AND timestop="0000-00-00 00:00:00";''' % data)
-                            else:
-                                if ep.if_dn:
-                                    for dn in ep.if_dn:
-                                        match = re.match('protpaths-(\d+)-(\d+)', dn.split('/')[2])
-                                        if match:
-                                            if match.group(1) and match.group(2):
-                                                int_name = "Nodes: " + match.group(1) + "-" + match.group(2) + " " + ep.if_name
-                                                pass
-                                else: int_name = ep.if_name
-                                data = (self._table_name, ep.mac, ep.ip, tenant.name, app_profile.name, epg.name, int_name, self.convert_timestamp_to_mysql(ep.timestamp))
-                                self._cursor.execute('''SELECT COUNT(*) FROM %s WHERE mac="%s" AND ip="%s" AND tenant="%s" AND app="%s" AND epg="%s" AND interface="%s" AND timestart="%s";''' % data)
-                                for count in self._cursor:
-                                    if not count[0]:
-                                        self._cursor.execute('''INSERT INTO %s (mac, ip, tenant, app, epg, interface, timestart) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s");''' % data)
-                            self._db.commit()
-                        else: break
-                    except: break
-            
-            def convert_timestamp_to_mysql(self, timestamp):
-                (resp_ts, remaining) = timestamp.split('T')
-                resp_ts += ' '
-                resp_ts = resp_ts + remaining.split('+')[0].split('.')[0]
-                return resp_ts
-        
         def __init__(self, mng, domain, ips, user, pwd):
             M.__init__(self, domain=domain, user=user, pwd=pwd)
             self._mng = mng
@@ -190,8 +56,8 @@ class ACIManager(M):
                     if resp.ok:
                         self['connected'] = ip
                         self._url = 'https://%s/api/' % ip
-                        self.eptracker = ACIManager.APIC.EPTracker(self)
-                        self.healthmon = ACIManager.APIC.HealthMon(self)
+                        self.eptracker = EPTracker(self)
+                        self.healthmon = HealthMon(self)
                         break
                     else:
                         self._mo_session.close()
