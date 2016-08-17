@@ -52,7 +52,8 @@ class Engine(SingleTon):
 
     def __load_product_managers__(self):
         self.acimng = ACIManager(mon_sec=60, mon_cnt=10)
-        self.acimng.addDomain('testlab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
+        #uncomment for testing 
+        #self.acimng.addDomain('DCLab1', '10.72.86.21/10.72.86.22/10.72.86.23', 'admin', '1234Qwer')
         greg('ACI', self.acimng)
     
     def __load_templates__(self):

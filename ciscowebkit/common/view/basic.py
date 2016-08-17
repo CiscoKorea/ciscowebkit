@@ -21,29 +21,6 @@
 #                                                                              #
 ################################################################################
 
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-################################################################################
-#                                                                              #
-################################################################################
-#                                                                              #
-# Copyright (c) 2016 Cisco Systems                                             #
-# All Rights Reserved.                                                         #
-#                                                                              #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
-# not use this file except in compliance with the License. You may obtain      #
-# a copy of the License at                                                     #
-#                                                                              #
-# http://www.apache.org/licenses/LICENSE-2.0                                   #
-#                                                                              #
-# Unless required by applicable law or agreed to in writing, software          #
-#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT #
-#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the  #
-#    License for the specific language governing permissions and limitations   #
-#    under the License.                                                        #
-#                                                                              #
-################################################################################
-
 '''
 Created on 2016. 7. 18.
 
@@ -298,6 +275,11 @@ class Form(__View__):
         self._order << name
         return self
     
+    def addPassword(self, name, title, placeholder=''):
+        self[name] = M(_type='password', name=name, title=title, placeholder=placeholder)
+        self._order << name
+        return self
+
     def __render__(self):
         data = '{'
         form = ''
@@ -310,6 +292,9 @@ class Form(__View__):
             if elem._type == 'text':
                 if elem.title == '': form += '''<div class="form-group"><input id="%s" class="form-control" placeholder="%s"></div>''' % (_id, elem.placeholder)
                 else: form += '''<div class="form-group"><label>%s</label><input id="%s" class="form-control" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)
+            elif elem._type == 'password':
+                if elem.title == '': form += '''<div class="form-group"><input id="%s" type="password" class="form-control" placeholder="%s"></div>''' % (_id, elem.placeholder)
+                else: form += '''<div class="form-group"><label>%s</label><input id="%s" type="password" class="form-control" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)                
             elif elem._type == 'textarea': form += '''<div class="form-group"><label>%s</label><textarea id="%s" class="form-control" row="3" placeholder="%s"></div>''' % (elem.title, _id, elem.placeholder)
         data += '}'
         html = '''<form id="%s" roll="form">%s<div><span class="pull-right"><p class="btn btn-default" onclick="send_form(%s);">%s</p></span></div></form>''' % (self._id, form, data, self._submit)

@@ -75,8 +75,14 @@
        - MySQL-python
        - gevent
        - requests
+<<<<<<< HEAD
        - tabulate
        - pymysql
+=======
+       - pymysql
+       - tabulate
+       - websocket-client
+>>>>>>> branch 'master' of https://github.com/CiscoKorea/ciscowebkit.git
      ignore_errors: true
 
    - mysql_db: name=ciscowebkit state=present encoding=utf8   

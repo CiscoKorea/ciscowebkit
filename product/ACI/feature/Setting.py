@@ -46,7 +46,7 @@ class Setting(Feature):
         
     def get(self, request, *cmd):
         apic_table = Table('Domain', 'Address', 'User', 'Password', 'Connected')
-        for domain in ACI._order: apic_table.add(domain, str(ACI[domain].ips), ACI[domain].user, ACI[domain].pwd, ACI[domain].connected, did=domain)
+        for domain in ACI._order: apic_table.add(domain, str(ACI[domain].ips), ACI[domain].user, '*******', ACI[domain].connected, did=domain)
         
         if self.info:
             lo = Layout(Row(Col(self.info)))

@@ -29,6 +29,7 @@ $> pip install django
 $> pip install mysqlclient
 $> pip install pymysql
 $> pip install tabulate
+$> pip install websocket-client 
 $> cd CISCOWEBKIT_ROOT
 $> python manage.py makemigrations
 $> python manage.py migrate
@@ -58,7 +59,7 @@ $> usermode -aG wheel cisco for RHEL/CentOS
 
 run ansible script 
 ```
-$> ansible-playbook ciscowebkit.yml -i hosts -u cisco -K -k 
+$> ansible-playbook webtoolkit.yml -i hosts -u cisco -K -k 
 ```
 
 Enjoy !!

@@ -154,12 +154,12 @@ class Tenant(SubFeature):
             for tn in tns[domain]:
                 tn_cnt += 1
                 name = tn.name
-                bd_data = '<ul style="margin:0px">'
-                ctx_data = '<ul style="margin:0px">'
-                ctr_data = '<ul style="margin:0px">'
-                flt_data = '<ul style="margin:0px">'
-                ep_data = '<ul style="margin:0px">'
-                epg_data = '<ul style="margin:0px">'
+                bd_data = '<ul style="padding-left:10px">'
+                ctx_data = '<ul style="padding-left:10px">'
+                ctr_data = '<ul style="padding-left:10px">'
+                flt_data = '<ul style="padding-left:10px">'
+                ep_data = '<ul style="padding-left:10px">'
+                epg_data = '<ul style="padding-left:10px">'
                 
                 
                 for bd in bds[domain]:
@@ -230,9 +230,9 @@ class EPG(SubFeature):
                 app = rns[2][3:]
                 bd_data = ''
                 ctx_data = ''
-                provided = '<ul style="margin:0px">'
-                consumed = '<ul style="margin:0px">'
-                binding = '<ul style="margin:0px">'
+                provided = '<ul style="padding-left:10px">'
+                consumed = '<ul style="padding-left:10px">'
+                binding = '<ul style="padding-left:10px">'
                 encap = ' '
                 
                 for bd in bds[domain]:
@@ -310,8 +310,8 @@ class EP(SubFeature):
                 ip = cep.ip
                 intf = None
                 encap = cep.encap
-                nic_type = '<ul style="margin:0px">'
-                comp = '<ul style="margin:0px">'
+                nic_type = '<ul style="padding-left:10px">'
+                comp = '<ul style="padding-left:10px">'
                 
                 for path in paths[domain]:
                     if cep.dn in path.dn:
@@ -407,14 +407,14 @@ class Contract(SubFeature):
                 for subj in subjs[domain]:
                     if rn in subj.dn:
                         ctr_rec[3] = subj.name
-                ctr_rec[4] += '<ul style="margin:0px">'
+                ctr_rec[4] += '<ul style="padding-left:10px">'
                 for prov in provs[domain]:
                     if rn in prov.dn:
                         trns = prov.tDn.split('/')
                         ctr_rec[4] += '<li><small>' + tenant + '/' + trns[2][3:] + '/' + trns[3][4:] + '</small></li>'
                         prv_cnt += 1
                 ctr_rec[4] += '</ul>'
-                ctr_rec[5] += '<ul style="margin:0px">'
+                ctr_rec[5] += '<ul style="padding-left:10px">'
                 for cons in conss[domain]:
                     if rn in cons.dn:
                         trns = cons.tDn.split('/')
@@ -466,9 +466,9 @@ class L3_External(SubFeature):
                 tenant = rns[1][3:]
                 context = ' '
                 l3_out = rns[2][4:]
-                subnet = '<ul style="margin:0px">'
-                provided = '<ul style="margin:0px">'
-                consumed = '<ul style="margin:0px">'
+                subnet = '<ul style="padding-left:10px">'
+                provided = '<ul style="padding-left:10px">'
+                consumed = '<ul style="padding-left:10px">'
                 
                 for ctx in ctxs[domain]:
                     if insp.scope == ctx.scope:
