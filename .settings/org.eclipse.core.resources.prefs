@@ -2,4 +2,5 @@ eclipse.preferences.version=1
 encoding//ciscowebkit/common/engine.py=utf-8
 encoding//ciscowebkit/common/pygics/lang.py=utf-8
 encoding//ciscowebkit/urls.py=utf-8
+encoding//product/Sample/Base.py=utf-8
 encoding/manage.py=utf-8
