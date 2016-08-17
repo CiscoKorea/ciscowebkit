@@ -38,7 +38,7 @@ from ciscowebkit.common.feature import Feature, SubFeature
 
 from product import PRODUCT_ORDER
 
-from dashboard.views import Dashboard
+from dashboard import Dashboard
 
 from ciscowebkit.common.manager.aci import ACIManager
 
@@ -70,8 +70,7 @@ class Engine(SingleTon):
         
         p_paths = Dir.showall('product/')
         for p_path in p_paths:
-            if not Dir.isDir(p_path) or not Dir.isDir(p_path + '/feature'): continue
-            if not Dir.isDir(p_path + '/feature'): continue
+            if not Dir.isDir(p_path) or not Dir.isDir(p_path): continue
             p_raw = os.path.split(p_path)[-1]
             p_name = p_raw.lower()
             p_code = p_name
@@ -84,7 +83,7 @@ class Engine(SingleTon):
             self.products[p_name]['_title'] = p_title
             
             # Add-on Feature
-            features = NameSpace(p_path + '/feature', inherited=nameof(Feature))
+            features = NameSpace(p_path, inherited=nameof(Feature))
             for f_raw, f_mod in iterkv(features):
                 f_name = f_raw.lower()
                 f_code = p_code + '_' + f_name
@@ -120,7 +119,7 @@ class Engine(SingleTon):
                         if cls_obj.__doc__ == None: self.products[p_name][f_name][cls_name]['_desc'] = ''
             
             # Ordering
-            order = Module(p_path + '/feature/__init__.py')
+            order = Module(p_path + '/__init__.py')
             self.products[p_name]['_forder'] = L()
             for f in order.FEATURE_ORDER:
                 if '.' in f: self.products[p_name]._forder << (f.lower().split('.')[0], f.lower().split('.')[1])
