@@ -1,6 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ################################################################################
+#        _____ _                  _____           _                            #
+#       / ____(_)                / ____|         | |                           #
+#      | |     _ ___  ___ ___   | (___  _   _ ___| |_ ___ _ __ ___  ___        #
+#      | |    | / __|/ __/ _ \   \___ \| | | / __| __/ _ \ '_ ` _ \/ __|       #
+#      | |____| \__ \ (_| (_) |  ____) | |_| \__ \ ||  __/ | | | | \__ \       #
+#       \_____|_|___/\___\___/  |_____/ \__, |___/\__\___|_| |_| |_|___/       #
+#                                        __/ |                                 #
+#                                       |___/                                  #
+#           _  __                       _____       _  _____ ______            #
+#          | |/ /                      / ____|     | |/ ____|  ____|           #
+#          | ' / ___  _ __ ___  __ _  | (___   ___ | | (___ | |__              #
+#          |  < / _ \| '__/ _ \/ _` |  \___ \ / _ \| |\___ \|  __|             #
+#          | . \ (_) | | |  __/ (_| |  ____) | (_) | |____) | |____            #
+#          |_|\_\___/|_|  \___|\__,_| |_____/ \___/|_|_____/|______|           #
 #                                                                              #
 ################################################################################
 #                                                                              #
@@ -37,14 +51,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
-from django.contrib import admin
 from django.views.generic import RedirectView
+from django.contrib import admin
 
 from . import views
 
 urlpatterns = [
     url(r'^favicon\.ico$', RedirectView.as_view(url='/resource/images/favicon.ico')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^test', views.test),
+    url(r'^admin', include(admin.site.urls)),
     url(r'^', views.action),
 ]
