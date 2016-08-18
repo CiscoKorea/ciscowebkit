@@ -43,6 +43,8 @@ Created on 2016. 7. 27.
 '''
 
 from ciscowebkit.common import *
+from ciscowebkit.models import *
+
  
 class Setting(Feature):
     
@@ -53,9 +55,12 @@ class Setting(Feature):
         form.addText('domain', 'Domain', 'input unique domain name')
         form.addText('ips', 'APIC Address', 'x.x.x.x/y.y.y.y/z.z.z.z')
         form.addText('user', 'User', 'input admin name')
-        form.addText('pwd', 'Password', 'input admin password')
+        form.addPassword('pwd', 'Password', 'input admin password')
         self.form_panel = Panel('Add Connection', form, icon='fa-asterisk')
         
+        for dom in ACIDomain.objects.all():
+            ACI.addDomain( dom.name, dom.controllers, dom.user, dom.password)
+            
         self.info = None;
         
     def get(self, request, *cmd):
@@ -76,11 +81,19 @@ class Setting(Feature):
     
     def post(self, request, data, *cmd):
         apic = ACI.addDomain(data.domain, data.ips, data.user, data.pwd)
-        if apic: self.info = InfoBlock('연결성공', u'%s의 APIC과 %s로 연결되었습니다.' % (apic.domain, apic.connected)) 
-        else: self.info = InfoBlock('연결실패', 'APIC 연결이 실패하였습니다. 연결정보를 확인하세요.')
+        if apic: 
+            r = ACIDomain.objects.create(name=data.domain, controllers=data.ips,user=data.user,password=data.pwd)
+            self.info = InfoBlock('연결성공', u'%s의 APIC과 %s로 연결되었습니다.' % (apic.domain, apic.connected)) 
+        else: 
+            self.info = InfoBlock('연결실패', 'APIC 연결이 실패하였습니다. 연결정보를 확인하세요.')
         return self.get(request, *cmd)
     
     def delete(self, request, data, *cmd):
         ACI.delDomain(data)
+        try:
+            pk = ACIDomain.objects.get(name=data)
+            pk.delete()
+        except ACIDomain.DoesNotExist:
+            pass
         self.info = InfoBlock('연결삭제', '%s의 연결을 제거하였습니다.' % data)
         return self.get(request, *cmd)
