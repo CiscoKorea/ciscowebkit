@@ -88,7 +88,7 @@
 
    - name: clone ciscowebkit from github
      become: yes
-     git: repo=https://github.com/CiscoKorea/ciscowebkit.git dest={{ app_dir }}
+     git: repo=https://github.com/CiscoKorea/ciscowebkit.git dest={{ app_dir }} force=yes
    
    - name: django makemigrations
      become: yes
