@@ -36,6 +36,7 @@
 {CISCOWEBKIT_ROOT}
 
 Edit {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
+
 <code>
 DATABASES = {
     'default': {
