@@ -391,6 +391,7 @@ function show_ux_table(data) {
 }
 
 function show_ux_terminal(data) {
+	document.getElementById("cw-view-" + data["_id"]).value = data["command"]
 	$("#cw-view-" + data["_id"]).focus();
 }
 

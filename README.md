@@ -1,46 +1,59 @@
 
 # Cisco Webkit
 
+## Manual Install
 
-## Install ( Manual)
+### 1. Install Mariadb
 
-### Install Mariadb
+#### Windows
 
-windows: https://downloads.mariadb.org/interstitial/mariadb-10.1.14/winx64-packages/mariadb-10.1.14-winx64.msi/from/http%3A//ftp.utexas.edu/mariadb/
+[MariaDB Link](https://downloads.mariadb.org/interstitial/mariadb-10.1.14/winx64-packages/mariadb-10.1.14-winx64.msi/from/http%3A//ftp.utexas.edu/mariadb/)
 
-Redhat/CentOS: 
-```
-$> yum install mariadb-server
-```
-Ubuntu/Debian: 
-```
-$> apt-get install python-pip mariadb-server libmysqlclient-dev python-dev
-```
+#### Redhat/CentOS
+	
+	$ yum install mariadb-server
 
-#### Create Database
-```
-mysql > CREATE DATABASE ciscowebkit;
-mysql > GRANT ALL PRIVILEGES ON ciscowebkit.* TO 'cisco'@'localhost' IDENTIFIED BY 'cisco123';"
-```
+#### Ubuntu/Debian: 
 
-#### Install Python Package 
-```
-$> pip install django
-$> pip install mysqlclient
-$> pip install pymysql
-$> pip install tabulate
-$> pip install websocket-client 
-$> cd CISCOWEBKIT_ROOT
-$> python manage.py makemigrations
-$> python manage.py migrate
-$> python manage.py createsuperuser
-$> python manage.py runserver 0.0.0.0:8080
-```
-## Icon Repository
-http://fontawesome.io/icons/
+	$ apt-get install python-pip mariadb-server libmysqlclient-dev python-dev
 
+### 2. Install Python Package 
 
-## Install via Ansible 
+	$ pip install django
+	$ pip install mysqlclient
+	$ pip install pymysql
+	$ pip install tabulate
+	$ pip install websocket-client 
+
+### 3. Create Database
+{ADMIN_NAME}
+{PASSWORD}
+
+	mysql > CREATE DATABASE ciscowebkit;
+	mysql > GRANT ALL PRIVILEGES ON ciscowebkit.* TO '{ADMIN_NAME}'@'localhost' IDENTIFIED BY '{PASSWORD}';"
+
+### 4. Initial Setting
+{CISCOWEBKIT_ROOT}
+
+Edit {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
+<code>
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ciscowebkit',
+        'USER': '{ADMIN_NAME}',
+        'PASSWORD': '{PASSWORD}',
+    }
+}
+</code>
+
+	$ cd {CISCOWEBKIT_ROOT}
+	$ python manage.py makemigrations
+	$ python manage.py migrate
+	$ python manage.py createsuperuser
+	$ python manage.py runserver 0.0.0.0:80
+
+## Install via Ansible
 
 Install ansible latest version from github.com
 ```
@@ -63,3 +76,9 @@ $> ansible-playbook webtoolkit.yml -i hosts -u cisco -K -k
 ```
 
 Enjoy !!
+
+
+## Developer Guide
+
+### Icon Repository
+http://fontawesome.io/icons/

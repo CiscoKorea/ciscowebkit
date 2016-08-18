@@ -46,4 +46,5 @@ FEATURE_ORDER = ['Overview',
                  'Stats.Interface_Utilization',
                  'Stats.EPG_Utilization',
                  'Tool.Console',
+                 'Tool.Object_Finder',
                  'Setting']

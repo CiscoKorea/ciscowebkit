@@ -43,16 +43,10 @@ Created on 2016. 8. 12.
 
 from ciscowebkit.common import *
 
-class Tool(Feature):
-    
-    def __init__(self): Feature.__init__(self, 0, 'fa-cutlery')
-
-class Console(SubFeature):
-    
-    '''APIC Terminal Interface'''
+class Console(Feature):
     
     def __init__(self):
-        SubFeature.__init__(self, icon='fa-terminal')
+        Feature.__init__(self, 0, 'fa-cutlery')
         self.greeting = '''
 ################################################################################
 #        _____ _                  _____           _                            #
@@ -89,11 +83,9 @@ class Console(SubFeature):
 #                                                                              #
 ################################################################################
 '''
-        self.terminal = Terminal(self.greeting, '')
+        self.terminal = Terminal(self.greeting)
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
-        
         lo = Layout(
             Row(self.terminal)
         )
@@ -101,24 +93,31 @@ class Console(SubFeature):
         return lo
         
     def post(self, request, data, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
-        
-        if data.cmd == '':
-            self.terminal.addScreen('''%s$ 
-''' % self.terminal.location)
-        elif data.cmd == 'exit':
-            del self.terminal
-            self.terminal = Terminal(self.greeting, '')
-        elif data.cmd == 'clear':
-            self.terminal.setScreen(self.greeting)
-        else:
-            self.terminal.addScreen('''%s$ %s
+        if data.crr == Terminal.ENTER:
+            if data.cmd == '':
+                self.terminal.addScreen('%s$\n' % self.terminal.location)
+            elif data.cmd == 'exit':
+                del self.terminal
+                self.terminal = Terminal(self.greeting)
+            elif data.cmd == 'clear':
+                self.terminal.setScreen(self.greeting)
+                self.terminal.setCommand('')
+            else:
+                self.terminal.addScreen('''%s$ %s
 
 This is just testing console
 Not Implemented Yet!
 Have a Nice Day!
 
 ''' % (self.terminal.location, data.cmd))
+                self.terminal.setCommand('')
+        elif data.crr == Terminal.TAB:
+            if data.cmd in 'exit':
+                self.terminal.setCommand('exit')
+            elif data.cmd in 'clear':
+                self.terminal.setCommand('clear')
+            else:
+                self.terminal.setCommand(data.cmd)
         
         lo = Layout(
             Row(self.terminal)
@@ -126,39 +125,3 @@ Have a Nice Day!
         
         return lo
         
-class Object_Finder(SubFeature):
-    
-    '''APIC Object Finder'''
-    
-    def __init__(self):
-        SubFeature.__init__(self, icon='fa-search')
-        
-        form = Form('Search')
-        form.addText('object', 'Object')
-        form.addText('query', 'Query')
-        self.form_panel = Panel('Finder', form, icon='fa-search')
-        
-    def get(self, request, *cmd):
-        return Layout(Row(self.form_panel))
-    
-    def post(self, request, data, *cmd):
-        lo = Layout(Row(self.form_panel))
-        
-        objs = ACI.get((data.object, data.query))
-        try: keys = objs[ACI._order[0]][0].keys()
-        except: keys = []
-        
-        for domain in ACI._order:
-            if objs[domain] == None: continue
-            table = Table(*keys)
-            for obj in objs[domain]:
-                vals = L()
-                for key in keys:
-                    val = obj[key]
-                    if val == '' or val == None: vals << ' '
-                    else: vals << val
-                table.add(*vals)
-            lo(Row(Panel(domain, table, icon='fa-table')))
-        
-        return lo
-    

@@ -316,8 +316,11 @@ class Form(__View__):
 
 class Terminal(__View__):
     
-    def __init__(self, init_scr='', init_loc='', line_cnt=200):
-        __View__.__init__(self, 'terminal')
+    ENTER = 'R'
+    TAB = 'T'
+    
+    def __init__(self, init_scr='', init_loc='', init_cmd='', line_cnt=200):
+        __View__.__init__(self, 'terminal', command=init_cmd)
         self.setScreen(init_scr)
         self.setLocation(init_loc)
         self.line_cnt = line_cnt
@@ -338,6 +341,10 @@ class Terminal(__View__):
         if loc != '': self.location = loc + ' '
         else: self.location = ''
         return self
+    
+    def setCommand(self, cmd):
+        self['command'] = cmd
+        return self
         
     def __render__(self):
         html = '''
@@ -350,14 +357,15 @@ class Terminal(__View__):
                 <form roll="form">
                     <label class="cw-term-location">%s$&nbsp;</label>
                     <span class="cw-term-command">
-                        <input type="text" id="cw-view-%s" class="cw-term-command-text" onkeydown="if (event.keyCode == 13) { send_form_imidiate({cmd:$('#cw-view-%s').val()}); }" />
+                        <input type="text" id="cw-view-%s" class="cw-term-command-text" onkeydown="if (event.keyCode == 13) { send_form_imidiate({cmd:$('#cw-view-%s').val(),crr:'R'}); } else if (event.keyCode == 9) { send_form_imidiate({cmd:$('#cw-view-%s').val(),crr:'T'}); }" />
+                        <input type="text" class="cw-term-command-buff" />
                     </span>
                 </form>
             </div>
         </div>
     </div>
 </div>
-''' % (self._id, self.screen, self.location, self._id, self._id)
+''' % (self._id, self.screen, self.location, self._id, self._id, self._id)
         return html
         
         
