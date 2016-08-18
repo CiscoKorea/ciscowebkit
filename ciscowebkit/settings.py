@@ -118,9 +118,9 @@ DATABASES = {
         'NAME': 'ciscowebkit',
         'USER': 'cisco',
         'PASSWORD': 'cisco123',
-        'HOST': '10.72.86.191',
     }
 }
+#'HOST': '10.72.86.191',
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
