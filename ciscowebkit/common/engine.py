@@ -52,10 +52,12 @@ import hashlib
 #===============================================================================
 from django.template import Template, Context, loader
 from django.http import HttpResponse
+from django.contrib.auth import views as auth
 
 #===============================================================================
 # Platform Common Package
 #===============================================================================
+from ciscowebkit.settings import SESSION_COOKIE_AGE
 from ciscowebkit.common.pygics import instof, classof, nameof, iterkv, greg, SingleTon, Struct, L, M, Module, NameSpace, Dir
 from ciscowebkit.common.feature import Feature, SubFeature
 
@@ -232,13 +234,18 @@ class Engine(SingleTon):
         data['_id'] = feature._code
         data['_html'] = data.__render__()
         data['_md5'] = str(hashlib.md5(data._html).hexdigest())
+        data['_user'] = str(request.user)
         return data
     
     def __action__(self, request):
+        if not request.user.is_authenticated():
+            return auth.login(request, template_name='login.html')
+        request.session.set_expiry(SESSION_COOKIE_AGE)
         paths = filter(None, request.path.split('/'))
         pathlen = len(paths)
         if pathlen > 0:
             if paths[0] == 'dashboard': data = self.__action_method__(request, self.products.dashboard, *paths[1:])
+            elif paths[0] == 'logout': return auth.logout(request, template_name='login.html')
             else:
                 feature = self.products[paths[0]]
                 if pathlen > 1:
@@ -254,3 +261,4 @@ class Engine(SingleTon):
                 else: data = self.page_not_found_tpl
             return HttpResponse(Struct.CODE2JSON(data), content_type="application/json")
         return HttpResponse(self.ciscowebkit_build)
+

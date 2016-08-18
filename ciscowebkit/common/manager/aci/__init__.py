@@ -1,3 +1,40 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+################################################################################
+#        _____ _                  _____           _                            #
+#       / ____(_)                / ____|         | |                           #
+#      | |     _ ___  ___ ___   | (___  _   _ ___| |_ ___ _ __ ___  ___        #
+#      | |    | / __|/ __/ _ \   \___ \| | | / __| __/ _ \ '_ ` _ \/ __|       #
+#      | |____| \__ \ (_| (_) |  ____) | |_| \__ \ ||  __/ | | | | \__ \       #
+#       \_____|_|___/\___\___/  |_____/ \__, |___/\__\___|_| |_| |_|___/       #
+#                                        __/ |                                 #
+#                                       |___/                                  #
+#           _  __                       _____       _  _____ ______            #
+#          | |/ /                      / ____|     | |/ ____|  ____|           #
+#          | ' / ___  _ __ ___  __ _  | (___   ___ | | (___ | |__              #
+#          |  < / _ \| '__/ _ \/ _` |  \___ \ / _ \| |\___ \|  __|             #
+#          | . \ (_) | | |  __/ (_| |  ____) | (_) | |____) | |____            #
+#          |_|\_\___/|_|  \___|\__,_| |_____/ \___/|_|_____/|______|           #
+#                                                                              #
+################################################################################
+#                                                                              #
+# Copyright (c) 2016 Cisco Systems                                             #
+# All Rights Reserved.                                                         #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT #
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the  #
+#    License for the specific language governing permissions and limitations   #
+#    under the License.                                                        #
+#                                                                              #
+################################################################################
+
 '''
 Created on 2016. 7. 20.
 
@@ -199,7 +236,7 @@ class ACIManager(M):
             _tstamp = L()
             self.template = L()
             for i in reversed(range(0, mon_cnt)):
-                _tstamp << time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(init_time - (mon_sec * (i + 1))))
+                _tstamp << time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(init_time - (mon_sec * (i + 1))))
                 self.template << None
             self.health = M(_tstamp=_tstamp)
             self.updateHealth()
@@ -211,7 +248,7 @@ class ACIManager(M):
         def updateHealth(self):
             try:
                 health_now = copy.deepcopy(self.health)
-                health_now._tstamp << time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(time.time()))
+                health_now._tstamp << time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time()))
                 health_now._tstamp.pop(0)
                 health_data = M()
                 for domain in self.mng._order: health_data[domain] = self.mng[domain].healthmon()

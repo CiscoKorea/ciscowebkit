@@ -12,6 +12,7 @@ var pwr_sched = false;
 var spinner = null;
 var prev_html_md5 = null;
 var now_dashboard = true;
+var login_user = null;
 
 function pwr_sched_toggle() {
 	if (pwr_sched == true) {
@@ -47,7 +48,10 @@ function do_scheduler() {
 			        async: false,
 			        dataType: "json",
 			        success: function(data) { show_ux(data); },
-					error: function(e) { show_error(e); }
+			        error: function(xhr, status, thrown) {
+			        	if (thrown instanceof SyntaxError) { window.location.replace('/'); }
+			        	else { show_error(status); }
+			        }
 			    });
 			}
 		} else { document.getElementById("cw-progress-bar").innerHTML = '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"><span class="sr-only">100% Complete</span></div>'; }
@@ -118,6 +122,7 @@ function show_product(code) {
 
 function show_feature(code, cmd) {
 	clear_features();
+	var feature = null;
 	if (code != '') { feature = pfm[code]; }
 	else { feature = now_feature; }
 	document.getElementById("cw-page_title").innerHTML = feature["_title"] + " <small> " + feature["_desc"] + "</small>";
@@ -157,7 +162,10 @@ function recv_view(feature, cmd, url) {
 	        async: false,
 	        dataType: "json",
 	        success: function(data) { show_ux(data); },
-	        error: function(e) { show_error(e); }
+	        error: function(xhr, status, thrown) {
+	        	if (thrown instanceof SyntaxError) { window.location.replace('/'); }
+	        	else { show_error(status); }
+	        }
 	    });
 	}
 	set_sched();
@@ -176,7 +184,10 @@ function send_form(data) {
 			dataType: "json",
 			data: JSON.stringify(data),
 			success: function(data) { show_ux(data); },
-			error: function(e) { show_error(e); }
+			error: function(xhr, status, thrown) {
+	        	if (thrown instanceof SyntaxError) { window.location.replace('/'); }
+	        	else { show_error(status); }
+	        }
 		});
 	}
 	setTimeout(post_processing, 0);
@@ -193,7 +204,10 @@ function send_form_imidiate(data) {
 			dataType: "json",
 			data: JSON.stringify(data),
 			success: function(data) { show_ux(data); },
-			error: function(e) { show_error(e); }
+			error: function(xhr, status, thrown) {
+	        	if (thrown instanceof SyntaxError) { window.location.replace('/'); }
+	        	else { show_error(status); }
+	        }
 		});
 	}
 	setTimeout(post_processing, 0);
@@ -211,17 +225,22 @@ function del_data(id) {
 			dataType: "json",
 			data: id,
 			success: function(data) { show_ux(data); },
-			error: function(e) { show_error(e); }
+			error: function(xhr, status, thrown) {
+	        	if (thrown instanceof SyntaxError) { window.location.replace('/'); }
+	        	else { show_error(status); }
+	        }
 		});
 	}
 	setTimeout(del_processing, 0);
 }
 
-
-
 //////////////////// UX Render Functions ////////////////////
 
 function show_ux(data) {
+	if (login_user != data["_user"]) {
+		login_user = data["_user"];
+		document.getElementById("cw-login-user").innerHTML = login_user;
+	}
 	var code = now_feature["_code"];
 	if (prev_html_md5 != data["_md5"]) {
 		document.getElementById("cw-page-" + code).innerHTML = data["_html"];
