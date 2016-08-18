@@ -1,0 +1,56 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+
+<title>Cisco Webkit</title>
+
+<link href="/resource/css/font-awesome.css" rel="stylesheet">
+<link href="/resource/css/bootstrap.css" rel="stylesheet">
+<link href="/resource/css/sb-admin.css" rel="stylesheet">
+<link href="/resource/css/ciscowebkit.css" rel="stylesheet">
+
+</head>
+
+<body>
+	<script src="/resource/js/jquery-2.2.4.min.js"></script>
+	<script src="/resource/js/bootstrap.min.js"></script>
+	
+	<div id="cw-login-div">
+		<div id="cw-login-panel" class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">Cisco Webkit</h3>
+			</div>
+			
+			<div class="panel-body">
+			
+				<form method="post" action="/">
+					<div id="cw-login-logo-container" class="form-group">
+						<div id="cw-login-logo"><img src="/resource/images/logo.png" width="100%"/></div>
+					</div>
+					
+					<div class="form-group">
+					</div>
+					
+					<div class="form-group">
+						<label>Username</label>
+						<input type="text" name="username" class="cw-login-input" />
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" name="password" class="cw-login-input" />
+					</div>
+					<div class="form-group">
+						<input type="submit" value="LOGIN" id="cw-login-btn" class="btn btn-success"/>
+						<input type="hidden" name="next" value="/" />
+					</div>
+				</form>
+			
+			</div>
+		</div>
+	</div>
+	
+</body>
+
+</html>
