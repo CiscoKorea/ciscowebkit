@@ -37,7 +37,7 @@
 
 Edit {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
 
-<code>
+```
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -46,7 +46,7 @@ DATABASES = {
         'PASSWORD': '{PASSWORD}',
     }
 }
-</code>
+```
 
 	$ cd {CISCOWEBKIT_ROOT}
 	$ python manage.py makemigrations
