@@ -320,6 +320,18 @@ class EP(SubFeature):
     
     def __init__(self): SubFeature.__init__(self, icon='fa-plug')
     
+    def __index(self, epts):
+        idx = M()
+        for ep in epts:
+            idx[ep.mac] = ep
+        return idx
+
+    def __convert_timestamp_to_mysql(self, timestamp):
+        (resp_ts, remaining) = timestamp.split('T')
+        resp_ts += ' '
+        resp_ts = resp_ts + remaining.split('+')[0].split('.')[0]
+        return resp_ts
+
     def get(self, request, *cmd):
         #user_language = 'en'
         #translation.activate(user_language)
@@ -339,9 +351,10 @@ class EP(SubFeature):
                                     )
         
         epts = ACI.getEPTrack()
-        
+        epts_index = __index(epts)
+
         for domain in ACI._order:
-            eptable = Table('Mac', 'EPG', 'IP', 'Interface', 'Encap', 'Nic Type', 'Computing')
+            eptable = Table('Mac', 'EPG', 'IP', 'Start Time', 'Stop Time', 'Interface', 'Encap', 'Nic Type', 'Computing')
             ep_cnt = 0
             dnic_cnt = 0
             mgmt_cnt = 0
@@ -357,6 +370,12 @@ class EP(SubFeature):
                 ip = cep.ip
                 intf = None
                 encap = cep.encap
+                if epts_index.has_key( mac): 
+                    start_t = epts_index[mac].timestart
+                    stop_t = epts_index[mac].timestop
+                else:
+                    start_t = __convert_timestamp_to_mysql(cep.modTs)
+                    
                 nic_type = '<ul style="padding-left:10px">'
                 comp = '<ul style="padding-left:10px">'
                 
@@ -395,7 +414,7 @@ class EP(SubFeature):
                 nic_type += '</ul>'
                 comp += '</ul>'
                 
-                eptable.add(mac, epg, ip, intf, encap, nic_type, comp)
+                eptable.add(mac, epg, ip, start_t, stop_t, intf, encap, nic_type, comp)
             
             ept_table = Table('Mac', 'EPG', 'IP', 'Interface', 'Time Start', 'Time Stop')
             ept_cnt = 0
