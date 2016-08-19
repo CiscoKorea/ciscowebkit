@@ -30,6 +30,8 @@ Created on 2016. 7. 27.
 import re
 import time
 from ciscowebkit.common import *
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
  
 class Overview(Feature):
      
@@ -37,8 +39,17 @@ class Overview(Feature):
         Feature.__init__(self, 10, 'fa-dashboard')
      
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
+        #user_language = 'en'
+        #translation.activate(user_language)
+        
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
+        
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         lo = Layout()
         
         cnt_nd, cnt_tnt, cnt_bd, cnt_epg, cnt_ep, cnt_flt, cnt_ctr, cnt_47d, cnt_47g, cnt_f_cri, cnt_f_maj, cnt_f_min, cnt_f_war = ACI.getCount(('fabricNode', 'query-target-filter=ne(fabricNode.role,"controller")'),
@@ -72,7 +83,7 @@ class Overview(Feature):
                 total_row = L(health._tstamp[i])
                 node_row = L(health._tstamp[i])
                 for dn in health[domain].topology:
-                    if re.search('^pod-\d+$', dn):
+                    if re.search('^pod-�d+$', dn):
                         if i == 0: total_lines << (domain + '/' + dn)
                         total_row << health[domain].topology[dn][i]
                     elif 'node-' in dn:

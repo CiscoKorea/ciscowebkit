@@ -1,0 +1,60 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-08-19 13:57+1000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=euc-kr\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+#: .\product\ACI\Overview.py:46 .\product\ACI\Show.py:48
+#: .\product\ACI\Show.py:148 .\product\ACI\Show.py:301
+#: .\product\ACI\Show.py:406 .\product\ACI\Show.py:473
+#: .\product\ACI\Show.py:544 .\product\ACI\Stats.py:45
+#: .\product\ACI\Stats.py:126 .\product\ACI\Tool.py:74 .\product\ACI\Tool.py:88
+msgid "No Data"
+msgstr "데이터 없음"
+
+#: .\product\ACI\Overview.py:47 .\product\ACI\Show.py:49
+#: .\product\ACI\Show.py:149 .\product\ACI\Show.py:302
+#: .\product\ACI\Show.py:407 .\product\ACI\Show.py:474
+#: .\product\ACI\Show.py:545 .\product\ACI\Stats.py:46
+#: .\product\ACI\Stats.py:127 .\product\ACI\Tool.py:75 .\product\ACI\Tool.py:89
+msgid "There is no associated APIC. Add APIC connection in Setting menu."
+msgstr "연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가해 주세요"
+
+#: .\product\ACI\Setting.py:69
+msgid "Connection Failed"
+msgstr "연결실패"
+
+#: .\product\ACI\Setting.py:70
+msgid "The APIC connection failed. Check the connection information."
+msgstr "연결이 실패하였습니다. 연결정보를 확인하세요"
+
+#: .\product\ACI\Setting.py:71
+msgid "Connection succeeded"
+msgstr "연결성공"
+
+#: .\product\ACI\Setting.py:72
+#, python-format
+msgid "The APIC %(domain)s is connected %(connected)s."
+msgstr "APIC %(domain)s이 %(connected)s로 연결되었습니다."
+
+#: .\product\ACI\Setting.py:85
+msgid "Connection Deleted"
+msgstr "연결삭제"
+
+#: .\product\ACI\Setting.py:86
+#, python-format
+msgid "The connection %(data)s has been removed."
+msgstr "%(data)s 연결이 삭제되었습니다."

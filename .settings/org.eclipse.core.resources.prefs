@@ -1,6 +1,14 @@
 eclipse.preferences.version=1
 encoding//ciscowebkit/common/engine.py=utf-8
 encoding//ciscowebkit/common/pygics/lang.py=utf-8
+encoding//ciscowebkit/settings.py=utf-8
 encoding//ciscowebkit/urls.py=utf-8
+encoding//ciscowebkit/views.py=utf-8
+encoding//ciscowebkit/wsgi.py=utf-8
+encoding//product/ACI/Overview.py=utf-8
+encoding//product/ACI/Setting.py=utf-8
+encoding//product/ACI/Show.py=utf-8
+encoding//product/ACI/Stats.py=utf-8
+encoding//product/ACI/Tool.py=utf-8
 encoding//product/Sample/Base.py=utf-8
 encoding/manage.py=utf-8
