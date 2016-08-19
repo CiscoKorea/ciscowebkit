@@ -1,3 +1,6 @@
+=\=\=\=\=\=\=
+<<<<<<<=HEAD
+>>>>>>>=refs/heads/hyjang
 eclipse.preferences.version=1
 encoding//ciscowebkit/common/__init__.py=utf-8
 encoding//ciscowebkit/common/abstract.py=utf-8
@@ -8,9 +11,6 @@ encoding//ciscowebkit/common/manager/aci/eptracker.py=utf-8
 encoding//ciscowebkit/common/manager/aci/healthmon.py=utf-8
 encoding//ciscowebkit/common/pygics/__init__.py=utf-8
 encoding//ciscowebkit/common/pygics/lang.py=utf-8
-<<<<<<< HEAD
-encoding//ciscowebkit/common/view/basic.py=utf-8
-=======
 encoding//ciscowebkit/common/pygics/module.py=utf-8
 encoding//ciscowebkit/common/pygics/system.py=utf-8
 encoding//ciscowebkit/common/view/__init__.py=utf-8
@@ -18,8 +18,8 @@ encoding//ciscowebkit/common/view/basic.py=utf-8
 encoding//ciscowebkit/common/view/chartist.py=utf-8
 encoding//ciscowebkit/common/view/collection.py=utf-8
 encoding//ciscowebkit/common/view/morris.py=utf-8
+encoding//ciscowebkit/models.py=utf-8
 encoding//ciscowebkit/settings.py=utf-8
->>>>>>> refs/heads/hyjang
 encoding//ciscowebkit/urls.py=utf-8
 encoding//ciscowebkit/views.py=utf-8
 encoding//ciscowebkit/wsgi.py=utf-8
