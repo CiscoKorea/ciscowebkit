@@ -44,7 +44,8 @@ Created on 2016. 7. 27.
 
 from ciscowebkit.common import *
 from ciscowebkit.models import *
-
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
  
 class Setting(Feature):
     
@@ -81,19 +82,37 @@ class Setting(Feature):
     
     def post(self, request, data, *cmd):
         apic = ACI.addDomain(data.domain, data.ips, data.user, data.pwd)
+        
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('Connection Failed')
+        msg2 = _('The APIC connection failed. Check the connection information.')
+        msg3 = _('Connection succeeded')
+        msg4 = _('The APIC %(domain)s is connected %(connected)s.') % {'domain': apic.domain, 'connected': apic.connected}
+        
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+        MSG3 = msg3.encode("utf-8") 
+        MSG4 = msg4.encode("utf-8")
         if apic: 
             r = ACIDomain.objects.create(name=data.domain, controllers=data.ips,user=data.user,password=data.pwd)
-            self.info = InfoBlock('연결성공', u'%s의 APIC과 %s로 연결되었습니다.' % (apic.domain, apic.connected)) 
+            self.info = InfoBlock(MSG3, MSG4) 
         else: 
-            self.info = InfoBlock('연결실패', 'APIC 연결이 실패하였습니다. 연결정보를 확인하세요.')
+            self.info = InfoBlock(MSG1, MSG2) 
         return self.get(request, *cmd)
     
     def delete(self, request, data, *cmd):
         ACI.delDomain(data)
+        msg5 = _('Connection Deleted')
+        msg6 = _('The connection %(data)s has been removed.') % {'data': data}
+
+        MSG5 = msg5.encode("utf-8")
+        MSG6 = msg6.encode("utf-8")
+        
         try:
             pk = ACIDomain.objects.get(name=data)
             pk.delete()
         except ACIDomain.DoesNotExist:
             pass
-        self.info = InfoBlock('연결삭제', '%s의 연결을 제거하였습니다.' % data)
+        self.info = InfoBlock(MSG5, MSG6)
         return self.get(request, *cmd)

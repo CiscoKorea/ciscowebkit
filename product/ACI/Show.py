@@ -42,6 +42,8 @@ Created on 2016. 7. 5.
 '''
 
 from ciscowebkit.common import *
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
 
 class Show(Feature):
     
@@ -54,7 +56,16 @@ class Device(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-cogs')
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
+        
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         
         lo = Layout()
         
@@ -147,8 +158,16 @@ class Tenant(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-users')
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
         
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
+        
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         lo = Layout()
         
         tns, eps, bds, ctxs, ctrs, flts, epgs = ACI.get(
@@ -219,8 +238,15 @@ class EPG(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-object-group')
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         lo = Layout()
         
         epgs, ctxs, bds, provs, conss, paths = ACI.get(
@@ -295,8 +321,15 @@ class EP(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-plug')
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         lo = Layout()
         
         ceps, paths, nics = ACI.get(
@@ -395,8 +428,15 @@ class Contract(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-ticket')
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         cps, subjs, conss, provs = ACI.get(
                                            ('vzBrCP', 'order-by=vzBrCP.modTs'),
                                            'vzSubj',
@@ -457,8 +497,15 @@ class L3_External(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-cloud')
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         lo = Layout()
         
         insps, isubs, ctxs, provs, conss = ACI.get(
@@ -523,8 +570,15 @@ class Fault(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-warning')
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         lo = Layout()
         
         cris, majs, mins, wars = ACI.get(
