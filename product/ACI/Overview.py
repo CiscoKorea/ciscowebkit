@@ -59,7 +59,7 @@ class Overview(Feature):
         msg1 = _('No Data')
         msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
+        MSG1 = msg1.encode("utf-8")
         MSG2 = msg2.encode("utf-8")
 
         if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
