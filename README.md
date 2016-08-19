@@ -24,6 +24,7 @@
 	$ pip install pymysql
 	$ pip install tabulate
 	$ pip install websocket-client 
+	$ pip install gettext-anywhere
 
 ### 3. Create Database
 {ADMIN_NAME}
