@@ -354,7 +354,7 @@ class EP(SubFeature):
                                     )
         
         epts = ACI.getEPTrack()
-        epts_index = self._index(epts, ACI._order)
+        epts_index = self.__index(epts, ACI._order)
 
         for domain in ACI._order:
             eptable = Table('Mac', 'EPG', 'IP', 'Start Time', 'Stop Time', 'Interface', 'Encap', 'Nic Type', 'Computing')
@@ -373,10 +373,11 @@ class EP(SubFeature):
                 ip = cep.ip
                 intf = None
                 encap = cep.encap
-                stop_t =' '
+                stop_t ='None'
                 if epts_index.has_key( mac): 
                     start_t = epts_index[domain][mac].timestart
                     stop_t = epts_index[domain][mac].timestop
+                    del epts_index[domain][mac]
                 else:
                     start_t = self.__convert_timestamp_to_mysql(cep.modTs)
                     
@@ -420,11 +421,15 @@ class EP(SubFeature):
                 
                 eptable.add(mac, epg, ip, start_t, stop_t, intf, encap, nic_type, comp)
             
-            ept_table = Table('Mac', 'EPG', 'IP', 'Interface', 'Time Start', 'Time Stop')
-            ept_cnt = 0
-            for ept in epts[domain]:
-                ept_table.add(ept.mac, ept.epg, ept.ip, ept.interface, ept.timestart, ept.timestop)
-                ept_cnt += 1
+            for ept_mac in epts_index[domain].keys():
+                ept = epts_index[domain][ept_mac]
+                eptable.add( ept.mac, ept.epg, ept.ip, ept.timestart, ept.timestop, ept.interface, ' ', '<ul></ul>', '<ul></ul>')
+
+            #ept_table = Table('Mac', 'EPG', 'IP', 'Interface', 'Time Start', 'Time Stop')
+            #ept_cnt = 0
+            #for ept in epts[domain]:
+            #    ept_table.add(ept.mac, ept.epg, ept.ip, ept.interface, ept.timestart, ept.timestop)
+            #    ept_cnt += 1
             
             lo(
                 Row(Panel(domain, Layout(
@@ -437,8 +442,8 @@ class EP(SubFeature):
                         Col(InfoPanel('Virtual', vnic_cnt, panel=Panel.BLUE, icon='fa-cube'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2))
                     ),
                     Row(eptable),
-                    Row(InfoPanel('EP Tracking', ept_cnt, panel=Panel.BLUE, icon='fa-history')),
-                    Row(ept_table)
+             #       Row(InfoPanel('EP Tracking', ept_cnt, panel=Panel.BLUE, icon='fa-history')),
+             #       Row(ept_table)
                 ), icon='fa-table'))
             )
                 
