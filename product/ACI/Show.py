@@ -320,11 +320,14 @@ class EP(SubFeature):
     
     def __init__(self): SubFeature.__init__(self, icon='fa-plug')
     
-    def __index(self, epts):
-        idx = M()
-        for ep in epts:
-            idx[ep.mac] = ep
-        return idx
+    def __index(self, epts, dom):
+        indexes = M()
+        for d in dom:
+            idx = M()
+            for ep in epts[d]:
+                idx[ep.mac] = ep
+            indexes[d] = idx
+        return indexes
 
     def __convert_timestamp_to_mysql(self, timestamp):
         (resp_ts, remaining) = timestamp.split('T')
@@ -351,7 +354,7 @@ class EP(SubFeature):
                                     )
         
         epts = ACI.getEPTrack()
-        epts_index = __index(epts)
+        epts_index = self._index(epts, ACI._order)
 
         for domain in ACI._order:
             eptable = Table('Mac', 'EPG', 'IP', 'Start Time', 'Stop Time', 'Interface', 'Encap', 'Nic Type', 'Computing')
@@ -370,11 +373,12 @@ class EP(SubFeature):
                 ip = cep.ip
                 intf = None
                 encap = cep.encap
+                stop_t =' '
                 if epts_index.has_key( mac): 
-                    start_t = epts_index[mac].timestart
-                    stop_t = epts_index[mac].timestop
+                    start_t = epts_index[domain][mac].timestart
+                    stop_t = epts_index[domain][mac].timestop
                 else:
-                    start_t = __convert_timestamp_to_mysql(cep.modTs)
+                    start_t = self.__convert_timestamp_to_mysql(cep.modTs)
                     
                 nic_type = '<ul style="padding-left:10px">'
                 comp = '<ul style="padding-left:10px">'
