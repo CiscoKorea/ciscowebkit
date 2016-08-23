@@ -156,7 +156,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-DATABASE_OPTIONS = {'charset': 'utf8'}
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/resource/'
