@@ -67,7 +67,7 @@ class EPTracker(Task):
             raise EPTracker.APIC.APIC_CONNECTION_FAILED(apic)
         self._table_name = 'aci_%s_eptracker' % apic.domain
         try:
-            self._db = pymysql.connect(user='cisco', password='cisco123', host='10.72.86.191')
+            self._db = pymysql.connect(user='cisco', password='cisco123', host='localhost')
         except:
             self._db.close()
             self._session.close()
