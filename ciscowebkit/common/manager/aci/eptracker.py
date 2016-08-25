@@ -67,7 +67,7 @@ class EPTracker(Task):
             raise EPTracker.APIC.APIC_CONNECTION_FAILED(apic)
         self._table_name = 'aci_%s_eptracker' % apic.domain
         try:
-            self._db = pymysql.connect(user='cisco', password='cisco123', host='10.72.86.191')
+            self._db = pymysql.connect(user='cisco', password='cisco123', host='localhost')
         except:
             self._db.close()
             self._session.close()
@@ -77,6 +77,7 @@ class EPTracker(Task):
         cursor.execute('USE ciscowebkit;')
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore')
+            cursor.execute('''DROP TABLE IF EXISTS %s;''' % self._table_name)
             cursor.execute('''CREATE TABLE IF NOT EXISTS %s (
                                     mac       CHAR(18) NOT NULL,
                                     ip        CHAR(16),
@@ -125,7 +126,7 @@ class EPTracker(Task):
             cursor.execute('SELECT * FROM %s;' % self._table_name)
         except:
             self._db.close()
-            self._db = pymysql.connect(user='cisco', password='cisco123', host='10.72.86.191')
+            self._db = pymysql.connect(user='cisco', password='cisco123', host='localhost')
             cursor = self._db.cursor()
             cursor.execute('USE ciscowebkit;')
             cursor.execute('SELECT * FROM %s;' % self._table_name)
@@ -149,7 +150,7 @@ class EPTracker(Task):
                         try: cursor.execute('''UPDATE %s SET timestop="%s", timestart=timestart WHERE mac="%s" AND tenant="%s" AND timestop="0000-00-00 00:00:00";''' % data)
                         except:
                             self._db.close()
-                            self._db = pymysql.connect(user='cisco', password='cisco123', host='10.72.86.191')
+                            self._db = pymysql.connect(user='cisco', password='cisco123', host='localhost')
                             cursor = self._db.cursor()
                             cursor.execute('''UPDATE %s SET timestop="%s", timestart=timestart WHERE mac="%s" AND tenant="%s" AND timestop="0000-00-00 00:00:00";''' % data)
                     else:
@@ -166,7 +167,7 @@ class EPTracker(Task):
                         try: cursor.execute('''SELECT COUNT(*) FROM %s WHERE mac="%s" AND ip="%s" AND tenant="%s" AND app="%s" AND epg="%s" AND interface="%s" AND timestart="%s";''' % data)
                         except:
                             self._db.close()
-                            self._db = pymysql.connect(user='cisco', password='cisco123', host='10.72.86.191')
+                            self._db = pymysql.connect(user='cisco', password='cisco123', host='localhost')
                             cursor = self._db.cursor()
                             cursor.execute('''SELECT COUNT(*) FROM %s WHERE mac="%s" AND ip="%s" AND tenant="%s" AND app="%s" AND epg="%s" AND interface="%s" AND timestart="%s";''' % data)
                         for count in self._cursor:
