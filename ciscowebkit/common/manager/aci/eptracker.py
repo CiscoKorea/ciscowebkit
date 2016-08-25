@@ -77,6 +77,7 @@ class EPTracker(Task):
         cursor.execute('USE ciscowebkit;')
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore')
+            cursor.execute('DROP TABLE IF EXISTS %s;' % self._table_name)
             cursor.execute('''CREATE TABLE IF NOT EXISTS %s (
                                     mac       CHAR(18) NOT NULL,
                                     ip        CHAR(16),
@@ -89,6 +90,7 @@ class EPTracker(Task):
             self._db.commit()
         endpoints = acitool.Endpoint.get(self._session)
         for ep in endpoints:
+            print ep 
             try: epg = ep.get_parent()
             except AttributeError: continue
             app_profile = epg.get_parent()
