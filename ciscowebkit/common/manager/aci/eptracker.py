@@ -85,12 +85,13 @@ class EPTracker(Task):
                                     app       CHAR(100) NOT NULL,
                                     epg       CHAR(100) NOT NULL,
                                     interface CHAR(100) NOT NULL,
+                                    encp      CHAR(16),
                                     timestart TIMESTAMP NOT NULL,
                                     timestop  TIMESTAMP);''' % self._table_name)
             self._db.commit()
         endpoints = acitool.Endpoint.get(self._session)
         for ep in endpoints:
-            print ep 
+            print ep.mac, ep.encap, ep.if_name  
             try: epg = ep.get_parent()
             except AttributeError: continue
             app_profile = epg.get_parent()
@@ -103,12 +104,12 @@ class EPTracker(Task):
                             int_name = "Nodes: " + match.group(1) + "-" + match.group(2) + " " + ep.if_name
                             pass
             else: int_name = ep.if_name
-            try: data = (self._table_name, ep.mac, ep.ip, tenant.name, app_profile.name, epg.name, int_name, self.convert_timestamp_to_mysql(ep.timestamp))
+            try: data = (self._table_name, ep.mac, ep.ip, tenant.name, app_profile.name, epg.name, int_name, ep.encap, self.convert_timestamp_to_mysql(ep.timestamp))
             except ValueError, e: print str(e); continue
             ep_exists = cursor.execute('''SELECT * FROM %s WHERE mac="%s" AND timestop="0000-00-00 00:00:00";''' % (self._table_name, ep.mac))
             cursor.fetchall()
             if not ep_exists:
-                cursor.execute('''INSERT INTO %s (mac, ip, tenant, app, epg, interface, timestart) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s");''' % data)
+                cursor.execute('''INSERT INTO %s (mac, ip, tenant, app, epg, interface, encap, timestart) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");''' % data)
                 self._db.commit()
         cursor.close()
         acitool.Endpoint.subscribe(self._session)
@@ -131,7 +132,7 @@ class EPTracker(Task):
             cursor = self._db.cursor()
             cursor.execute('USE ciscowebkit;')
             cursor.execute('SELECT * FROM %s;' % self._table_name)
-        for row in cursor: ret << M(mac=row[0], epg=row[2] + '/' + row[3] + '/' + row[4], ip=row[1], interface=row[5], timestart=str(row[6]), timestop=str(row[7]))
+        for row in cursor: ret << M(mac=row[0], epg=row[2] + '/' + row[3] + '/' + row[4], ip=row[1], interface=row[5], encap=row[6], timestart=str(row[7]), timestop=str(row[8]))
         cursor.close()
         return ret
         
@@ -160,10 +161,10 @@ class EPTracker(Task):
                                 match = re.match('protpaths-(\d+)-(\d+)', dn.split('/')[2])
                                 if match:
                                     if match.group(1) and match.group(2):
-                                        int_name = "Nodes: " + match.group(1) + "-" + match.group(2) + " " + ep.if_name
+                                        int_name = "" + match.group(1) + "-" + match.group(2) + " " + ep.if_name
                                         pass
                         else: int_name = ep.if_name
-                        data = (self._table_name, ep.mac, ep.ip, tenant.name, app_profile.name, epg.name, int_name, self.convert_timestamp_to_mysql(ep.timestamp))
+                        data = (self._table_name, ep.mac, ep.ip, tenant.name, app_profile.name, epg.name, int_name, encap, self.convert_timestamp_to_mysql(ep.timestamp))
                         
                         try: cursor.execute('''SELECT COUNT(*) FROM %s WHERE mac="%s" AND ip="%s" AND tenant="%s" AND app="%s" AND epg="%s" AND interface="%s" AND timestart="%s";''' % data)
                         except:
@@ -173,7 +174,7 @@ class EPTracker(Task):
                             cursor.execute('''SELECT COUNT(*) FROM %s WHERE mac="%s" AND ip="%s" AND tenant="%s" AND app="%s" AND epg="%s" AND interface="%s" AND timestart="%s";''' % data)
                         for count in self._cursor:
                             if not count[0]:
-                                cursor.execute('''INSERT INTO %s (mac, ip, tenant, app, epg, interface, timestart) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s");''' % data)
+                                cursor.execute('''INSERT INTO %s (mac, ip, tenant, app, epg, interface, encap, timestart) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");''' % data)
                     self._db.commit()
                     cursor.close()
                 else: break

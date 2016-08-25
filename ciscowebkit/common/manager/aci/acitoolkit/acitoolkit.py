@@ -3714,17 +3714,19 @@ class Endpoint(BaseACIObject):
                     for child_item in child:
                         if child_item in ['fvRsCEpToPathEp','fvRsStCEpToPathEp' ]:
                             if_dn = str(child[child_item]['attributes']['tDn'])
+                            name = if_dn.split('/')
+                            pod = str(name[1].split('-')[1])
                             if 'protpaths' in if_dn:
-                                regex = re.search(r'pathep-\[(.+)\]$', if_dn)
-                                self.if_name = regex.group(1)
+                                regex = re.search(r'protpaths-(d+)-(d+)/pathep-\[(.+)\]$', if_dn)
+                                self.if_name = "{0}/{1}-{2}/{3}".format(pod, regex.group(1), regex.group(2), regex.group(3))
                             elif 'tunnel' in if_dn:
                                 self.if_name = if_dn
                             else :
-                                name = if_dn.split('/')
-                                pod = str(name[1].split('-')[1])
+                                #name = if_dn.split('/')
+                                #pod = str(name[1].split('-')[1])
                                 node = str(name[2].split('-')[1])
                                 port = re.search(r'pathep-\[eth(.+)\]$', if_dn).group(1)
-                                self.if_name = 'eth {0}/{1}/{2}'.format(pod, node, port)
+                                self.if_name = '{0}/eth{1}/{2}'.format(pod, node, port)
                         if child_item == 'fvIp':
                             ip_address = str(child[child_item]['attributes']['addr'])
                             self.secondary_ip.append(ip_address)
