@@ -91,19 +91,12 @@ class EPTracker(Task):
             self._db.commit()
         endpoints = acitool.Endpoint.get(self._session)
         for ep in endpoints:
-            print ep.mac, ep.encap, ep.if_name  
+            #print ep.mac, ep.encap, ep.if_name  
             try: epg = ep.get_parent()
             except AttributeError: continue
             app_profile = epg.get_parent()
             tenant = app_profile.get_parent()
-            if ep.if_dn:
-                for dn in ep.if_dn:
-                    match = re.match('protpaths-(\d+)-(\d+)', dn.split('/')[2])
-                    if match:
-                        if match.group(1) and match.group(2):
-                            int_name = "Nodes: " + match.group(1) + "-" + match.group(2) + " " + ep.if_name
-                            pass
-            else: int_name = ep.if_name
+            int_name = ep.if_name
             try: data = (self._table_name, ep.mac, ep.ip, tenant.name, app_profile.name, epg.name, int_name, ep.encap, self.convert_timestamp_to_mysql(ep.timestamp))
             except ValueError, e: print str(e); continue
             ep_exists = cursor.execute('''SELECT * FROM %s WHERE mac="%s" AND timestop="0000-00-00 00:00:00";''' % (self._table_name, ep.mac))
@@ -156,14 +149,7 @@ class EPTracker(Task):
                             cursor = self._db.cursor()
                             cursor.execute('''UPDATE %s SET timestop="%s", timestart=timestart WHERE mac="%s" AND tenant="%s" AND timestop="0000-00-00 00:00:00";''' % data)
                     else:
-                        if ep.if_dn:
-                            for dn in ep.if_dn:
-                                match = re.match('protpaths-(\d+)-(\d+)', dn.split('/')[2])
-                                if match:
-                                    if match.group(1) and match.group(2):
-                                        int_name = "" + match.group(1) + "-" + match.group(2) + " " + ep.if_name
-                                        pass
-                        else: int_name = ep.if_name
+                        int_name = ep.if_name
                         data = (self._table_name, ep.mac, ep.ip, tenant.name, app_profile.name, epg.name, int_name, encap, self.convert_timestamp_to_mysql(ep.timestamp))
                         
                         try: cursor.execute('''SELECT COUNT(*) FROM %s WHERE mac="%s" AND ip="%s" AND tenant="%s" AND app="%s" AND epg="%s" AND interface="%s" AND timestart="%s";''' % data)
