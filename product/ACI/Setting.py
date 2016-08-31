@@ -92,7 +92,7 @@ class Setting(Feature):
         
         MSG1 = msg1.encode("utf-8") 
         MSG2 = msg2.encode("utf-8")
-        MSG3 = msg3.encode("utf-8") 
+        MSG3 = msg3.encode("utf-8")
         MSG4 = msg4.encode("utf-8")
         if apic: 
             r = ACIDomain.objects.create(name=data.domain, controllers=data.ips,user=data.user,password=data.pwd)
