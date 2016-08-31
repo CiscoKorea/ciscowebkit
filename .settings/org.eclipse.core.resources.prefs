@@ -18,6 +18,7 @@ encoding//ciscowebkit/common/view/basic.py=utf-8
 encoding//ciscowebkit/common/view/chartist.py=utf-8
 encoding//ciscowebkit/common/view/collection.py=utf-8
 encoding//ciscowebkit/common/view/morris.py=utf-8
+encoding//ciscowebkit/models.py=utf-8
 encoding//ciscowebkit/settings.py=utf-8
 encoding//ciscowebkit/urls.py=utf-8
 encoding//ciscowebkit/views.py=utf-8

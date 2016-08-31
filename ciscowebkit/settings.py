@@ -48,7 +48,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-
+from django.utils.translation import ugettext_lazy as _
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -85,6 +85,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'ciscowebkit.views.DisableCSRF',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'ciscowebkit.urls'
@@ -100,6 +101,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -120,6 +122,7 @@ DATABASES = {
         'PASSWORD': 'cisco123',
     }
 }
+#'HOST': '10.72.86.191',
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -134,6 +137,17 @@ AUTH_PASSWORD_VALIDATORS = [
 #LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = 'ko-KR'
 
+LANGUAGES = [
+  ('ko', _('Korean')),
+  ('en', _('English')),
+]
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+    os.path.join(BASE_DIR, 'ciscowebkit/locale'),
+    
+)
+
 TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
@@ -141,6 +155,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+DATABASE_OPTIONS = {'charset': 'utf8'}
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/resource/'

@@ -42,6 +42,8 @@ Created on 2016. 8. 12.
 '''
 
 from ciscowebkit.common import *
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
 
 class Tool(Feature):
     
@@ -92,8 +94,15 @@ class Console(SubFeature):
         self.terminal = Terminal(self.greeting, '')
     
     def get(self, request, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         lo = Layout(
             Row(self.terminal)
         )
@@ -101,8 +110,15 @@ class Console(SubFeature):
         return lo
         
     def post(self, request, data, *cmd):
-        if len(ACI._order) == 0: return InfoBlock('데이터 없음', '연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가하세요.')
+        #user_language = 'en'
+        #translation.activate(user_language)
+        msg1 = _('No Data')
+        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
+        MSG1 = msg1.encode("utf-8") 
+        MSG2 = msg2.encode("utf-8")
+
+        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
         if data.cmd == '':
             self.terminal.addScreen('''%s$ 
 ''' % self.terminal.location)
