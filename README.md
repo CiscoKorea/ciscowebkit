@@ -26,16 +26,19 @@
 	$ pip install websocket-client 
 
 ### 3. Create Database
-{ADMIN_NAME}
-{PASSWORD}
+Administrator's own static variables on setting
+* {ADMIN_NAME} : ID for Administrator
+* {PASSWORD} : Password for Administrator
 
 	mysql > CREATE DATABASE ciscowebkit;
 	mysql > GRANT ALL PRIVILEGES ON ciscowebkit.* TO '{ADMIN_NAME}'@'localhost' IDENTIFIED BY '{PASSWORD}';"
 
 ### 4. Initial Setting
-{CISCOWEBKIT_ROOT}
+Webkit's root static variable
+* {CISCOWEBKIT_ROOT}
 
 Edit {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
+
 <code>
 DATABASES = {
     'default': {
