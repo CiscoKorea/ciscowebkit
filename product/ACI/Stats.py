@@ -42,8 +42,6 @@ Created on 2016. 8. 12.
 '''
 
 from ciscowebkit.common import *
-from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
 
 class Stats(Feature):
     
@@ -56,20 +54,17 @@ class Interface_Utilization(SubFeature):
     def __init__(self): SubFeature.__init__(self, 10, 'fa-plug')
     
     def get(self, request, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
+        
         lo = Layout()
         
-        ingrs, egrs, phyis = ACI.get(('eqptIngrTotalHist5min', 'query-target-filter=wcard(eqptIngrTotalHist5min.dn,"sys/phys-.*/HDeqptIngrTotal5min-0")'),
+        ingrs, egrs, phyis = ACI.get(
+                                     ('eqptIngrTotalHist5min', 'query-target-filter=wcard(eqptIngrTotalHist5min.dn,"sys/phys-.*/HDeqptIngrTotal5min-0")'),
                                      ('eqptEgrTotalHist5min', 'query-target-filter=wcard(eqptEgrTotalHist5min.dn,"sys/phys-.*/HDeqptEgrTotal5min-0")'),
-                                     'l1PhysIf')
+                                     'l1PhysIf'
+                                     )
         
         for domain in ACI._order:
             ingr_donut = MorrisDonut(height=300, title='Input')
@@ -138,19 +133,16 @@ class EPG_Utilization(SubFeature):
     def __init__(self): SubFeature.__init__(self, 10, 'fa-object-group')
     
     def get(self, request, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
+        
         lo = Layout()
         
-        bytes, pkts = ACI.get(('l2IngrBytesAgHist15min', 'query-target-filter=wcard(l2IngrBytesAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/HDl2IngrBytesAg15min-0")'),
-                              ('l2IngrPktsAgHist15min', 'query-target-filter=wcard(l2IngrPktsAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/HDl2IngrPktsAg15min-0")'))
+        bytes, pkts = ACI.get(
+                              ('l2IngrBytesAgHist15min', 'query-target-filter=wcard(l2IngrBytesAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/HDl2IngrBytesAg15min-0")'),
+                              ('l2IngrPktsAgHist15min', 'query-target-filter=wcard(l2IngrPktsAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/HDl2IngrPktsAg15min-0")')
+                              )
         
         for domain in ACI._order:
             donut = MorrisDonut(height=300)
@@ -200,3 +192,4 @@ class EPG_Utilization(SubFeature):
             )
         
         return lo
+    

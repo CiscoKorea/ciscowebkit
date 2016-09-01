@@ -44,8 +44,6 @@ Created on 2016. 7. 27.
 
 from ciscowebkit.common import *
 from ciscowebkit.models import *
-from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
  
 class Setting(Feature):
     
@@ -65,6 +63,7 @@ class Setting(Feature):
         self.info = None;
         
     def get(self, request, *cmd):
+        
         apic_table = Table('Domain', 'Address', 'User', 'Password', 'Connected')
         for domain in ACI._order: apic_table.add(domain, str(ACI[domain].ips), ACI[domain].user, '*******', ACI[domain].connected, did=domain)
         
@@ -83,36 +82,26 @@ class Setting(Feature):
     def post(self, request, data, *cmd):
         apic = ACI.addDomain(data.domain, data.ips, data.user, data.pwd)
         
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('Connection Failed')
-        msg2 = _('The APIC connection failed. Check the connection information.')
-        msg3 = _('Connection succeeded')
-        msg4 = _('The APIC %(domain)s is connected %(connected)s.') % {'domain': apic.domain, 'connected': apic.connected}
-        
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-        MSG3 = msg3.encode("utf-8")
-        MSG4 = msg4.encode("utf-8")
         if apic: 
             r = ACIDomain.objects.create(name=data.domain, controllers=data.ips,user=data.user,password=data.pwd)
-            self.info = InfoBlock(MSG3, MSG4) 
+            self.info = InfoBlock(LC('Connection succeeded'),
+                                  LC('The APIC %(domain)s is connected %(connected)s.', domain=apic.domain, connected=apic.connected)) 
         else: 
-            self.info = InfoBlock(MSG1, MSG2) 
+            self.info = InfoBlock(LC('Connection Failed'),
+                                  LC('The APIC connection failed. Check the connection information.')) 
         return self.get(request, *cmd)
     
     def delete(self, request, data, *cmd):
+        
         ACI.delDomain(data)
-        msg5 = _('Connection Deleted')
-        msg6 = _('The connection %(data)s has been removed.') % {'data': data}
-
-        MSG5 = msg5.encode("utf-8")
-        MSG6 = msg6.encode("utf-8")
         
         try:
             pk = ACIDomain.objects.get(name=data)
             pk.delete()
         except ACIDomain.DoesNotExist:
             pass
-        self.info = InfoBlock(MSG5, MSG6)
+        
+        self.info = InfoBlock(LC('Connection Deleted'),
+                              LC('The connection %(data)s has been removed.', data=data))
+        
         return self.get(request, *cmd)

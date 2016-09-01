@@ -42,7 +42,6 @@ Created on 2016. 7. 5.
 '''
 
 from ciscowebkit.common import *
-from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 class Show(Feature):
@@ -56,16 +55,9 @@ class Device(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-cogs')
     
     def get(self, request, *cmd):
-        
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
-        
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
 
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
         
         lo = Layout()
         
@@ -159,16 +151,8 @@ class Tenant(SubFeature):
     
     def get(self, request, *cmd):
         
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
-        
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
-        lo = Layout()
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
         
         tns, eps, bds, ctxs, ctrs, flts, epgs = ACI.get(
                                                         ('fvTenant', 'rsp-prop-include=naming-only'),
@@ -180,9 +164,10 @@ class Tenant(SubFeature):
                                                         ('fvTenant', 'query-target=subtree&target-subtree-class=fvAEPg&rsp-prop-include=naming-only'),
                                                         )
         
+        tn_table = Table('Domain', 'Name', 'EPG', 'EP', 'Bridge Domain', 'Context', 'Contract', 'Filter')
+        tn_cnt = 0
+        
         for domain in ACI._order:
-            tntable = Table('Name', 'EPG', 'EP', 'Bridge Domain', 'Context', 'Contract', 'Filter')
-            tn_cnt = 0
             
             for tn in tns[domain]:
                 tn_cnt += 1
@@ -220,16 +205,12 @@ class Tenant(SubFeature):
                 ep_data += '</ul>'
                 epg_data += '</ul>'
                 
-                tntable.add(name, epg_data, ep_data, bd_data, ctx_data, ctr_data, flt_data)
-            
-            lo(
-                Row(Panel(domain, Layout(
-                    Row(InfoPanel('Tenants', tn_cnt, panel=Panel.BLUE, icon='fa-users')),
-                    Row(tntable)
-                ), icon='fa-table'))
-            )
+                tn_table.add(domain, name, epg_data, ep_data, bd_data, ctx_data, ctr_data, flt_data)
         
-        return lo
+        return Layout(
+            Row(InfoPanel('Tenants', tn_cnt, panel=Panel.BLUE, icon='fa-users')),
+            Row(Plain(tn_table))
+        )
     
 class EPG(SubFeature):
     
@@ -238,16 +219,9 @@ class EPG(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-object-group')
     
     def get(self, request, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
-        lo = Layout()
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
         
         epgs, ctxs, bds, provs, conss, paths = ACI.get(
                                                        ('fvAEPg', 'order-by=fvAEPg.dn'),
@@ -258,9 +232,10 @@ class EPG(SubFeature):
                                                        'fvRsPathAtt'
                                                        )
         
+        eg_table = Table('Domain', 'EPG', 'Tenant', 'App Profile', 'Bridge Domain', 'Context', 'Provided Contract', 'Consumed Contract', 'Binding Path', 'Encap')
+        eg_cnt = 0
+        
         for domain in ACI._order:
-            egtable = Table('EPG', 'Tenant', 'App Profile', 'Bridge Domain', 'Context', 'Provided Contract', 'Consumed Contract', 'Binding Path', 'Encap') 
-            eg_cnt = 0
             
             for epg in epgs[domain]:
                 eg_cnt += 1
@@ -303,16 +278,12 @@ class EPG(SubFeature):
                 consumed += '</ul>'
                 binding += '</ul>'
                 
-                egtable.add(name, tenant, app, bd_data, ctx_data, provided, consumed, binding, encap)
+                eg_table.add(domain, name, tenant, app, bd_data, ctx_data, provided, consumed, binding, encap)
                 
-            lo(
-                Row(Panel(domain, Layout(
-                    Row(InfoPanel('End-Point Groups', eg_cnt, panel=Panel.BLUE, icon='fa-object-group')),
-                    Row(egtable)
-                ), icon='fa-table'))
-            )
-        
-        return lo
+        return Layout(
+            Row(InfoPanel('End-Point Groups', eg_cnt, panel=Panel.BLUE, icon='fa-object-group')),
+            Row(Plain(eg_table))
+        )
     
 class EP(SubFeature):
     
@@ -321,16 +292,9 @@ class EP(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-plug')
     
     def get(self, request, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
-        lo = Layout()
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
         
         ceps, paths, nics = ACI.get(
                                     ('fvCEp', 'order-by=fvCEp.dn'),
@@ -338,16 +302,15 @@ class EP(SubFeature):
                                     'compNic'
                                     )
         
-        epts = ACI.getEPTrack()
+        ep_table = Table('Domain', 'Mac', 'EPG', 'IP', 'Interface', 'Encap', 'Nic Type', 'Computing')
+        ep_cnt = 0
+        dnic_cnt = 0
+        mgmt_cnt = 0
+        hnic_cnt = 0
+        pnic_cnt = 0
+        vnic_cnt = 0
         
         for domain in ACI._order:
-            eptable = Table('Mac', 'EPG', 'IP', 'Interface', 'Encap', 'Nic Type', 'Computing')
-            ep_cnt = 0
-            dnic_cnt = 0
-            mgmt_cnt = 0
-            hnic_cnt = 0
-            pnic_cnt = 0
-            vnic_cnt = 0
             
             for cep in ceps[domain]:
                 ep_cnt += 1
@@ -395,31 +358,19 @@ class EP(SubFeature):
                 nic_type += '</ul>'
                 comp += '</ul>'
                 
-                eptable.add(mac, epg, ip, intf, encap, nic_type, comp)
-            
-            ept_table = Table('Mac', 'EPG', 'IP', 'Interface', 'Time Start', 'Time Stop')
-            ept_cnt = 0
-            for ept in epts[domain]:
-                ept_table.add(ept.mac, ept.epg, ept.ip, ept.interface, ept.timestart, ept.timestop)
-                ept_cnt += 1
-            
-            lo(
-                Row(Panel(domain, Layout(
-                    Row(
-                        Col(InfoPanel('EP', ep_cnt, panel=Panel.BLUE, icon='fa-plug'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
-                        Col(InfoPanel('Discovered', dnic_cnt, panel=Panel.BLUE, icon='fa-flag-checkered'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
-                        Col(InfoPanel('Management', mgmt_cnt, panel=Panel.BLUE, icon='fa-cog'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
-                        Col(InfoPanel('Physical', pnic_cnt, panel=Panel.BLUE, icon='fa-server'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
-                        Col(InfoPanel('Hypervisor', hnic_cnt, panel=Panel.BLUE, icon='fa-cubes'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
-                        Col(InfoPanel('Virtual', vnic_cnt, panel=Panel.BLUE, icon='fa-cube'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2))
-                    ),
-                    Row(eptable),
-                    Row(InfoPanel('EP Tracking', ept_cnt, panel=Panel.BLUE, icon='fa-history')),
-                    Row(ept_table)
-                ), icon='fa-table'))
-            )
-                
-        return lo
+                ep_table.add(domain, mac, epg, ip, intf, encap, nic_type, comp)
+        
+        return Layout(
+            Row(
+                Col(InfoPanel('EP', ep_cnt, panel=Panel.BLUE, icon='fa-plug'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                Col(InfoPanel('Discovered', dnic_cnt, panel=Panel.BLUE, icon='fa-flag-checkered'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                Col(InfoPanel('Management', mgmt_cnt, panel=Panel.BLUE, icon='fa-cog'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                Col(InfoPanel('Physical', pnic_cnt, panel=Panel.BLUE, icon='fa-server'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                Col(InfoPanel('Hypervisor', hnic_cnt, panel=Panel.BLUE, icon='fa-cubes'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2)),
+                Col(InfoPanel('Virtual', vnic_cnt, panel=Panel.BLUE, icon='fa-cube'), (Col.SMALL, 2), (Col.MIDIUM, 2), (Col.LARGE, 2))
+            ),
+            Row(Plain(ep_table))
+        )
 
 class Contract(SubFeature):
     
@@ -428,15 +379,10 @@ class Contract(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-ticket')
     
     def get(self, request, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
+        
         cps, subjs, conss, provs = ACI.get(
                                            ('vzBrCP', 'order-by=vzBrCP.modTs'),
                                            'vzSubj',
@@ -444,51 +390,54 @@ class Contract(SubFeature):
                                            'vzRtProv'
                                            )
         
-        lo = Layout()
+        ctr_table = Table('Domain', 'Name', 'Tenant', 'Scope', 'Subject', 'Provider', 'Consumer')
+        ctr_cnt = 0
+        prv_cnt = 0
+        con_cnt = 0
         
         for domain in ACI._order:
-            ctr_table = Table('Name', 'Tenant', 'Scope', 'Subject', 'Provider', 'Consumer')
-            ctr_cnt = 0
-            prv_cnt = 0
-            con_cnt = 0
+            
             for cp in cps[domain]:
                 ctr_cnt += 1
-                ctr_rec = L()
                 rns = cp.dn.split('/')
                 rn = rns[2]
                 tenant = rns[1][3:]
-                ctr_rec << cp.name << tenant << cp.scope << '' << '' << ''
+                
+                ctr_name = cp.name
+                ctr_tnt = tenant
+                ctr_scope = cp.scope
+                ctr_subj = ' '
+                ctr_prov = '<ul style="padding-left:10px">'
+                ctr_cons = '<ul style="padding-left:10px">'
+                
                 for subj in subjs[domain]:
                     if rn in subj.dn:
-                        ctr_rec[3] = subj.name
-                ctr_rec[4] += '<ul style="padding-left:10px">'
+                        ctr_subj = subj.name
+
                 for prov in provs[domain]:
                     if rn in prov.dn:
                         trns = prov.tDn.split('/')
-                        ctr_rec[4] += '<li><small>' + tenant + '/' + trns[2][3:] + '/' + trns[3][4:] + '</small></li>'
+                        ctr_prov += '<li><small>' + tenant + '/' + trns[2][3:] + '/' + trns[3][4:] + '</small></li>'
                         prv_cnt += 1
-                ctr_rec[4] += '</ul>'
-                ctr_rec[5] += '<ul style="padding-left:10px">'
+                ctr_prov += '</ul>'
+                
                 for cons in conss[domain]:
                     if rn in cons.dn:
                         trns = cons.tDn.split('/')
-                        ctr_rec[5] += '<li><small>' + tenant + '/' + trns[2][3:] + '/' + trns[3][4:] + '</small></li>'
+                        ctr_cons += '<li><small>' + tenant + '/' + trns[2][3:] + '/' + trns[3][4:] + '</small></li>'
                         con_cnt += 1
-                ctr_rec[5] += '</ul>'
-                ctr_table.add(*ctr_rec)
+                ctr_cons += '</ul>'
                 
-            lo(
-                Row(Panel(domain, Layout(
-                    Row(
-                        Col(InfoPanel('Contracts', ctr_cnt, panel=Panel.BLUE, icon='fa-ticket'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
-                        Col(InfoPanel('Provider', prv_cnt, panel=Panel.BLUE, icon='fa-truck'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
-                        Col(InfoPanel('Consumer', con_cnt, panel=Panel.BLUE, icon='fa-shopping-cart'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4))
-                    ),
-                    Row(ctr_table)
-                ), icon='fa-table'))
-            )
+                ctr_table.add(domain, ctr_name, ctr_tnt, ctr_scope, ctr_subj, ctr_prov, ctr_cons)
         
-        return lo
+        return Layout(
+            Row(
+                Col(InfoPanel('Contracts', ctr_cnt, panel=Panel.BLUE, icon='fa-ticket'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                Col(InfoPanel('Provider', prv_cnt, panel=Panel.BLUE, icon='fa-truck'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4)),
+                Col(InfoPanel('Consumer', con_cnt, panel=Panel.BLUE, icon='fa-shopping-cart'), (Col.SMALL, 4), (Col.MIDIUM, 4), (Col.LARGE, 4))
+            ),
+            Row(Plain(ctr_table))
+        )
 
 class L3_External(SubFeature):
     
@@ -497,16 +446,9 @@ class L3_External(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-cloud')
     
     def get(self, request, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
-        lo = Layout()
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
         
         insps, isubs, ctxs, provs, conss = ACI.get(
                                                    'l3extInstP',
@@ -516,9 +458,10 @@ class L3_External(SubFeature):
                                                    ('fvRsCons', 'query-target-filter=wcard(fvRsCons.dn,"/out-")')
                                                    )
         
+        l3_table = Table('Domain', 'L3 External', 'Tenant', 'Context', 'L3 Outside', 'Subnets', 'Provided Contract', 'Consumed Contract')
+        l3_cnt = 0
+        
         for domain in ACI._order:
-            l3table = Table('L3 External', 'Tenant', 'Context', 'L3 Outside', 'Subnets', 'Provided Contract', 'Consumed Contract')
-            l3_cnt = 0
             
             for insp in insps[domain]:
                 l3_cnt += 1
@@ -552,16 +495,12 @@ class L3_External(SubFeature):
                 provided += '</ul>'
                 consumed += '</ul>'
                 
-                l3table.add(name, tenant, context, l3_out, subnet, provided, consumed)
+                l3_table.add(domain, name, tenant, context, l3_out, subnet, provided, consumed)
                 
-            lo(
-                Row(Panel(domain, Layout(
-                    Row(InfoPanel('L3 External', l3_cnt, panel=Panel.BLUE, icon='fa-cloud')),
-                    Row(l3table)
-                ), icon='fa-table'))
-            )
-        
-        return lo
+        return Layout(
+            Row(InfoPanel('L3 External', l3_cnt, panel=Panel.BLUE, icon='fa-cloud')),
+            Row(Plain(l3_table))
+        )
 
 class Fault(SubFeature):
     
@@ -570,16 +509,9 @@ class Fault(SubFeature):
     def __init__(self): SubFeature.__init__(self, icon='fa-warning')
     
     def get(self, request, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
-        lo = Layout()
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
         
         cris, majs, mins, wars = ACI.get(
                                          ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "critical")&order-by=faultInfo.created|desc'),
@@ -587,49 +519,41 @@ class Fault(SubFeature):
                                          ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "minor")&order-by=faultInfo.created|desc'),
                                          ('faultInfo', 'query-target-filter=eq(faultInfo.severity, "warning")&order-by=faultInfo.created|desc')
                                          )
+        
+        ft_table = Table('Type', 'Domain', 'Subject', 'Time Stamp', 'Object', 'Status', 'Description', 'Code')
+        cri_cnt = 0
+        maj_cnt = 0
+        min_cnt = 0
+        war_cnt = 0
+        
         for domain in ACI._order:
-            fttable = Table('Type', 'Subject', 'Time Stamp', 'Object', 'Status', 'Description', 'Code')
-            cri_cnt = 0
-            maj_cnt = 0
-            min_cnt = 0
-            war_cnt = 0
             
             for cri in cris[domain]:
                 tstamp = cri.created.split('T')
-                fttable.add('Critical', cri.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], cri.dn.split('/fault-')[0], cri.lc, cri.descr, cri.code, type=Table.DANGER)
+                ft_table.add('Critical', domain, cri.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], cri.dn.split('/fault-')[0], cri.lc, cri.descr, cri.code, type=Table.DANGER)
                 cri_cnt += 1
         
             for maj in majs[domain]:
                 tstamp = maj.created.split('T')
-                fttable.add('Major', maj.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], maj.dn.split('/fault-')[0], maj.lc, maj.descr, maj.code, type=Table.DANGER)
+                ft_table.add('Major', domain, maj.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], maj.dn.split('/fault-')[0], maj.lc, maj.descr, maj.code, type=Table.DANGER)
                 maj_cnt += 1
                 
             for min in mins[domain]:
                 tstamp = min.created.split('T')
-                fttable.add('Minor', min.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], min.dn.split('/fault-')[0], min.lc, min.descr, min.code, type=Table.WARNING)
+                ft_table.add('Minor', domain, min.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], min.dn.split('/fault-')[0], min.lc, min.descr, min.code, type=Table.WARNING)
                 min_cnt += 1
                 
             for war in wars[domain]:
                 tstamp = war.created.split('T')
-                fttable.add('Warning', war.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], war.dn.split('/fault-')[0], war.lc, war.descr, war.code, type=Table.WARNING)
+                ft_table.add('Warning', domain, war.subject.upper(), tstamp[0] + ' ' + tstamp[1][:8], war.dn.split('/fault-')[0], war.lc, war.descr, war.code, type=Table.WARNING)
                 war_cnt += 1
-                
-            lo(
-                Row(Panel(domain, Layout(
-                    Row(
-                        Col(InfoPanel('CRITICAL', cri_cnt, panel=Panel.RED, icon='fa-bolt'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
-                        Col(InfoPanel('MAJOR', maj_cnt, panel=Panel.DANGER, icon='fa-exclamation-triangle'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
-                        Col(InfoPanel('MINOR', min_cnt, panel=Panel.YELLOW, icon='fa-exclamation-circle'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
-                        Col(InfoPanel('WARNING', war_cnt, panel=Panel.WARNING, icon='fa-exclamation'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3))
-                    ),
-                    Row(fttable)
-                ), icon='fa-table'))
-            )
         
-        return lo
-    
-    
-    
-
-
-
+        return Layout(
+            Row(
+                Col(InfoPanel('CRITICAL', cri_cnt, panel=Panel.RED, icon='fa-bolt'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
+                Col(InfoPanel('MAJOR', maj_cnt, panel=Panel.DANGER, icon='fa-exclamation-triangle'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
+                Col(InfoPanel('MINOR', min_cnt, panel=Panel.YELLOW, icon='fa-exclamation-circle'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
+                Col(InfoPanel('WARNING', war_cnt, panel=Panel.WARNING, icon='fa-exclamation'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3))
+            ),
+            Row(Plain(ft_table))
+        )

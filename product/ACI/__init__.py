@@ -45,6 +45,7 @@ FEATURE_ORDER = ['Overview',
                  'Show.Fault',
                  'Stats.Interface_Utilization',
                  'Stats.EPG_Utilization',
+                 'Tool.EP_Tracker',
                  'Tool.Console',
                  'Tool.Object_Finder',
                  'Setting']

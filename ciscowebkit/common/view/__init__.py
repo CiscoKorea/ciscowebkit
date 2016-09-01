@@ -43,11 +43,8 @@ from ciscowebkit.common.view.morris import MorrisLine, MorrisArea, MorrisBar, Mo
 
 from ciscowebkit.common.view.collection import JustGage
 
-def rotateCols(cols, lists):
-    ret = []
-    for i in range(0, len(lists)):
-        col = [cols[i]]
-        for j in range(0, len(lists[i])):
-            col.append(lists[i][j])
-        ret.append(col)
-    return ret
+from django.utils.translation import ugettext_lazy as _
+def LC(msg, **kargs):
+    lzmsg = _(msg) % kargs
+    return lzmsg.encode("utf-8") 
+    

@@ -42,12 +42,37 @@ Created on 2016. 8. 12.
 '''
 
 from ciscowebkit.common import *
-from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
 
 class Tool(Feature):
     
     def __init__(self): Feature.__init__(self, 0, 'fa-cutlery')
+    
+class EP_Tracker(SubFeature):
+    
+    '''Tracking EP Modification'''
+    
+    def __init__(self): SubFeature.__init__(self, 10, 'fa-paw')
+    
+    def get(self, request, *cmd):
+        
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
+        
+        epts = ACI.getEPTrack()
+        
+        ept_table = Table('Domain', 'Mac', 'EPG', 'IP', 'Interface', 'Time Start', 'Time Stop')
+        ept_cnt = 0
+        
+        for domain in ACI._order:
+            
+            for ept in epts[domain]:
+                ept_table.add(domain, ept.mac, ept.epg, ept.ip, ept.interface, ept.timestart, ept.timestop)
+                ept_cnt += 1
+            
+        return Layout(
+            Row(InfoPanel('Ep Tracking', ept_cnt, panel=Panel.BLUE, icon='fa-paw')),
+            Row(Plain(ept_table))
+        )
 
 class Console(SubFeature):
     
@@ -94,15 +119,10 @@ class Console(SubFeature):
         self.terminal = Terminal(self.greeting, '')
     
     def get(self, request, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
+        
         lo = Layout(
             Row(self.terminal)
         )
@@ -110,15 +130,10 @@ class Console(SubFeature):
         return lo
         
     def post(self, request, data, *cmd):
-        #user_language = 'en'
-        #translation.activate(user_language)
-        msg1 = _('No Data')
-        msg2 = _('There is no associated APIC. Add APIC connection in Setting menu.')
         
-        MSG1 = msg1.encode("utf-8") 
-        MSG2 = msg2.encode("utf-8")
-
-        if len(ACI._order) == 0: return InfoBlock(MSG1,MSG2)
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
+        
         if data.cmd == '':
             self.terminal.addScreen('''%s$ 
 ''' % self.terminal.location)
@@ -155,9 +170,17 @@ class Object_Finder(SubFeature):
         self.form_panel = Panel('Finder', form, icon='fa-search')
         
     def get(self, request, *cmd):
+        
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
+        
         return Layout(Row(self.form_panel))
     
     def post(self, request, data, *cmd):
+        
+        if len(ACI._order) == 0:
+            return InfoBlock(LC('No Data'), LC('There is no associated APIC. Add APIC connection in Setting menu.'))
+        
         lo = Layout(Row(self.form_panel))
         
         objs = ACI.get((data.object, data.query))
@@ -177,4 +200,3 @@ class Object_Finder(SubFeature):
             lo(Row(Panel(domain, table, icon='fa-table')))
         
         return lo
-    

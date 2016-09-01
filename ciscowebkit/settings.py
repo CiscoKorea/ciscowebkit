@@ -145,7 +145,6 @@ LANGUAGES = [
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
     os.path.join(BASE_DIR, 'ciscowebkit/locale'),
-    
 )
 
 TIME_ZONE = 'Asia/Seoul'
