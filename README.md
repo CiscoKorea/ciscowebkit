@@ -7,7 +7,9 @@
 
 * Windows
 	
-[MariaDB Link](https://downloads.mariadb.org/interstitial/mariadb-10.1.14/winx64-packages/mariadb-10.1.14-winx64.msi/from/http%3A//ftp.utexas.edu/mariadb/)
+    * [MariaDB Link](https://downloads.mariadb.org/interstitial/mariadb-10.1.14/winx64-packages/mariadb-10.1.14-winx64.msi/from/http%3A//ftp.utexas.edu/mariadb/)
+    * [Gettext Link](https://mlocati.github.io/articles/gettext-iconv-windows.html)
+
 
 * Redhat/CentOS
 	
