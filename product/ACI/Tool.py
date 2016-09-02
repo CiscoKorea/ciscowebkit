@@ -66,7 +66,7 @@ class EP_Tracker(SubFeature):
         for domain in ACI._order:
             
             for ept in epts[domain]:
-                ept_table.add(domain, ept.mac, ept.epg, ept.ip, ept.interface, ept.timestart, ept.timestop)
+                ept_table.add(domain, ept.mac, ept.epg, ept.ip, ept.intf, ept.start, ept.stop)
                 ept_cnt += 1
             
         return Layout(
