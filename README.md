@@ -11,11 +11,11 @@
     * [Gettext Link](https://mlocati.github.io/articles/gettext-iconv-windows.html)
 
 
-* Redhat/CentOS
+* Redhat/CentOS (tested on CentOS 7.x):
 	
 	$ yum install mariadb-server
 
-* Ubuntu/Debian: 
+* Ubuntu/Debian (tested on Ubuntu 14.04): 
 
 	$ apt-get install python-pip mariadb-server libmysqlclient-dev python-dev
 
