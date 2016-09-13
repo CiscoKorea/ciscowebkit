@@ -2,9 +2,9 @@ FROM centos:7
 
 MAINTAINER Cisco DevOps <hyjang@cisco.com>
 
-#RUN yum install gcc git mariadb mariadb-devel epel-release -y
-#RUN yum install python-devel python-pip -y
-#RUN pip install django requests mysqlclient tabulate websocket-client
+RUN yum install gcc git mariadb mariadb-devel epel-release -y
+RUN yum install python-devel python-pip -y
+RUN pip install django requests mysqlclient tabulate websocket-client
 
 ADD ./launch.sh /opt/
 
