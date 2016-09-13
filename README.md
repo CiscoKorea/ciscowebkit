@@ -13,7 +13,7 @@
 
 * Redhat/CentOS (tested on CentOS 7.x):
 	
-	$ yum install mariadb-server
+	$ yum install mariadb-server mariadb-devel epel-release gcc python-devel git
 
 * Ubuntu/Debian (tested on Ubuntu 14.04): 
 
@@ -21,11 +21,14 @@
 
 ### 2. Install Python Package 
 
+	$ pip install django mysqlclient tabulate websocket-client requests
+	
 	$ pip install django
 	$ pip install mysqlclient
 	$ pip install pymysql
 	$ pip install tabulate
-	$ pip install websocket-client 
+	$ pip install websocket-client
+	$ pip install requests 
 
 ### 3. Create Database
 
@@ -67,12 +70,22 @@ Edit {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
 	$ python manage.py createsuperuser
 	$ python manage.py runserver 0.0.0.0:80
 
+	* echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'pass')" | python manage.py shell
+
 * makemigrations : create python wrapper for database
 * migrate : create database tables
 * createsuperuser : create superuser with {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
 * runserver : excute django server with <Accept Address>:<Listening Port>
 
 Important! {ADMIN_NAME} & {PASSWORD} is same as Variables in Create Database Section
+
+## Docker
+
+### Install Docker
+
+### Run Mariadb Container
+
+
 
 ## Install via Ansible
 
