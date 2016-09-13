@@ -45,7 +45,6 @@ import re
 import json
 import time
 import copy
-import pymysql
 import requests
 
 from ciscowebkit.common.pygics import *
