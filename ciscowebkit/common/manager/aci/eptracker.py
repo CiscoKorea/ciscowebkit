@@ -85,13 +85,13 @@ class EPTracker(Task):
                                     app       CHAR(100) NOT NULL,
                                     epg       CHAR(100) NOT NULL,
                                     interface CHAR(100) NOT NULL,
-                                    encp      CHAR(16),
+                                    encap     CHAR(16),
                                     timestart TIMESTAMP NOT NULL,
                                     timestop  TIMESTAMP);''' % self._table_name)
             self._db.commit()
         endpoints = acitool.Endpoint.get(self._session)
         for ep in endpoints:
-            #print ep.mac, ep.encap, ep.if_name  
+            print ep.mac, ep.encap, ep.if_name  
             try: epg = ep.get_parent()
             except AttributeError: continue
             app_profile = epg.get_parent()

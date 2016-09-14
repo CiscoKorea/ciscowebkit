@@ -224,6 +224,11 @@ class ACIManager(M):
             if self.connected:
                 return self.eptracker()
             return None
+
+        def delEPTrack(self):
+            if self.connected:
+                self.eptracker.__del__()
+                
         
     class HealthTracker(Task):
         
@@ -352,6 +357,12 @@ class ACIManager(M):
         ret = M()
         for domain in self._order: ret[domain] = self[domain].getEPTrack()
         return ret
+
+    def delEPTrack(self, dom):
+        for domain in self._order:
+            if domain == dom:
+                self[dom].delEPTrack()
+
 
 if __name__ == '__main__':
     

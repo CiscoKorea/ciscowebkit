@@ -373,7 +373,7 @@ class EP(SubFeature):
                 ip = cep.ip
                 intf = None
                 encap = cep.encap
-                stop_t ='None'
+                stop_t ='None'cla
                 if epts_index.has_key( mac): 
                     start_t = epts_index[domain][mac].timestart
                     stop_t = epts_index[domain][mac].timestop
