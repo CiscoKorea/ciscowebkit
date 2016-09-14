@@ -49,6 +49,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 from django.utils.translation import ugettext_lazy as _
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -120,9 +121,9 @@ DATABASES = {
         'NAME': 'ciscowebkit',
         'USER': 'cisco',
         'PASSWORD': 'cisco123',
+        'HOST': 'cwdb',
     }
 }
-# 'HOST': '10.72.86.191',
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -143,9 +144,7 @@ LANGUAGES = [
 ]
 
 LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'locale'),
     os.path.join(BASE_DIR, 'ciscowebkit/locale'),
-    
 )
 
 TIME_ZONE = 'Asia/Seoul'

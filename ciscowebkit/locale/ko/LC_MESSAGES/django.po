@@ -1,0 +1,71 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-08-19 22:26+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=euc-kr\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: .\ciscowebkit\settings.py:141
+msgid "Korean"
+msgstr ""
+
+#: .\ciscowebkit\settings.py:142
+msgid "English"
+msgstr ""
+
+#: .\product\ACI\Overview.py:59 .\product\ACI\Show.py:62
+#: .\product\ACI\Show.py:164 .\product\ACI\Show.py:243
+#: .\product\ACI\Show.py:326 .\product\ACI\Show.py:433
+#: .\product\ACI\Show.py:502 .\product\ACI\Show.py:575
+#: .\product\ACI\Stats.py:59 .\product\ACI\Stats.py:141
+#: .\product\ACI\Tool.py:97 .\product\ACI\Tool.py:113
+msgid "No Data"
+msgstr "데이터 없음"
+
+#: .\product\ACI\Overview.py:60 .\product\ACI\Show.py:63
+#: .\product\ACI\Show.py:165 .\product\ACI\Show.py:244
+#: .\product\ACI\Show.py:327 .\product\ACI\Show.py:434
+#: .\product\ACI\Show.py:503 .\product\ACI\Show.py:576
+#: .\product\ACI\Stats.py:60 .\product\ACI\Stats.py:142
+#: .\product\ACI\Tool.py:98 .\product\ACI\Tool.py:114
+msgid "There is no associated APIC. Add APIC connection in Setting menu."
+msgstr "연결된 APIC이 없습니다. Setting 메뉴에서 APIC 연결을 추가해 주세요"
+
+#: .\product\ACI\Setting.py:88
+msgid "Connection Failed"
+msgstr "연결실패"
+
+#: .\product\ACI\Setting.py:89
+msgid "The APIC connection failed. Check the connection information."
+msgstr "연결이 실패하였습니다. 연결정보를 확인하세요"
+
+#: .\product\ACI\Setting.py:90
+msgid "Connection succeeded"
+msgstr "연결성공"
+
+#: .\product\ACI\Setting.py:91
+#, python-format
+msgid "The APIC %(domain)s is connected %(connected)s."
+msgstr "APIC %(domain)s이 %(connected)s로 연결되었습니다."
+
+#: .\product\ACI\Setting.py:106
+msgid "Connection Deleted"
+msgstr "연결삭제"
+
+#: .\product\ACI\Setting.py:107
+#, python-format
+msgid "The connection %(data)s has been removed."
+msgstr "%(data)s 연결이 삭제되었습니다."

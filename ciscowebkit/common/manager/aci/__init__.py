@@ -45,7 +45,6 @@ import re
 import json
 import time
 import copy
-import pymysql
 import requests
 
 from ciscowebkit.common.pygics import *
@@ -367,6 +366,7 @@ class ACIManager(M):
 if __name__ == '__main__':
     
     am = ACIManager(60, 5)
+    
     am.addDomain('Test1', '10.72.86.21/10.72.86.22', 'admin', '1234Qwer')
     
 #     print inf(am.Test1.getHealthHist())

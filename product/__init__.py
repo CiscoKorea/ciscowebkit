@@ -35,4 +35,4 @@
 #                                                                              #
 ################################################################################
 
-PRODUCT_ORDER = ['ACI', 'Nexus', 'UCS'] # add 'Sample' for test 
+PRODUCT_ORDER = ['ACI', 'Nexus', 'UCS', 'Sample'] # add 'Sample' for test 

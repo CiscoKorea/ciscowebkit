@@ -226,15 +226,18 @@ class Engine(SingleTon):
                                                               'cw_page_js' : self.page_js_tpl})
     
     def __action_method__(self, request, feature, *argv):
-        if request.method == 'GET': data = feature.get(request, *argv)
-        elif request.method == 'POST': data = feature.post(request, Struct.JSON2DATA(request.body), *argv)
-        elif request.method == 'UPDATE': data = feature.update(request, Struct.JSON2DATA(request.body), *argv)
-        elif request.method == 'DELETE': data = feature.delete(request, request.body, *argv)
-        else: data = self.internal_error_tpl
-        data['_id'] = feature._code
-        data['_html'] = data.__render__()
-        data['_md5'] = str(hashlib.md5(data._html).hexdigest())
-        data['_user'] = str(request.user)
+        try:
+            if request.method == 'GET': data = feature.get(request, *argv)
+            elif request.method == 'POST': data = feature.post(request, Struct.JSON2DATA(request.body), *argv)
+            elif request.method == 'UPDATE': data = feature.update(request, Struct.JSON2DATA(request.body), *argv)
+            elif request.method == 'DELETE': data = feature.delete(request, request.body, *argv)
+            else: data = self.internal_error_tpl
+            data['_id'] = feature._code
+            data['_html'] = data.__render__()
+            data['_md5'] = str(hashlib.md5(data._html).hexdigest())
+            data['_user'] = str(request.user)
+        except:
+            data = self.internal_error_tpl
         return data
     
     def __action__(self, request):
