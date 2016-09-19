@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker rm -f cwweb
+docker rm -fv cwweb
