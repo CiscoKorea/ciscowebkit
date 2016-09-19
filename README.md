@@ -81,16 +81,14 @@ Important! {ADMIN_NAME} & {PASSWORD} is same as Variables in Create Database Sec
 
 ## Docker
 
-### Install Docker
+* Install Docker
+* Execute build.sh
 
-### Run Mariadb Container
+	ciscowebkit/docker $ build.sh
 
-	$ docker pull mariadb
-	$ docker run --name cwdb -e MYSQL_ROOT_PASSWORD=cisco123 -d mariadb
-	
-### 
+* Execute start.sh
 
-
+	ciscowebkit/docker $ start.sh
 
 ## Install via Ansible
 
