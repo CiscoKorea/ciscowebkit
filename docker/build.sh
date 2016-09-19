@@ -21,4 +21,4 @@ docker run -it --link cwdb:mysql --rm mariadb sh -c 'exec mysql -e"show database
 echo "Show Container"
 docker ps
 
-docker build --rm --tag ciscowebkit -f Dockerfile_Ubuntu .
+docker build --rm --tag ciscowebkit -f Dockerfile_Centos .
