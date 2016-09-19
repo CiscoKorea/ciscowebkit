@@ -1,0 +1,13 @@
+FROM ubuntu:14.04
+
+MAINTAINER Cisco DevOps <hyjang@cisco.com>
+
+RUN sed -i "s/archive.ubuntu.com/Ubuntu.01link.hk/" /etc/apt/sources.list
+RUN apt-get install python-pip libmysqlclient-dev python-dev -y
+RUN pip install django requests mysqlclient tabulate websocket-client
+
+ADD ./launch.sh /opt/
+
+# Start Services
+EXPOSE 80
+ENTRYPOINT ["/opt/launch.sh"]
