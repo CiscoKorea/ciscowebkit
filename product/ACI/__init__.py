@@ -46,6 +46,23 @@ FEATURE_ORDER = ['Overview',
                  'Stats.Interface_Utilization',
                  'Stats.EPG_Utilization',
                  'Tool.EP_Tracker',
-                 'Tool.Console',
                  'Tool.Object_Finder',
                  'Setting']
+
+#===============================================================================
+# Availables
+#===============================================================================
+# Overview
+# Show.Device
+# Show.Tenant
+# Show.EPG
+# Show.EP
+# Show.Contract
+# Show.L3_External
+# Show.Fault
+# Stats.Interface_Utilization
+# Stats.EPG_Utilization
+# Tool.Console
+# Tool.EP_Tracker
+# Tool.Object_Finder
+# Setting
