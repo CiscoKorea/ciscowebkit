@@ -121,6 +121,7 @@ DATABASES = {
         'NAME': 'ciscowebkit',
         'USER': 'cisco',
         'PASSWORD': 'cisco123',
+        'HOST': 'cwdb',
     }
 }
 
