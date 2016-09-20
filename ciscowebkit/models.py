@@ -24,7 +24,7 @@
 from django.db import models
 from django.utils import timezone
 
-class ACIDomain(models.Model):
+class ACI_Domain(models.Model):
 	name = models.CharField(max_length=64)
 	controllers = models.CharField(max_length=64)
 	user = models.CharField(max_length=32)

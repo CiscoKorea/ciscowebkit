@@ -57,7 +57,7 @@ class Setting(Feature):
         form.addPassword('pwd', 'Password', 'input admin password')
         self.form_panel = Panel('Add Connection', form, icon='fa-asterisk')
         
-        for dom in ACIDomain.objects.all():
+        for dom in ACI_Domain.objects.all():
             ACI.addDomain( dom.name, dom.controllers, dom.user, dom.password)
             
         self.info = None;
@@ -83,7 +83,7 @@ class Setting(Feature):
         apic = ACI.addDomain(data.domain, data.ips, data.user, data.pwd)
         
         if apic: 
-            r = ACIDomain.objects.create(name=data.domain, controllers=data.ips,user=data.user,password=data.pwd)
+            r = ACI_Domain.objects.create(name=data.domain, controllers=data.ips,user=data.user,password=data.pwd)
             self.info = InfoBlock(LC('Connection succeeded'),
                                   LC('The APIC %(domain)s is connected %(connected)s.', domain=apic.domain, connected=apic.connected)) 
         else: 
@@ -96,9 +96,9 @@ class Setting(Feature):
         ACI.delDomain(data)
         
         try:
-            pk = ACIDomain.objects.get(name=data)
+            pk = ACI_Domain.objects.get(name=data)
             pk.delete()
-        except ACIDomain.DoesNotExist:
+        except ACI_Domain.DoesNotExist:
             pass
         
         self.info = InfoBlock(LC('Connection Deleted'),
