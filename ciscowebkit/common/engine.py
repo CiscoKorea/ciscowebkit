@@ -82,10 +82,15 @@ from ciscowebkit.common.manager.aci import ACIManager
 class Engine(SingleTon):
             
     def __init__(self):
+        
+        print '\nEngine -->',
+        
         self.__load_product_managers__()
         self.__load_templates__()
         self.__load_features__()
         self.__build_template__()
+        
+        print '[ OK ]\n'
 
     def __load_product_managers__(self):
         self.acimng = ACIManager(mon_sec=60, mon_cnt=10)
@@ -236,7 +241,8 @@ class Engine(SingleTon):
             data['_html'] = data.__render__()
             data['_md5'] = str(hashlib.md5(data._html).hexdigest())
             data['_user'] = str(request.user)
-        except:
+        except Exception as e:
+            print str(e)
             data = self.internal_error_tpl
         return data
     

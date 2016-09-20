@@ -35,7 +35,6 @@
 #                                                                              #
 ################################################################################
 
-
 '''
 Created on 2016. 7. 27.
 
@@ -44,11 +43,15 @@ Created on 2016. 7. 27.
 
 from ciscowebkit.common import *
 from ciscowebkit.models import *
- 
+
 class Setting(Feature):
     
+    def __init__(self): Feature.__init__(self, icon='fa-wrench')
+ 
+class Domain(SubFeature):
+    
     def __init__(self):
-        Feature.__init__(self, icon='fa-wrench')
+        SubFeature.__init__(self, icon='fa-wrench')
         
         form = Form('Connect')
         form.addText('domain', 'Domain', 'input unique domain name')
@@ -64,44 +67,67 @@ class Setting(Feature):
         
     def get(self, request, *cmd):
         
-        apic_table = Table('Domain', 'Address', 'User', 'Password', 'Connected')
-        for domain in ACI._order: apic_table.add(domain, str(ACI[domain].ips), ACI[domain].user, '*******', ACI[domain].connected, did=domain)
-        
         if self.info:
             lo = Layout(Row(Col(self.info)))
             self.info = None
         else: lo = Layout()
         
-        lo(
+        apic_table = Table('Domain', 'Address', 'User', 'Password', 'Connected')
+        for domain in ACI._order: apic_table.add(domain, str(ACI[domain].ips), ACI[domain].user, '*******', ACI[domain].connected, did=domain)
+
+        return lo(
             Row(self.form_panel),
             Row(Panel('Connection List', apic_table, icon='fa-table'))
         )
-        
-        return lo
     
     def post(self, request, data, *cmd):
-        apic = ACI.addDomain(data.domain, data.ips, data.user, data.pwd)
         
-        if apic: 
-            r = ACI_Domain.objects.create(name=data.domain, controllers=data.ips,user=data.user,password=data.pwd)
-            self.info = InfoBlock(LC('Connection succeeded'),
-                                  LC('The APIC %(domain)s is connected %(connected)s.', domain=apic.domain, connected=apic.connected)) 
-        else: 
-            self.info = InfoBlock(LC('Connection Failed'),
-                                  LC('The APIC connection failed. Check the connection information.')) 
+        if request.user.is_superuser:
+            apic = ACI.addDomain(data.domain, data.ips, data.user, data.pwd)
+            if apic: 
+                ACI_Domain.objects.create(name=data.domain, controllers=data.ips,user=data.user,password=data.pwd)
+                self.info = InfoBlock(LC('Connection succeeded'),
+                                      LC('The APIC %(domain)s is connected %(connected)s.', domain=apic.domain, connected=apic.connected)) 
+            else: 
+                self.info = InfoBlock(LC('Connection Failed'),
+                                      LC('The APIC connection failed. Check the connection information.'))
+        else:
+            self.info = InfoBlock(LC('Access Denied'), LC('user %(user) has not access authentication', user=str(request.user)))
+        
         return self.get(request, *cmd)
     
     def delete(self, request, data, *cmd):
         
-        ACI.delDomain(data)
+        if request.user.is_superuser:
+            ACI.delDomain(data)
         
-        try:
-            pk = ACI_Domain.objects.get(name=data)
-            pk.delete()
-        except ACI_Domain.DoesNotExist:
-            pass
+            try:
+                pk = ACI_Domain.objects.get(name=data)
+                pk.delete()
+            except ACI_Domain.DoesNotExist:
+                pass
         
-        self.info = InfoBlock(LC('Connection Deleted'),
-                              LC('The connection %(data)s has been removed.', data=data))
+            self.info = InfoBlock(LC('Connection Deleted'),
+                                  LC('The connection %(data)s has been removed.', data=data))
+        
+        else:
+            self.info = InfoBlock(LC('Access Denied'), LC('user %(user) has not access authentication', user=str(request.user)))
         
         return self.get(request, *cmd)
+
+# class User_Domain(SubFeature):
+#     
+#     def __init__(self):
+#         SubFeature.__init__(self, icon='fa-wrench')
+#         
+#         form = Form('Connect')
+#         form.addText('domain', 'Domain', 'input unique domain name')
+#         form.addText('ips', 'APIC Address', 'x.x.x.x/y.y.y.y/z.z.z.z')
+#         form.addText('user', 'User', 'input admin name')
+#         form.addPassword('pwd', 'Password', 'input admin password')
+#         self.form_panel = Panel('Add Connection', form, icon='fa-asterisk')
+#         
+#         for dom in ACI_Domain.objects.all():
+#             ACI.addDomain( dom.name, dom.controllers, dom.user, dom.password)
+#             
+#         self.info = None;

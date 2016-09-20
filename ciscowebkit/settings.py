@@ -85,8 +85,8 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'ciscowebkit.views.DisableCSRF',
     'django.middleware.locale.LocaleMiddleware',
+    'ciscowebkit.views.DisableCSRF',
 ]
 
 ROOT_URLCONF = 'ciscowebkit.urls'

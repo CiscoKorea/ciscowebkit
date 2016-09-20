@@ -47,7 +47,7 @@ FEATURE_ORDER = ['Overview',
                  'Stats.EPG_Utilization',
                  'Tool.EP_Tracker',
                  'Tool.Object_Finder',
-                 'Setting']
+                 'Setting.Domain']
 
 #===============================================================================
 # Availables
@@ -65,4 +65,4 @@ FEATURE_ORDER = ['Overview',
 # Tool.Console
 # Tool.EP_Tracker
 # Tool.Object_Finder
-# Setting
+# Setting.Domain

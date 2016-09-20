@@ -42,7 +42,6 @@ Created on 2016. 7. 5.
 '''
 
 from ciscowebkit.common import *
-from django.utils.translation import ugettext_lazy as _
 
 class Show(Feature):
     
