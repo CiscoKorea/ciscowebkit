@@ -124,7 +124,7 @@ class User_Access(SubFeature):
         else: lo = Layout()
         
         ud_table = Table('User', 'Domain')
-        ud_list = ACI_UserDomain.objects.all()
+        ud_list = ACI.getAccess()
         for ud in ud_list: ud_table.add(ud.user, ud.domain, did=ud.id)
 
         return lo(
@@ -150,12 +150,10 @@ class User_Access(SubFeature):
         
         if request.user.is_superuser:
             
-            try: ud_obj = ACI_UserDomain.objects.get(id=data)
-            except ACI_UserDomain.DoesNotExist:
-                self.info = InfoBlock(LC('Removing Failed'), LC('User Access already Deleted.'))
-            else:
-                ud_obj.delete()
+            if ACI.delAccess(data):
                 self.info = InfoBlock(LC('Removing succeeded'), LC(''))
+            else:
+                self.info = InfoBlock(LC('Removing Failed'), LC('User Access already Deleted.'))
         
         else:
             self.info = InfoBlock(LC('Access Denied'), LC('user "%(user)s" has not access authentication', user=str(request.user)))

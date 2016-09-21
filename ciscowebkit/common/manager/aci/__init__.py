@@ -312,19 +312,22 @@ class ACIManager(M):
         except: pass
         return True
     
+    def getAccess(self):
+        return ACI_UserDomain.objects.all()
+    
     def addAccess(self, user, domain):
         for ud in ACI_UserDomain.objects.filter(user=user, domain=domain):
             return False
         ACI_UserDomain.objects.create(user=user, domain=domain)
         return True
     
-    def delAccess(self, id):
+    def delAccess(self, uc_id):
         
-        try: ud_obj = ACI_UserDomain.objects.get(id=data)
+        try: ud_obj = ACI_UserDomain.objects.get(id=uc_id)
         except ACI_UserDomain.DoesNotExist:
-            self.info = InfoBlock(LC('Removing Failed'), LC('User Access already Deleted.'))
-        else:
-            ud_obj.delete()
+            return False
+        ud_obj.delete()
+        return True
     
     def get(self, *targets):
         ret = L()
