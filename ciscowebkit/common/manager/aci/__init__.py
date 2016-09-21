@@ -47,6 +47,8 @@ import time
 import copy
 import requests
 
+from ciscowebkit.models import *
+
 from ciscowebkit.common.pygics import *
 from ciscowebkit.common.manager.aci import acitoolkit as acitool
 from ciscowebkit.common.manager.aci.eptracker import EPTracker
@@ -282,6 +284,9 @@ class ACIManager(M):
         self.mon_cnt = mon_cnt
         self.healthmon = None
         
+        for dom in ACI_Domain.objects.all():
+            self.addDomain(dom.name, dom.controllers, dom.user, dom.password)
+        
     def addDomain(self, domain, ips, user, pwd):
         if domain in self._order: return None
         try:
@@ -289,6 +294,7 @@ class ACIManager(M):
             self[domain] = apic
             self._order << domain
             if self.healthmon == None: self.healthmon = ACIManager.HealthTracker(self, self.mon_sec, self.mon_cnt)
+            ACI_Domain.objects.create(name=domain, controllers=ips, user=user, password=pwd)
             return apic
         except Exception as e:
             print str(e)
@@ -302,7 +308,23 @@ class ACIManager(M):
         if len(self._order) == 0:
             self.healthmon.__del__()
             self.healthmon = None
+        try: ACI_Domain.objects.get(name=domain).delete()
+        except: pass
         return True
+    
+    def addAccess(self, user, domain):
+        for ud in ACI_UserDomain.objects.filter(user=user, domain=domain):
+            return False
+        ACI_UserDomain.objects.create(user=user, domain=domain)
+        return True
+    
+    def delAccess(self, id):
+        
+        try: ud_obj = ACI_UserDomain.objects.get(id=data)
+        except ACI_UserDomain.DoesNotExist:
+            self.info = InfoBlock(LC('Removing Failed'), LC('User Access already Deleted.'))
+        else:
+            ud_obj.delete()
     
     def get(self, *targets):
         ret = L()

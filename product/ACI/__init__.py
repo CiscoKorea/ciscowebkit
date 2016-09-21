@@ -47,7 +47,8 @@ FEATURE_ORDER = ['Overview',
                  'Stats.EPG_Utilization',
                  'Tool.EP_Tracker',
                  'Tool.Object_Finder',
-                 'Setting.Domain']
+                 'Setting.Domain',
+                 'Setting.User_Access']
 
 #===============================================================================
 # Availables
