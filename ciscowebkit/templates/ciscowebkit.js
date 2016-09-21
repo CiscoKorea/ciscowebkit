@@ -297,6 +297,10 @@ function show_ux_text(data) {
 	document.getElementById("cw-view-" + data["_id"]).innerHTML = data["text"];
 }
 
+function show_ux_html(data) {
+	document.getElementById("cw-view-" + data["_id"]).innerHTML = data["html"];
+}
+
 function show_ux_vlist(data) {
 	var items = data["item"];
 	var html = '';

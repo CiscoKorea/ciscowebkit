@@ -177,6 +177,14 @@ class Plain(__View__):
 </div>
 ''' % (self._id, self._link, self.view.__render__())
 
+class Html(__View__):
+    
+    def __init__(self, html):
+        __View__.__init__(self, 'html', html=html)
+    
+    def __render__(self):
+        return '<div id="cw-view-%s"></div>\n' % self._id
+
 class Text(__View__):
     
     def __init__(self, text, link=None, height=None):

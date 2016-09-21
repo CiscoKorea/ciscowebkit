@@ -554,5 +554,8 @@ class Fault(SubFeature):
                 Col(InfoPanel('MINOR', min_cnt, panel=Panel.YELLOW, icon='fa-exclamation-circle'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3)),
                 Col(InfoPanel('WARNING', war_cnt, panel=Panel.WARNING, icon='fa-exclamation'), (Col.SMALL, 3), (Col.MIDIUM, 3), (Col.LARGE, 3))
             ),
-            Row(Plain(ft_table))
+            Row(Plain(Layout(
+                Row(Html('<div style="width:100%;text-align:right;"><h4><a href="http://www.cisco.com/c/en/us/td/docs/switches/datacenter/aci/apic/sw/1-x/syslog/guide/aci_syslog/ACI_SysMsg.html" target="_blank">Cisco ACI System Messages Reference Guide</a></h4></div>')),
+                Row(ft_table)
+            )))
         )

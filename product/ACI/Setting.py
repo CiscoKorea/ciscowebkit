@@ -69,7 +69,7 @@ class Domain(SubFeature):
         else: lo = Layout()
         
         apic_table = Table('Domain', 'Address', 'User', 'Password', 'Connected')
-        for domain in ACI._order: apic_table.add(domain, str(ACI[domain].ips), ACI[domain].user, '*******', ACI[domain].connected, did=domain)
+        for domain in ACI._order: apic_table.add(domain, '/'.join(ACI[domain].ips), ACI[domain].user, '*******', ACI[domain].connected, did=domain)
 
         return lo(
             Row(self.form_panel),

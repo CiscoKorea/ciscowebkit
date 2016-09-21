@@ -285,7 +285,11 @@ class ACIManager(M):
         self.healthmon = None
         
         for dom in ACI_Domain.objects.all():
-            self.addDomain(dom.name, dom.controllers, dom.user, dom.password)
+            try: apic = ACIManager.APIC(self, dom.name, dom.controllers, dom.user, dom.password)
+            except: continue
+            self[dom.name] = apic
+            self._order << dom.name
+            if self.healthmon == None: self.healthmon = ACIManager.HealthTracker(self, self.mon_sec, self.mon_cnt)
         
     def addDomain(self, domain, ips, user, pwd):
         if domain in self._order: return None
@@ -308,7 +312,9 @@ class ACIManager(M):
         if len(self._order) == 0:
             self.healthmon.__del__()
             self.healthmon = None
-        try: ACI_Domain.objects.get(name=domain).delete()
+        try:
+            domrec = ACI_Domain.objects.get(name=domain)
+            domrec.delete()
         except: pass
         return True
     
