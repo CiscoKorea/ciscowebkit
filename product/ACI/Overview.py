@@ -91,10 +91,15 @@ class Overview(Feature):
         node_rows_now = L()
         node_data_now = L()
         last_idx = ACI.mon_cnt - 1
-        for domain in ACI._order:
-            for i in range(0, ACI.mon_cnt):
-                total_row = L(health._tstamp[i])
-                node_row = L(health._tstamp[i])
+        
+        for i in range(0, ACI.mon_cnt):
+            
+            total_row = L(health._tstamp[i])
+            node_row = L(health._tstamp[i])
+            
+            for domain in ACI._order:
+                if domain not in health: continue
+                
                 for dn in health[domain].topology:
                     if re.search('^pod-\d+$', dn):
                         if i == 0: total_lines << (domain + '/' + dn)
@@ -103,10 +108,12 @@ class Overview(Feature):
                         if i == 0: node_lines << (domain + '/' + dn)
                         elif i == last_idx: node_rows_now << health[domain].topology[dn][i]
                         node_row << health[domain].topology[dn][i]
+                
                 if i == 0: total_lines << (domain + '/total')
                 total_row << health[domain].topology.total[i]
-                total_rows << total_row
-                node_rows << node_row
+            total_rows << total_row
+            node_rows << node_row
+        
         total_health = ChartistArea(*total_lines, height=300).grid(0, 100).ani()
         for row in total_rows: total_health.add(*row)
         node_health = ChartistLine(*node_lines, height=150).grid(0, 100).ani()
@@ -125,15 +132,22 @@ class Overview(Feature):
         rows = L()
         rows_now = L()
         data_now = L()
-        for domain in ACI._order:
-            for i in range(0, ACI.mon_cnt):
-                row = L(health._tstamp[i])
+        
+        for i in range(0, ACI.mon_cnt):
+            
+            row = L(health._tstamp[i])
+            
+            for domain in ACI._order:
+                if domain not in health: continue
+                
                 for dn in health[domain].tenant:
                     if 'epg-' in dn:
                         if i == 0: lines << (domain + '/' + dn)
                         elif i == last_idx: rows_now << health[domain].tenant[dn][i]
                         row << health[domain].tenant[dn][i]
-                rows << row
+                        
+            rows << row
+        
         epg_health = ChartistLine(*lines, height=200).grid(0, 100).ani()
         for row in rows: epg_health.add(*row)
         epg_health_now = ChartistBar(height=200).grid(0, 100)
