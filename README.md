@@ -14,21 +14,28 @@
 * Redhat/CentOS (tested on CentOS 7.x):
 	
 	$ yum install mariadb-server mariadb-devel epel-release gcc python-devel git
+	$ yum install -y python-pip
 
 * Ubuntu/Debian (tested on Ubuntu 14.04): 
 
 	$ apt-get install python-pip mariadb-server libmysqlclient-dev python-dev
 
 ### 2. Install Python Package 
-
-	$ pip install django mysqlclient tabulate websocket-client requests
-	
+* Ubuntu/Debian (tested on Ubuntu 14.04): 	
 	$ pip install django
 	$ pip install mysqlclient
 	$ pip install pymysql
 	$ pip install tabulate
 	$ pip install websocket-client
 	$ pip install requests 
+	
+* Redhat/CentOS (tested on CentOS 7.x):
+	$ pip install django mysqlclient tabulate websocket-client requests
+	
+	$ pip install pymysql
+	$ systemctl enable mariadb
+	$ systemctl start mariadb
+	$ /usr/bin/mysql_secure_installation
 
 ### 3. Create Database
 
@@ -43,11 +50,15 @@ Connect mariadb server with client
 Create database & auth
 
 	mysql > CREATE DATABASE ciscowebkit;
-	mysql > GRANT ALL PRIVILEGES ON ciscowebkit.* TO '{ADMIN_NAME}'@'localhost' IDENTIFIED BY '{PASSWORD}';"
+	mysql > GRANT ALL PRIVILEGES ON ciscowebkit.* TO '{ADMIN_NAME}'@'localhost' IDENTIFIED BY '{PASSWORD}';
 	
 {ADMIN_NAME} and {PASSWORD} is used for initial login ID & Password
 
 ### 4. Initial Setting
+Git Clone 
+        $ apt-get install git
+        $ git init
+        $ git clone https://github.com/CiscoKorea/ciscowebkit.git
 
 Using Environments
 * {CISCOWEBKIT_ROOT} : Webkit Package Root
@@ -79,6 +90,13 @@ Edit {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
 
 Important! {ADMIN_NAME} & {PASSWORD} is same as Variables in Create Database Section
 
+### 5. Test 
+       !!Terminal with the following command should be open $ python manage.py runserver 0.0.0.0:80 !!
+       Open Internet Browser. 
+       Type "localhost" as address.
+       Log in using the superuser account from Step 4. 
+________________________________________________________________________________________
+
 ## Docker
 
 * Install Docker
@@ -89,6 +107,8 @@ Important! {ADMIN_NAME} & {PASSWORD} is same as Variables in Create Database Sec
 * Execute start.sh
 
 	ciscowebkit/docker $ start.sh
+
+________________________________________________________________________________________
 
 ## Install via Ansible
 
