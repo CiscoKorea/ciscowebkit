@@ -22,13 +22,6 @@
 ### 2. Install Python Package 
 
 	$ pip install django mysqlclient tabulate websocket-client requests
-	
-	$ pip install django
-	$ pip install mysqlclient
-	$ pip install pymysql
-	$ pip install tabulate
-	$ pip install websocket-client
-	$ pip install requests 
 
 ### 3. Create Database
 
@@ -70,8 +63,6 @@ Edit {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
 	$ python manage.py createsuperuser
 	$ python manage.py runserver 0.0.0.0:80
 
-	* echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'pass')" | python manage.py shell
-
 * makemigrations : create python wrapper for database
 * migrate : create database tables
 * createsuperuser : create superuser with {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
@@ -79,16 +70,16 @@ Edit {CISCOWEBKIT_ROOT}/ciscowebkit/settings.py
 
 Important! {ADMIN_NAME} & {PASSWORD} is same as Variables in Create Database Section
 
-## Docker
+## Install on Docker Image
 
-* Install Docker
+* Install Docker Package
 * Execute build.sh
 
-	ciscowebkit/docker $ build.sh
+	cd ciscowebkit/docker $ build.sh
 
 * Execute start.sh
 
-	ciscowebkit/docker $ start.sh
+	cd ciscowebkit/docker $ start.sh
 
 ## Install via Ansible
 
