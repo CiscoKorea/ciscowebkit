@@ -69,15 +69,20 @@ class EPTracker(Task):
             except AttributeError: continue
             app_profile = epg.get_parent()
             tenant = app_profile.get_parent()
-            if ep.if_dn:
-                for dn in ep.if_dn:
-                    rns = dn.split('/')
-                    intf_name = rns[1][4:] + '/' + (rns[2][10:] if 'protpaths' in rns[2] else rns[2][6:]) + '/' + dn.split('[')[1][:-1]
-            else:
-                dvs = ep.if_name.split(' ')
-                rns = dvs[1].split('/')
-                intf_name = rns[0] + '/' + rns[1] + '/' + dvs[0] + '/' + rns[2] + '/' + rns[3]
             
+            try:
+                if ep.if_dn:
+                    for dn in ep.if_dn:
+                        rns = dn.split('/')
+                        intf_name = rns[1][4:] + '/' + (rns[2][10:] if 'protpaths' in rns[2] else rns[2][6:]) + '/' + dn.split('[')[1][:-1]
+                else:
+                    dvs = ep.if_name.split(' ')
+                    rns = dvs[1].split('/')
+                    intf_name = rns[0] + '/' + rns[1] + '/' + dvs[0] + '/' + rns[2] + '/' + rns[3]
+            except: 
+                print( "ep.if_dn =(%s)  ep.if_name = (%s)" %(ep.if_dn, ep.if_name))
+                continue
+
             try: ACI_EPTracker.objects.get(mac=ep.mac, domain=self.domain, stop='0000-00-00 00:00:00')
             except ACI_EPTracker.DoesNotExist:
                 ACI_EPTracker.objects.create(mac=ep.mac,
