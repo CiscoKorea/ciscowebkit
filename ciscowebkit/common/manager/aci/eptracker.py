@@ -77,10 +77,15 @@ class EPTracker(Task):
                         intf_name = rns[1][4:] + '/' + (rns[2][10:] if 'protpaths' in rns[2] else rns[2][6:]) + '/' + dn.split('[')[1][:-1]
                 else:
                     dvs = ep.if_name.split(' ')
-                    rns = dvs[1].split('/')
-                    intf_name = rns[0] + '/' + rns[1] + '/' + dvs[0] + '/' + rns[2] + '/' + rns[3]
+                    if len(dvs) == 2:
+                        rns = dvs[1].split('/')
+                        intf_name = rns[0] + '/' + rns[1] + '/' + dvs[0] + '/' + rns[2] + '/' + rns[3]
+                    else : #VMM + FI cases
+                        rns = ep.if_name.split('/')
+                        intf_name = rns[1][4:] + '/' + "vmm/"+ rns[2].split('[')[1][:-1]
+                        #print("ep.if_name = %s" %(intf_name))
             except: 
-                print( "ep.if_dn =(%s)  ep.if_name = (%s)" %(ep.if_dn, ep.if_name))
+                print( "ep =(%s) ep.if_dn =(%s)  ep.if_name = (%s)" %(ep, ep.if_dn, ep.if_name))
                 continue
 
             try: ACI_EPTracker.objects.get(mac=ep.mac, domain=self.domain, stop='0000-00-00 00:00:00')
@@ -140,8 +145,12 @@ class EPTracker(Task):
                                 intf_name = rns[1][4:] + '/' + (rns[2][10:] if 'protpaths' in rns[2] else rns[2][6:]) + '/' + dn.split('[')[1][:-1]
                         else:
                             dvs = ep.if_name.split(' ')
-                            rns = dvs[1].split('/')
-                            intf_name = rns[0] + '/' + rns[1] + '/' + dvs[0] + '/' + rns[2] + '/' + rns[3]
+                            if len(dvs) == 2:
+                                rns = dvs[1].split('/')
+                                intf_name = rns[0] + '/' + rns[1] + '/' + dvs[0] + '/' + rns[2] + '/' + rns[3]
+                            else: #VMM + FI cases
+                                rns = ep.if_name.split('/')
+                                intf_name = rns[1][4:] + '/' + "vmm/"+ rns[2].split('[')[1][:-1]
                         
                         try: ACI_EPTracker.objects.get(mac=ep.mac, domain=self.domain, stop='0000-00-00 00:00:00')
                         except ACI_EPTracker.DoesNotExist:
