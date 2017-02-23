@@ -140,8 +140,8 @@ class EPG_Utilization(SubFeature):
         lo = Layout()
         
         bytes, pkts = ACI.get(
-                              ('l2IngrBytesAgHist15min', 'query-target-filter=wcard(l2IngrBytesAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/HDl2IngrBytesAg15min-0")'),
-                              ('l2IngrPktsAgHist15min', 'query-target-filter=wcard(l2IngrPktsAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/HDl2IngrPktsAg15min-0")')
+                              ('l2IngrBytesAg15min', 'query-target-filter=wcard(l2IngrBytesAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/CDl2IngrBytesAg15min")'),
+                              ('l2IngrPktsAg15min', 'query-target-filter=wcard(l2IngrPktsAg15min.dn,"uni/tn-.*/ap-.*/epg-.*/CDl2IngrPktsAg15min")')
                               )
         
         for domain in ACI._order:

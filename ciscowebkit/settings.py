@@ -63,7 +63,7 @@ SECRET_KEY = ')v77n*)zax+&mfw#bqsk2-z7r(vfavbh+#kli9d!ah-j*4(ug$'
 DEBUG = True
 
 # Connection Allowed
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
